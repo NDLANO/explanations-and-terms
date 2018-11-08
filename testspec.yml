@@ -1,0 +1,9 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo Start testing
+      - cd ConceptsMicroservice.UnitTests
+      - dotnet restore
+      - dotnet test
