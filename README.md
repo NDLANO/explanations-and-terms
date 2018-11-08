@@ -1,4 +1,4 @@
-# NDLA Læringsstier Front-End
+# NDLA Forklaringstjenste API
 
 
 ## Requirements
