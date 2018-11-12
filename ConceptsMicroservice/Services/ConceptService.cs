@@ -142,7 +142,7 @@ namespace ConceptsMicroservice.Services
             return viewModel;
         }
 
-        public Response ArchiveConcept(int id)
+        public Response SetStatusForConcept(int id, string statusName)
         {
             var updatedConcept = _conceptRepository.GetById(id);
             if (updatedConcept == null)
@@ -150,15 +150,15 @@ namespace ConceptsMicroservice.Services
 
             
             var viewModel = new Response();
-            var inactiveStatus = _statusRepository.GetByName(Status.STATUS_ARCHVIED);
-            if (inactiveStatus == null)
+            var status = _statusRepository.GetByName(statusName);
+            if (status == null)
             {
-                viewModel.Errors.TryAddModelError("Status", $"Did not found \"{Status.STATUS_ARCHVIED}\" status");
+                viewModel.Errors.TryAddModelError("Status", $"Did not found \"{statusName}\" status");
                 return viewModel;
             }
 
-            updatedConcept.Status = inactiveStatus;
-            updatedConcept.StatusId = inactiveStatus.Id;
+            updatedConcept.Status = status;
+            updatedConcept.StatusId = status.Id;
 
             try
             {
@@ -166,7 +166,7 @@ namespace ConceptsMicroservice.Services
             }
             catch (Exception)
             {
-                viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not delete concept.");
+                viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not update concept status.");
             }
 
             return viewModel;

@@ -174,7 +174,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void UpdateConcept_Returns_400_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.UpdateConcept(A<Concept>._)).Returns(null);
+            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(null);
             var result = _controller.UpdateConcept(_concept);
             var badRequest = result.Result as BadRequestObjectResult;
 
@@ -184,7 +184,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void UpdateConcept_Returns_400_If_Service_Returns_Errors()
         {
-            A.CallTo(() => _service.UpdateConcept(A<Concept>._)).Returns(_errorResponse);
+            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(_errorResponse);
             var result = _controller.UpdateConcept(_concept);
             var badRequest = result.Result as BadRequestObjectResult;
 
@@ -195,7 +195,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void UpdateConcept_Returns_400_If_ViewModel_Contains_Errors()
         {
-            A.CallTo(() => _service.UpdateConcept(A<Concept>._))
+            A.CallTo(() => _service.CreateConcept(A<Concept>._))
                 .Returns(_errorResponse);
 
             var result = _controller.UpdateConcept(_concept);
@@ -218,7 +218,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void UpdateConcept_Returns_A_Response_With_A_Concept_On_Successful_Update()
         {
-            A.CallTo(() => _service.UpdateConcept(A<Concept>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(_singleResponse);
 
             var result = _controller.UpdateConcept(_concept);
             var ok = result.Result as OkObjectResult;
@@ -292,7 +292,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void DeleteConcept_Returns_204_When_Deletion_Was_Successful()
         {
-            A.CallTo(() => _service.ArchiveConcept(A<int>._)).Returns(new Response());
+            A.CallTo(() => _service.SetStatusForConcept(A<int>._, Status.STATUS_ARCHIVED)).Returns(new Response());
 
             var result = _controller.DeleteConcept(0);
             var noContentResult = result.Result as NoContentResult;
@@ -302,7 +302,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void DeleteConcept_Returns_400_When_Viewmodel_Has_Errors()
         {
-            A.CallTo(() => _service.ArchiveConcept(A<int>._)).Returns(_errorResponse);
+            A.CallTo(() => _service.SetStatusForConcept(A<int>._, Status.STATUS_ARCHIVED)).Returns(_errorResponse);
 
             var result = _controller.DeleteConcept(0);
             var badResult = result.Result as BadRequestObjectResult;
@@ -312,7 +312,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void DeleteConcept_Returns_404_When_Concept_Does_Not_Exist()
         {
-            A.CallTo(() => _service.ArchiveConcept(A<int>._)).Returns(null);
+            A.CallTo(() => _service.SetStatusForConcept(A<int>._, Status.STATUS_ARCHIVED)).Returns(null);
 
             var result = _controller.DeleteConcept(0);
             var notFoundResult = result.Result as NotFoundResult;

@@ -16,8 +16,8 @@ namespace ConceptsMicroservice.Repositories
         List<Concept> SearchForConcepts(ConceptSearchQuery query);
         Concept GetById(int id);
         List<Concept> GetAll();
-        Concept Update(Concept updated);
-        Concept Insert(Concept inserted);
+        Concept Update(Concept updated, bool isMajorVersion = false);
+        Concept Insert(Concept inserted, bool isMajorVersion = false);
         List<string> GetAllTitles();
     }
 }

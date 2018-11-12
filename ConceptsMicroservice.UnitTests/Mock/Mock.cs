@@ -77,6 +77,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Title = $"Title_{Guid.NewGuid()}",
                 Author = $"Author_{Guid.NewGuid()}",
                 Content = $"Content_{Guid.NewGuid()}",
+                VersionNumber = "0.1",
                 Meta = meta,
                 MetaIds = meta.Select(x => x.Id).ToList(),
                 Status = status

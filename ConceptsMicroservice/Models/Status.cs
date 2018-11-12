@@ -14,7 +14,8 @@ namespace ConceptsMicroservice.Models
     [Table("status", Schema = "public")]
     public class Status
     {
-        public static readonly string STATUS_ARCHVIED = "Archived";
+        public static readonly string STATUS_ARCHIVED = "Archived";
+        public static readonly string STATUS_PUBLISHED = "Published";
 
         [Key]
         [Column("id")]

@@ -36,6 +36,16 @@ namespace ConceptsMicroservice.Models
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("status_id")] public int StatusId { get; set; }
         public virtual Status Status {get;set;}
+        [Column("approver")]
+        public string Approver { get; set; }
+        [Column("version_number")]
+        public string VersionNumber { get; set; }
+        [Column("approved_date")]
+        public DateTime ApprovedDate { get; set; }
+        [Column("group_id")]
+        public Guid GroupId { get; set; }
+        [Column("comment")]
+        public string Comment { get; set; }
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {

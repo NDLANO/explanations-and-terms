@@ -74,7 +74,7 @@ namespace ConceptsMicroservice.Controllers
             if (concept == null || !ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
-            var viewModel = _service.UpdateConcept(concept);
+            var viewModel = _service.CreateConcept(concept);
             if (viewModel == null)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
@@ -103,7 +103,7 @@ namespace ConceptsMicroservice.Controllers
         [HttpDelete("{id}")]
         public ActionResult<Response> DeleteConcept(int id)
         {
-            var viewModel = _service.ArchiveConcept(id);
+            var viewModel = _service.SetStatusForConcept(id, Status.STATUS_ARCHIVED);
             if (viewModel == null)
                 return NotFound();
 
@@ -114,5 +114,15 @@ namespace ConceptsMicroservice.Controllers
         }
 
         #endregion
+
+        [HttpPut("{id}")]
+        public ActionResult<Response> PublishConcept(int id)
+        {
+            var viewModel = _service.SetStatusForConcept(id, Status.STATUS_PUBLISHED);
+            if (viewModel == null)
+                return NotFound();
+
+            return Ok();
+        }
     }
 }

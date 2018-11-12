@@ -14,6 +14,7 @@ using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -92,11 +93,9 @@ namespace ConceptsMicroservice.Repositories
 
         public List<Concept> SearchForConcepts(ConceptSearchQuery searchParam)
         {
-            List<Concept> result = null;
             if (searchParam == null || !searchParam.HasQuery())
             {
-                result = GetAll();
-                return result;
+                return GetAll();
             }
 
             var queryHasTitle = !string.IsNullOrWhiteSpace(searchParam.Title);
@@ -105,28 +104,21 @@ namespace ConceptsMicroservice.Repositories
             
             if (queryHasTitle && !queryHasMetaIds)
             {
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", searchParam.GetSqlParameters());
-                return result;
+                return GetConceptsByStoredProcedure("get_concepts_by_title", searchParam.GetSqlParameters());
             }
 
             if (!queryHasTitle && queryHasMetaIds)
             {
                 return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", searchParam.GetSqlParameters());
             }
-            result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", searchParam.GetSqlParameters());
+
+            var result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", searchParam.GetSqlParameters());
             if (result == null || result.Count == 0)
             {
-                var sqlParameters = new List<NpgsqlParameter>();
-                sqlParameters.Add(new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar)
-                {
-                    Value = searchParam.Title
-                });
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
-
+                result = GetConceptsByStoredProcedure("get_concepts_by_title", searchParam.GetSqlParameters());
             }
 
             return result;
-            
         }
 
         public Concept GetById(int id)
@@ -142,18 +134,47 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts");
         }
 
-        public Concept Update(Concept updated)
+        public Concept Update(Concept updated, bool isMajorVersion=false)
         {
-           var concept = _context.Concepts.Update(updated);
+            var nextVersionNumber = GetHighestVersionsNumber("get_next_version_number", updated.GroupId, isMajorVersion);
+            updated.VersionNumber = nextVersionNumber;
+            var concept = _context.Concepts.Update(updated);
             concept.Entity.Updated = DateTime.Now;
 
             _context.SaveChanges();
             return concept.Entity;
         }
 
-        public Concept Insert(Concept inserted)
+        private string GetHighestVersionsNumber(string procedureName, Guid groupByConceptsId, bool nextMajor)
         {
-            inserted.Id = 0;
+            var result = "";
+            using (var connection = new Npgsql.NpgsqlConnection(_databaseConfig.GetConnectionString()))
+            {
+                connection.Open();
+                using (var command = new Npgsql.NpgsqlCommand(procedureName, connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new NpgsqlParameter("grouped_by", NpgsqlDbType.Uuid)).Value = groupByConceptsId;
+                    command.Parameters.Add(new NpgsqlParameter("next_major", NpgsqlDbType.Boolean)).Value = nextMajor;
+                    command.Prepare();
+                    result = (string)command.ExecuteScalar();
+                }
+            }
+            return result;
+        }
+        public Concept Insert(Concept inserted, bool isMajorVersion=false)
+        {
+            if (inserted.Id > 0)
+            {
+                var nextVersionNumber = GetHighestVersionsNumber("get_next_version_number", inserted.GroupId, isMajorVersion);
+                inserted.VersionNumber = nextVersionNumber;
+                inserted.Id = -1;
+            }
+            else if (inserted.Id == 0)
+            {
+                inserted.VersionNumber = "0.1";
+            }
+
             var concept = _context.Concepts.Add(inserted);
             concept.Entity.Updated = DateTime.Now;
             _context.SaveChanges();

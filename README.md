@@ -1,5 +1,5 @@
 # NDLA Forklaringstjenste API
-
+![Build Status](https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoienRYSi92THhCVXF5dzNjWjlINm1icU1KdnljaTFPSVpUaHprKzdPUVR1TE9BZHphN1ZaYlI2OURPc1RMS0txSUJVWXJHT1liK3ZubmQzTnAxbCtiNjgwPSIsIml2UGFyYW1ldGVyU3BlYyI6IlVLYXFGQTVnODczSmVISDAiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 ## Requirements
 

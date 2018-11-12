@@ -18,7 +18,6 @@ namespace ConceptsMicroservice.Services
         Response GetAllConceptTitles();
         Response UpdateConcept(Concept newConceptVersion);
         Response CreateConcept(Concept newConcept);
-        Response ArchiveConcept(int id);
-
+        Response SetStatusForConcept(int id, string status);
     }
 }

@@ -88,6 +88,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Content = "Content",
                 Source = "Source",
                 Title = "Title",
+                VersionNumber = "0.1",
             };
 
             category = InsertCategory(category);
