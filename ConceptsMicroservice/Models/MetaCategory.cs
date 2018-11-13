@@ -27,5 +27,9 @@ namespace ConceptsMicroservice.Models
         public DateTime Created { get; set; }
         [Column("updated")]
         public DateTime Updated { get; set; }
+        [Column("is_required")]
+        public bool IsRequired { get; set; }
+        [Column("concept_can_have_multiple_meta")]
+        public bool ConceptCanHaveMultipleMeta { get; set; }
     }
 }
