@@ -167,7 +167,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         [Fact]
         public void CreateConcept_Returns_With_Error_When_Concept_Does_Not_Have_Any_Existing_Metas()
         {
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(false);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(false);
 
             var mockConcept = Mock.MockConcept(_status);
 
@@ -180,7 +180,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         [Fact]
         public void CreateConcept_Returns_With_Error_When_Concept_Status_Is_Null()
         {
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
 
             var mockConcept = Mock.MockConcept(null);
 
@@ -193,7 +193,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         [Fact]
         public void CreateConcept_Returns_With_Error_When_Concept_Status_Does_Not_Exist()
         {
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
 
             var mockConcept = Mock.MockConcept(_status);
@@ -207,7 +207,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         [Fact]
         public void CreateConcept_Returns_With_Error_When_RepoInsert_Throws_Exception()
         {
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._, false)).Throws<Exception>();
 
             var mockConcept = Mock.MockConcept(_status);
@@ -224,7 +224,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var mockConcept = Mock.MockConcept(_status);
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._, false)).Returns(mockConcept);
 
             var viewModel = Service.CreateConcept(mockConcept);
@@ -239,7 +239,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var mockConcept = Mock.MockConcept(_status);
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._, false)).Returns(mockConcept);
 
             var viewModel = Service.CreateConcept(mockConcept);
@@ -265,7 +265,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         public void UpdateConcept_Returns_Errors_When_Concept_Has_No_Existing_Metas()
         {
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(false);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(false);
 
             var result = Service.UpdateConcept(Mock.MockConcept(_status));
 
@@ -278,7 +278,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         {
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
             A.CallTo(() => ConceptRepository.Update(A<Concept>._, false)).Throws<Exception>();
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
 
             var result = Service.UpdateConcept(Mock.MockConcept(_status));
 
@@ -293,7 +293,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
             A.CallTo(() => ConceptRepository.Update(A<Concept>._, false)).Returns(Mock.MockConcept(_status));
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
 
             var result = Service.UpdateConcept(Mock.MockConcept(_status));
 
@@ -306,7 +306,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
             A.CallTo(() => ConceptRepository.Update(A<Concept>._, false)).Returns(Mock.MockConcept(_status));
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
+            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<int>>._)).Returns(true);
 
             var result = Service.UpdateConcept(Mock.MockConcept(_status));
 

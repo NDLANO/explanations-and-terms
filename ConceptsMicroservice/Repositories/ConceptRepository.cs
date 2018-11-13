@@ -8,15 +8,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Npgsql;
-using NpgsqlTypes;
 
 namespace ConceptsMicroservice.Repositories
 {
@@ -134,45 +133,45 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts");
         }
 
+        public double GetNextVersionNumber(double current, bool isMajorVersion, Guid groupId)
+        {
+            var highestVersion = _context.Concepts
+                .Where(x => x.GroupId == groupId)
+                .ToList()
+                .Aggregate((i1, i2) => i1.VersionNumber > i2.VersionNumber ? i1 : i2);
+
+            
+
+            var newVersionNumber =  highestVersion.VersionNumber + 0.01;
+            if (isMajorVersion)
+            {
+                newVersionNumber =  Math.Floor(highestVersion.VersionNumber + 1);
+            }
+
+            return Math.Round(newVersionNumber, 2, MidpointRounding.AwayFromZero);
+        }
+
         public Concept Update(Concept updated, bool isMajorVersion=false)
         {
-            var nextVersionNumber = GetHighestVersionsNumber("get_next_version_number", updated.GroupId, isMajorVersion);
-            updated.VersionNumber = nextVersionNumber;
+            updated.VersionNumber = GetNextVersionNumber(updated.VersionNumber, isMajorVersion, updated.GroupId);
+
             var concept = _context.Concepts.Update(updated);
             concept.Entity.Updated = DateTime.Now;
 
             _context.SaveChanges();
             return concept.Entity;
         }
-
-        private string GetHighestVersionsNumber(string procedureName, Guid groupByConceptsId, bool nextMajor)
-        {
-            var result = "";
-            using (var connection = new Npgsql.NpgsqlConnection(_databaseConfig.GetConnectionString()))
-            {
-                connection.Open();
-                using (var command = new Npgsql.NpgsqlCommand(procedureName, connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new NpgsqlParameter("grouped_by", NpgsqlDbType.Uuid)).Value = groupByConceptsId;
-                    command.Parameters.Add(new NpgsqlParameter("next_major", NpgsqlDbType.Boolean)).Value = nextMajor;
-                    command.Prepare();
-                    result = (string)command.ExecuteScalar();
-                }
-            }
-            return result;
-        }
+        
         public Concept Insert(Concept inserted, bool isMajorVersion=false)
         {
             if (inserted.Id > 0)
             {
-                var nextVersionNumber = GetHighestVersionsNumber("get_next_version_number", inserted.GroupId, isMajorVersion);
-                inserted.VersionNumber = nextVersionNumber;
-                inserted.Id = -1;
+                inserted.VersionNumber = GetNextVersionNumber(inserted.VersionNumber, isMajorVersion, inserted.GroupId);
+                inserted.Id = default(int);
             }
             else if (inserted.Id == 0)
             {
-                inserted.VersionNumber = "0.1";
+                inserted.VersionNumber = 0.1;
             }
 
             var concept = _context.Concepts.Add(inserted);

@@ -6,8 +6,6 @@
  *
  */
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ConceptsMicroservice.Attributes;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.UnitTests.Helpers;
 using Xunit;
@@ -45,28 +43,6 @@ namespace ConceptsMicroservice.UnitTests.TestModels
         {
             Assert.False(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.Source)));
         }
-        #endregion
-        #region Meta
-
-        [Fact]
-        public void Meta_Should_Have_Attribute_Required()
-        {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.Meta)));
-        }
-
-        [Fact]
-        public void Meta_Should_Have_Attribute_NotMapped()
-        {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, NotMappedAttribute>(nameof(Concept.Meta)));
-        }
-
-
-        [Fact]
-        public void Meta_Should_Have_ConceptMustContainMeta()
-        {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, ConceptMustContainMetaAttribute>(nameof(Concept.Meta)));
-        }
-
         #endregion
     }
 }

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using System.Collections.Generic;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
@@ -19,5 +21,6 @@ namespace ConceptsMicroservice.Repositories
         Concept Update(Concept updated, bool isMajorVersion = false);
         Concept Insert(Concept inserted, bool isMajorVersion = false);
         List<string> GetAllTitles();
+        double GetNextVersionNumber(double current, bool isMajorVersion, Guid groupId);
     }
 }

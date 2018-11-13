@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using ConceptsMicroservice.Attributes;
 using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models
@@ -19,15 +18,8 @@ namespace ConceptsMicroservice.Models
     public class Concept
     {
         [Key] [Column("id")] public int Id { get; set; }
-
         [Column("external_id")] public int ExternalId { get; set; }
         [Column("meta")] public List<int> MetaIds { get; set; }
-
-        [Required]
-        [NotMapped]
-        [ConceptMustContainMeta("Language", "Licence")]
-
-        public List<MetaData> Meta { get; set; }
         [Required] [Column("title")] public string Title { get; set; }
         [Required] [Column("content")] public string Content { get; set; }
         [Required] [Column("author")] public string Author { get; set; }
@@ -35,17 +27,16 @@ namespace ConceptsMicroservice.Models
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("status_id")] public int StatusId { get; set; }
-        public virtual Status Status {get;set;}
-        [Column("approver")]
-        public string Approver { get; set; }
-        [Column("version_number")]
-        public string VersionNumber { get; set; }
-        [Column("approved_date")]
-        public DateTime ApprovedDate { get; set; }
-        [Column("group_id")]
-        public Guid GroupId { get; set; }
-        [Column("comment")]
-        public string Comment { get; set; }
+        [Column("approver")] public string Approver { get; set; }
+        [Column("version_number")] public double VersionNumber { get; set; }
+        [Column("approved_date")] public DateTime? ApprovedDate { get; set; }
+        [Column("group_id")] public Guid GroupId { get; set; }
+        [Column("comment")] public string Comment { get; set; }
+
+
+        public virtual Status Status { get; set; }
+        [NotMapped]
+        public List<MetaData> Meta { get; set; }
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {

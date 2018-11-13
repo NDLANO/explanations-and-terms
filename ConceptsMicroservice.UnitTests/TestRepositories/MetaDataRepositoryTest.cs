@@ -142,17 +142,17 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         [Fact]
         public void MetaObjectsExists_Returns_False_When_Input_List_Is_Empty()
         {
-            Assert.False(MetaRepository.MetaObjectsExists(new List<MetaData>()));
+            Assert.False(MetaRepository.MetaObjectsExists(new List<int>()));
         }
         [Fact]
         public void MetaObjectsExists_Returns_False_When_Input_List_Contains_Non_Existing_Meta()
         {
-            var metaList = new List<MetaData>
+            var metaList = new List<int>
             {
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.MockMeta(_status, _category)
+                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)).Id,
+                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)).Id,
+                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)).Id,
+                Mock.MockMeta(_status, _category).Id
             };
 
             Assert.False(MetaRepository.MetaObjectsExists(metaList));
@@ -160,11 +160,11 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         [Fact]
         public void MetaObjectsExists_Returns_True_When_All_Metas_Exists()
         {
-            var metaList = new List<MetaData>
+            var metaList = new List<int>
             {
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
+                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)).Id,
+                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)).Id,
+                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)).Id,
             };
 
             Assert.True(MetaRepository.MetaObjectsExists(metaList));

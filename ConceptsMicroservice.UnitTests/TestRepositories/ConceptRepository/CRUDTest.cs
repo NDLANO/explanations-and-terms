@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using System.Collections.Generic;
 using ConceptsMicroservice.Models;
 using Xunit;
@@ -151,6 +153,46 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             var concept = ConceptRepository.GetById(c.Id);
 
             Assert.Equal(c.Title, concept.Title);
+        }
+
+        [Fact]
+        public void GetNextVersionNumber_Returns_Next_Whole_Number_If_Version_Is_Major()
+        {
+
+            Assert.Empty(ConceptRepository.GetAll());
+
+            var category = Mock.Database.InsertCategory(Mock.MockCategory());
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+
+            var concept = Mock.MockConcept(status);
+            concept.MetaIds = new List<int> { meta.Id };
+            
+            concept = ConceptRepository.Insert(concept);
+            concept.VersionNumber = 0.1;
+            var nextVersion = ConceptRepository.GetNextVersionNumber(concept.VersionNumber, true, concept.GroupId);
+
+            Assert.Equal(Math.Floor(concept.VersionNumber) + 1, nextVersion);
+        }
+
+        [Fact]
+        public void GetNextVersionNumber_Returns_Next_Increment_Number_If_Version_Is_Minor()
+        {
+
+            Assert.Empty(ConceptRepository.GetAll());
+
+            var category = Mock.Database.InsertCategory(Mock.MockCategory());
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+
+            var concept = Mock.MockConcept(status);
+            concept.MetaIds = new List<int> { meta.Id };
+            
+            concept = ConceptRepository.Insert(concept);
+            concept.VersionNumber = 0.1;
+            var nextVersion = ConceptRepository.GetNextVersionNumber(concept.VersionNumber, false, concept.GroupId);
+
+            Assert.Equal(concept.VersionNumber + 0.01, nextVersion);
         }
     }
 }

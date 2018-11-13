@@ -13,7 +13,7 @@ namespace ConceptsMicroservice.Repositories
 {
     public interface IMetadataRepository
     {
-        bool MetaObjectsExists(List<MetaData> meta);
+        bool MetaObjectsExists(List<int> meta);
         MetaData GetById(int id);
         List<MetaData> GetAll();
         List<MetaData> SearchForMetadata(MetaSearchQuery query);

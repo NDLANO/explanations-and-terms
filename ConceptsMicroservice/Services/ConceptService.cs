@@ -6,6 +6,7 @@
  *
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
@@ -61,6 +62,46 @@ namespace ConceptsMicroservice.Services
             };
         }
 
+        /// <summary>
+        /// Checks whether the concepts has:
+        /// A valid status, only valid meta objects and all required meta objects.
+        /// </summary>
+        /// <param name="concept"></param>
+        /// <returns></returns>
+        public Response ValidateConcept(Concept concept)
+        {
+            var viewModel = new Response();
+
+            // The concept must have metadata, and they must be valid objects that exists in the database.
+            if (!_metaRepository.MetaObjectsExists(concept.MetaIds))
+            {
+                viewModel.Errors.TryAddModelError("Meta",
+                    $"Some of the metadata does not exists. It must exists before assigning it to concept.");
+            }
+
+            // The concept requires som metadata
+            var requiredCategories = new List<string> {"Licence", "Language"};
+            foreach (var category in requiredCategories)
+            {
+                var meta = _metaRepository.SearchForMetadata(new MetaSearchQuery {Category = category});
+                if (meta == null)
+                {
+                    viewModel.Errors.TryAddModelError("Meta",
+                        $"Some of the metadata does not exists. It must exists before assigning it to concept.");
+                }
+            }
+
+            // Concept must have a valid status
+            var status = _statusRepository.GetById(concept.StatusId);
+            if (status == null)
+            {
+                viewModel.Errors.TryAddModelError("Status",
+                    $"Status does not exist.");
+            }
+
+            return viewModel;
+        }
+
         public Response UpdateConcept(Concept newConceptVersion)
         {
             var viewModel = new Response();
@@ -73,28 +114,14 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
 
-            // The concept must have metadata, and they must be valid objects that exists in the database.
-            if (!_metaRepository.MetaObjectsExists(newConceptVersion.Meta))
-            {
-                viewModel.Errors.TryAddModelError("Meta",
-                    $"Some of the metadata does not exists. It must exists before assigning it to concept.");
-                return viewModel;
-            }
-
-            // Concept must have a valid status
-            var status = _statusRepository.GetById(newConceptVersion.Status.Id);
-            if(status == null)
-            {
-                viewModel.Errors.TryAddModelError("Status",
-                    $"Status does not exist.");
-                return viewModel;
-            }
+            var validationModel = ValidateConcept(newConceptVersion);
+            if (validationModel.HasErrors())
+                return validationModel;
 
             // Readonly fields
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
-            newConceptVersion.MetaIds = newConceptVersion.Meta.Select(x => x.Id).ToList();
-            newConceptVersion.StatusId = status.Id;
+            newConceptVersion.GroupId = oldConceptVersion.GroupId;
 
             try
             {
@@ -112,29 +139,15 @@ namespace ConceptsMicroservice.Services
         {
             var viewModel = new Response();
 
-            // Metas must exist in the database
-            if (!_metaRepository.MetaObjectsExists(newConcept.Meta))
-            {
-                viewModel.Errors.TryAddModelError("Meta",
-                    $"Some of the metadata does not exists in the database.");
-                return viewModel;
-            }
-            
-            // Concept must have a valid status
-            if (newConcept.Status == null || _statusRepository.GetById(newConcept.Status.Id) == null)
-            {
-                viewModel.Errors.TryAddModelError("Status","Status is required.");
-                return viewModel;
-            }
-
-            newConcept.StatusId = newConcept.Status.Id;
-            newConcept.MetaIds = newConcept.Meta.Select(x => x.Id).ToList();
+            var validationModel = ValidateConcept(newConcept);
+            if (validationModel.HasErrors())
+                return validationModel;
 
             try
             {
                 viewModel.Data = _conceptRepository.Insert(newConcept);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not insert concept.");
             }
