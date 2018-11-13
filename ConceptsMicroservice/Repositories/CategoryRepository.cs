@@ -20,6 +20,11 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
+        public List<MetaCategory> GetRequiredCategories()
+        {
+            return _context.Categories.Where(x => x.IsRequired).ToList();
+        }
+
         public List<MetaCategory> GetAll()
         {
             return _context.Categories.ToList();

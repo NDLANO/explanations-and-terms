@@ -37,6 +37,11 @@ namespace ConceptsMicroservice.Repositories
             return true;
         }
 
+        public List<MetaData> GetByListOfIds(IEnumerable<int> ids)
+        {
+            return _context.MetaData.Where(x => ids.Contains(x.Id)).ToList();
+        }
+
         public List<MetaData> GetAll()
         {
             return _context.MetaData

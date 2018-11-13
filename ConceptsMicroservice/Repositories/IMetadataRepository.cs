@@ -15,6 +15,7 @@ namespace ConceptsMicroservice.Repositories
     {
         bool MetaObjectsExists(List<int> meta);
         MetaData GetById(int id);
+        List<MetaData> GetByListOfIds(IEnumerable<int> ids);
         List<MetaData> GetAll();
         List<MetaData> SearchForMetadata(MetaSearchQuery query);
     }

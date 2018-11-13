@@ -12,6 +12,7 @@ namespace ConceptsMicroservice.Repositories
 {
     public interface ICategoryRepository
     {
+        List<MetaCategory> GetRequiredCategories();
         List<MetaCategory> GetAll();
         MetaCategory GetById(int id);
 

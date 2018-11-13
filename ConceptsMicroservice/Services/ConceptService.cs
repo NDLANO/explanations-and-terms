@@ -19,12 +19,14 @@ namespace ConceptsMicroservice.Services
         private readonly IConceptRepository _conceptRepository;
         private readonly IMetadataRepository _metaRepository;
         private readonly IStatusRepository _statusRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ConceptService(IConceptRepository concept, IMetadataRepository meta, IStatusRepository status)
+        public ConceptService(IConceptRepository concept, IMetadataRepository meta, IStatusRepository status, ICategoryRepository category)
         {
             _conceptRepository = concept;
             _metaRepository = meta;
             _statusRepository = status;
+            _categoryRepository = category;
         }
 
         public Response SearchForConcepts(ConceptSearchQuery query)
@@ -62,6 +64,40 @@ namespace ConceptsMicroservice.Services
             };
         }
 
+        private bool ContainsDuplicate<T>(IReadOnlyCollection<T> list)
+        {
+            return list.Count != list.Distinct().Count();
+        }
+
+        private bool StatusExistsInDatabase(int statusId)
+        {
+            var status = _statusRepository.GetById(statusId);
+            return status != null;
+        }
+
+        private bool MetasExistInDatabase(IEnumerable<MetaData> metasFromDb, List<int> conceptMetaIds)
+        {
+            var metasAsIdList = metasFromDb.Select(x => x.Id).ToList();
+            return metasAsIdList.All(conceptMetaIds.Contains) && metasAsIdList.Count == conceptMetaIds.Count;
+        }
+
+        private bool ContainsMultipleUniqueMetasOfSameCategory(IEnumerable<MetaData> metasFromDb)
+        {
+            var categories = metasFromDb.Where(x => !x.Category.ConceptCanHaveMultipleMeta).Select(x => x.Category.Id).ToList();
+            return ContainsDuplicate(categories);
+        }
+
+        private bool ConceptContainsAllRequiredMetaCategories(List<MetaData> metasFromDb)
+        {
+            var requiredCategories = _categoryRepository.GetRequiredCategories();
+            foreach (var requiredCategory in requiredCategories)
+            {
+                if (metasFromDb.FirstOrDefault(x => x.Category.Id == requiredCategory.Id) == null)
+                    return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Checks whether the concepts has:
         /// A valid status, only valid meta objects and all required meta objects.
@@ -72,31 +108,31 @@ namespace ConceptsMicroservice.Services
         {
             var viewModel = new Response();
 
-            // The concept must have metadata, and they must be valid objects that exists in the database.
-            if (!_metaRepository.MetaObjectsExists(concept.MetaIds))
+            if (ContainsDuplicate(concept.MetaIds))
             {
-                viewModel.Errors.TryAddModelError("Meta",
-                    $"Some of the metadata does not exists. It must exists before assigning it to concept.");
+                viewModel.Errors.TryAddModelError("Meta", "Duplicate metas is not allowed.");
             }
 
-            // The concept requires som metadata
-            var requiredCategories = new List<string> {"Licence", "Language"};
-            foreach (var category in requiredCategories)
+            var metas = _metaRepository.GetByListOfIds(concept.MetaIds);
+
+            if (!MetasExistInDatabase(metas, concept.MetaIds))
             {
-                var meta = _metaRepository.SearchForMetadata(new MetaSearchQuery {Category = category});
-                if (meta == null)
-                {
-                    viewModel.Errors.TryAddModelError("Meta",
-                        $"Some of the metadata does not exists. It must exists before assigning it to concept.");
-                }
+                viewModel.Errors.TryAddModelError("Meta", "Some of the metadata does not exists in the database.");
             }
 
-            // Concept must have a valid status
-            var status = _statusRepository.GetById(concept.StatusId);
-            if (status == null)
+            if (!ConceptContainsAllRequiredMetaCategories(metas))
             {
-                viewModel.Errors.TryAddModelError("Status",
-                    $"Status does not exist.");
+                viewModel.Errors.TryAddModelError("Meta", "Did not contain all required metas for concept.");
+            }
+
+            if (ContainsMultipleUniqueMetasOfSameCategory(metas))
+            {
+                viewModel.Errors.TryAddModelError("Meta", "Contains multiple metas of same category, when concept only allows one meta of this specific category.");
+            }
+
+            if (!StatusExistsInDatabase(concept.StatusId))
+            {
+                viewModel.Errors.TryAddModelError("Status", "Status does not exist.");
             }
 
             return viewModel;

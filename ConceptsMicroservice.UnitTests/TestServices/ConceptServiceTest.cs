@@ -25,6 +25,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IConceptRepository ConceptRepository;
         protected readonly IMetadataRepository MetaRepository;
         protected readonly IStatusRepository StatusRepository;
+        protected readonly ICategoryRepository CategoryRepository;
 
         private Status _status;
 
@@ -33,7 +34,8 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             MetaRepository = A.Fake<IMetadataRepository>();
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
-            Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, MetaRepository, StatusRepository);
+            CategoryRepository = A.Fake<ICategoryRepository>();
+            Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, MetaRepository, StatusRepository, CategoryRepository);
             Mock = new Mock.Mock();
             _status = new Status();
 
@@ -324,6 +326,114 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var response = Service.GetAllConceptTitles();
 
             Assert.IsType<List<string>>(response.Data);
+        }
+        #endregion
+
+        #region ValidateConcept
+
+        [Fact]
+        public void ValidateConcept_Concept_Status_Is_Null_Result_Should_Have_Errors()
+        {
+
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var category = Mock.Database.InsertCategory(Mock.MockCategory());
+            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+            var concept = Mock.MockConcept(status, new List<MetaData> {meta});
+            concept.Status = null;
+
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
+            A.CallTo(() => MetaRepository.GetByListOfIds(A<List<int>>._)).Returns(new List<MetaData> {meta});
+
+            var validateModel = Service.ValidateConcept(concept);
+
+            Assert.True(validateModel.HasErrors());
+
+        }
+
+        [Fact]
+        public void ValidateConcept_Concept_Status_Does_Not_Exist_In_Database_Result_Should_Have_Errors()
+        {
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var category = Mock.Database.InsertCategory(Mock.MockCategory());
+            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+            var concept = Mock.MockConcept(status, new List<MetaData> { meta });
+            concept.Status = null;
+
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
+            A.CallTo(() => MetaRepository.GetByListOfIds(A<List<int>>._)).Returns(new List<MetaData> { meta });
+
+            var validateModel = Service.ValidateConcept(concept);
+
+            Assert.True(validateModel.HasErrors());
+        }
+
+        [Fact]
+        public void ValidateConcept_Concept_Contains_Not_All_Required_Metas_Result_Should_Have_Errors()
+        {
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var requiredCategory = Mock.MockCategory();
+            requiredCategory.IsRequired = true;
+            requiredCategory = Mock.Database.InsertCategory(requiredCategory);
+
+            var category = Mock.Database.InsertCategory(Mock.MockCategory());
+            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+            var concept = Mock.MockConcept(status, new List<MetaData> { meta });
+
+            A.CallTo(() => CategoryRepository.GetRequiredCategories()).Returns(new List<MetaCategory>{ requiredCategory });
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(status);
+            A.CallTo(() => MetaRepository.GetByListOfIds(A<List<int>>._)).Returns(new List<MetaData> { meta });
+
+            var validateModel = Service.ValidateConcept(concept);
+
+            Assert.True(validateModel.HasErrors());
+        }
+
+        [Fact]
+        public void ValidateConcept_Concept_Contains_Metas_Which_Does_Not_Exist_In_DB_Result_Should_Have_Errors()
+        {
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var category = Mock.Database.InsertCategory(Mock.MockCategory());
+            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+            var concept = Mock.MockConcept(status, new List<MetaData> { meta, Mock.MockMeta(status, category) });
+
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(status);
+            A.CallTo(() => MetaRepository.GetByListOfIds(A<List<int>>._)).Returns(new List<MetaData> { meta });
+
+            var validateModel = Service.ValidateConcept(concept);
+
+            Assert.True(validateModel.HasErrors());
+        }
+
+        [Fact]
+        public void ValidateConcept_Concept_Contains_Multiple_Metas_Of_Same_Category_And_ConceptCanHaveMultiple_Is_False_Result_Should_Have_Errors()
+        {
+            var status = Mock.Database.InsertStatus(Mock.MockStatus());
+            var c = Mock.MockCategory();
+            c.ConceptCanHaveMultipleMeta = false;
+            var category = Mock.Database.InsertCategory(c);
+            var meta1 = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+            var meta2 = Mock.Database.InsertMeta(Mock.MockMeta(status, category));
+            var concept = Mock.MockConcept(status, new List<MetaData> { meta1, meta2 });
+
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(status);
+            A.CallTo(() => MetaRepository.GetByListOfIds(A<List<int>>._)).Returns(new List<MetaData> { meta1, meta2 });
+
+            var validateModel = Service.ValidateConcept(concept);
+
+            Assert.True(validateModel.HasErrors());
+        }
+
+        [Fact]
+        public void
+            ValidateConcept_Concept_Contains_Multiple_Metas_Of_Same_Category_And_ConceptCanHaveMultiple_Is_True_Should_Not_Result_In_Errors()
+        {
+            Assert.True(false);
+        }
+
+        [Fact]
+        public void ValidateConcept_Validates_Success_Should_Not_Result_In_Errors()
+        {
+            Assert.True(false);
         }
         #endregion
     }
