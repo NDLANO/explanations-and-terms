@@ -132,7 +132,45 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         }
         #endregion
 
-       
+        #region GetByRangeOfIds
+
+        [Fact]
+        public void GetByRangeOfIds_Returns_Empty_List_When_List_of_Ids_Is_Null()
+        {
+            var meta = Mock.MockMeta(_status, _category);
+
+            Assert.Empty(MetaRepository.GetAll());
+
+            Mock.Database.InsertMeta(meta);
+
+            Assert.Empty(MetaRepository.GetByRangeOfIds(null));
+        }
+
+        [Fact]
+        public void GetByRangeOfIds_Returns_Empty_List_When_List_of_Ids_Is_Empty()
+        {
+            var meta = Mock.MockMeta(_status, _category);
+
+            Assert.Empty(MetaRepository.GetAll());
+
+            Mock.Database.InsertMeta(meta);
+
+            Assert.Empty(MetaRepository.GetByRangeOfIds(new List<int>()));
+        }
+
+        [Fact]
+        public void GetByRangeOfIds_Returns_List_Of_Metadata_When_List_of_Ids_Contains_Ids()
+        {
+
+            var meta = Mock.MockMeta(_status, _category);
+
+            Assert.Empty(MetaRepository.GetAll());
+
+            var m = Mock.Database.InsertMeta(meta);
+
+            Assert.NotEmpty(MetaRepository.GetByRangeOfIds(new List<int>{m.Id}));
+        }
+        #endregion
 
         #region SearchForMetadata
         [Fact]
