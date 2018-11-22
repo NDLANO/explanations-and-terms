@@ -46,27 +46,27 @@ namespace ConceptsMicroservice.UnitTests.TestModels
             Assert.False(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.Source)));
         }
         #endregion
-        #region Meta
+        #region StatusId
 
         [Fact]
-        public void Meta_Should_Have_Attribute_Required()
+        public void StatusId_Should_Have_Attribute_StatusIdExistsInDatabase()
         {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.Meta)));
+            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, StatusIdExistsInDatabaseAttribute>(nameof(Concept.StatusId)));
         }
-
+        #endregion
+        #region Meta
         [Fact]
         public void Meta_Should_Have_Attribute_NotMapped()
         {
             Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, NotMappedAttribute>(nameof(Concept.Meta)));
         }
-
-
+        #endregion
+        #region MetaIds
         [Fact]
-        public void Meta_Should_Have_ConceptMustContainMeta()
+        public void MetaIds_Should_Have_Attribute_NoDuplicateIntValues()
         {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, ConceptMustContainMetaAttribute>(nameof(Concept.Meta)));
+            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, NoDuplicateIntValuesAttribute>(nameof(Concept.MetaIds)));
         }
-
         #endregion
     }
 }
