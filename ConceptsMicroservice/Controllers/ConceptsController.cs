@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -71,7 +72,14 @@ namespace ConceptsMicroservice.Controllers
         [HttpPut]
         public ActionResult<Response> UpdateConcept([Required][FromBody]Concept concept)
         {
-            if (concept == null || !ModelState.IsValid)
+            if (concept == null)
+            {
+                var errors = new ModelStateDictionary();
+                errors.TryAddModelError("concept", "Concept is required");
+                return BadRequest(new ModelStateErrorResponse(errors));
+            }
+
+            if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
             var viewModel = _service.UpdateConcept(concept);
@@ -87,7 +95,14 @@ namespace ConceptsMicroservice.Controllers
         [HttpPost]
         public ActionResult<Response> CreateConcept([Required][FromBody]Concept concept)
         {
-            if (concept == null || !ModelState.IsValid)
+            if (concept == null)
+            {
+                var errors = new ModelStateDictionary();
+                errors.TryAddModelError("concept", "Concept is required");
+                return BadRequest(new ModelStateErrorResponse(errors));
+            }
+
+            if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
             var viewModel = _service.CreateConcept(concept);

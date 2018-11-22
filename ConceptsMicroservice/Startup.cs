@@ -16,6 +16,7 @@ using NSwag.SwaggerGeneration.Processors;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Context;
+using ConceptsMicroservice.Services.Validation;
 using ConceptsMicroservice.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -62,6 +63,12 @@ namespace ConceptsMicroservice
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
+            services.Configure<ApiBehaviorOptions>(opt =>
+            {
+                opt.SuppressModelStateInvalidFilter = true;
+            });
 
             SetOptions(services);
         }
@@ -134,6 +141,8 @@ namespace ConceptsMicroservice
 
 
             services.AddScoped<IDatabaseConfig, DatabaseConfig>();
+
+            services.AddScoped<IConceptValidationService, ConceptValidationService>();
         }
     }
 }

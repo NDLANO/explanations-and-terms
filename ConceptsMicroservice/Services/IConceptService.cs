@@ -19,6 +19,5 @@ namespace ConceptsMicroservice.Services
         Response UpdateConcept(Concept newConceptVersion);
         Response CreateConcept(Concept newConcept);
         Response ArchiveConcept(int id);
-
     }
 }

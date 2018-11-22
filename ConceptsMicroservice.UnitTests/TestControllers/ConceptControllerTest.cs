@@ -163,6 +163,13 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             Assert.Equal(400, badRequest.StatusCode);
         }
         [Fact]
+        public void UpdateConcept_Returns_With_Errors_When_Concept_Is_Null()
+        {
+            var result = _controller.UpdateConcept(null);
+            var badRequest = result.Result as BadRequestObjectResult;
+            Assert.True(((ModelStateErrorResponse)badRequest.Value).Errors.Count > 0);
+        }
+        [Fact]
         public void UpdateConcept_Returns_400_On_ModelState_Error()
         {
             _controller.ModelState.TryAddModelError("error", "error");
@@ -235,6 +242,13 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var badRequest = result.Result as BadRequestObjectResult;
 
             Assert.Equal(400, badRequest.StatusCode);
+        }
+        [Fact]
+        public void CreateConcept_Returns_With_Errors_When_Concept_Is_Null()
+        {
+            var result = _controller.CreateConcept(null);
+            var badRequest = result.Result as BadRequestObjectResult;
+            Assert.True(((ModelStateErrorResponse)badRequest.Value).Errors.Count > 0);
         }
         [Fact]
         public void CreateConcept_Returns_400_On_ModelState_Error()

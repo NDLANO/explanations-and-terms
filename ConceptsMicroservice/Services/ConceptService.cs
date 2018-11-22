@@ -6,6 +6,7 @@
  *
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
@@ -80,21 +81,12 @@ namespace ConceptsMicroservice.Services
                     $"Some of the metadata does not exists. It must exists before assigning it to concept.");
                 return viewModel;
             }
-
-            // Concept must have a valid status
-            var status = _statusRepository.GetById(newConceptVersion.Status.Id);
-            if(status == null)
-            {
-                viewModel.Errors.TryAddModelError("Status",
-                    $"Status does not exist.");
-                return viewModel;
-            }
+            
 
             // Readonly fields
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
             newConceptVersion.MetaIds = newConceptVersion.Meta.Select(x => x.Id).ToList();
-            newConceptVersion.StatusId = status.Id;
 
             try
             {
@@ -120,14 +112,6 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
             
-            // Concept must have a valid status
-            if (newConcept.Status == null || _statusRepository.GetById(newConcept.Status.Id) == null)
-            {
-                viewModel.Errors.TryAddModelError("Status","Status is required.");
-                return viewModel;
-            }
-
-            newConcept.StatusId = newConcept.Status.Id;
             newConcept.MetaIds = newConcept.Meta.Select(x => x.Id).ToList();
 
             try

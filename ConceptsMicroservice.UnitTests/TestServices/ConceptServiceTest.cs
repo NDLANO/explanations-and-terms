@@ -176,33 +176,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             Assert.True(viewModel.HasErrors());
             Assert.Null(viewModel.Data);
         }
-
-        [Fact]
-        public void CreateConcept_Returns_With_Error_When_Concept_Status_Is_Null()
-        {
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
-
-            var mockConcept = Mock.MockConcept(null);
-
-            var viewModel = Service.CreateConcept(mockConcept);
-
-            Assert.True(viewModel.HasErrors());
-            Assert.Null(viewModel.Data);
-        }
-
-        [Fact]
-        public void CreateConcept_Returns_With_Error_When_Concept_Status_Does_Not_Exist()
-        {
-            A.CallTo(() => MetaRepository.MetaObjectsExists(A<List<MetaData>>._)).Returns(true);
-            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
-
-            var mockConcept = Mock.MockConcept(_status);
-
-            var viewModel = Service.CreateConcept(mockConcept);
-
-            Assert.True(viewModel.HasErrors());
-            Assert.Null(viewModel.Data);
-        }
+        
 
         [Fact]
         public void CreateConcept_Returns_With_Error_When_RepoInsert_Throws_Exception()

@@ -34,7 +34,7 @@ namespace ConceptsMicroservice.Models
         [Column("source")] public string Source { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
-        [Column("status_id")] public int StatusId { get; set; }
+        [StatusIdExistsInDatabase][Column("status_id")] public int StatusId { get; set; }
         public virtual Status Status {get;set;}
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
