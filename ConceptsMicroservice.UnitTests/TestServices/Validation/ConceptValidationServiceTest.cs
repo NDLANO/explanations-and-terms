@@ -1,4 +1,5 @@
-﻿using ConceptsMicroservice.Models;
+﻿using System.Collections.Generic;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services.Validation;
 using FakeItEasy;
@@ -10,11 +11,13 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
     {
         private readonly IConceptValidationService _validationService;
         private readonly IStatusRepository _statusRepository;
+        private readonly IMetadataRepository _metadataRepository;
 
         public ConceptValidationServiceTest()
         {
             _statusRepository = A.Fake<IStatusRepository>();
-            _validationService = new ConceptValidationService(_statusRepository);
+            _metadataRepository = A.Fake<IMetadataRepository>();
+            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository);
         }
         #region StatusIdIsValid
         [Fact]
@@ -31,6 +34,40 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
 
             Assert.True(_validationService.StatusIdIsValidId(0));
         }
+        #endregion
+        #region MetaIdsDoesNotExistInDatabase
+        [Fact]
+        public void MetaIdsDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Empty()
+        {
+            Assert.Empty(_validationService.MetaIdsDoesNotExistInDatabase(new List<int>()));
+        }
+        [Fact]
+        public void MetaIdsDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Null()
+        {
+            Assert.Empty(_validationService.MetaIdsDoesNotExistInDatabase(null));
+        }
+        [Fact]
+        public void MetaIdsDoesNotExistInDatabase_Returns_Empty_List_When_All_Ids_Exist_DB()
+        {
+            A.CallTo(() => _metadataRepository.GetById(1)).Returns(new MetaData());
+            A.CallTo(() => _metadataRepository.GetById(2)).Returns(new MetaData());
+            A.CallTo(() => _metadataRepository.GetById(3)).Returns(new MetaData());
+
+            Assert.Empty(_validationService.MetaIdsDoesNotExistInDatabase(new List<int>{1,2,3}));
+        }
+
+        [Fact]
+        public void MetaIdsDoesNotExistInDatabase_Returns_List_Of_Ids_When_Not_All_Exists_In_DB()
+        {
+            A.CallTo(() => _metadataRepository.GetById(1)).Returns(new MetaData());
+            A.CallTo(() => _metadataRepository.GetById(2)).Returns(new MetaData());
+            A.CallTo(() => _metadataRepository.GetById(3)).Returns(new MetaData());
+            A.CallTo(() => _metadataRepository.GetById(4)).Returns(null);
+
+            var notExistingIds = _validationService.MetaIdsDoesNotExistInDatabase(new List<int> {1, 2, 3, 4});
+            Assert.Single(notExistingIds);
+        }
+        
         #endregion
     }
 }

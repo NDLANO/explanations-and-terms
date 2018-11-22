@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ConceptsMicroservice.Attributes;
 using ConceptsMicroservice.Models;
@@ -17,22 +18,22 @@ using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestAttributes
 {
-    public class StatusIdExistsInDatabaseAttributeTest
+    public class MetaIdsMustExistInDatabaseAttributeTest
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ValidationContext _validationContext;
-        private readonly StatusIdExistsInDatabaseAttribute _attribute;
+        private readonly MetaIdsMustExistInDatabaseAttribute _attribute;
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly IConceptValidationService _validationService;
 
-        public StatusIdExistsInDatabaseAttributeTest()
+        public MetaIdsMustExistInDatabaseAttributeTest()
         {
             _metadataRepository = A.Fake<IMetadataRepository>();
             _statusRepository = A.Fake<IStatusRepository>();
             _serviceProvider = A.Fake<IServiceProvider>();
             _validationContext = new ValidationContext(new object(), _serviceProvider, null);
-            _attribute = new StatusIdExistsInDatabaseAttribute();
+            _attribute = new MetaIdsMustExistInDatabaseAttribute();
             _validationService = new ConceptValidationService(_statusRepository, _metadataRepository);
         }
 
@@ -47,25 +48,29 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes
         }
 
         [Fact]
-        public void Status_Id_Is_Valid_Should_Return_ValidationSuccess()
+        public void MetaIds_Contains_Only_Ids_In_Database_Should_Return_ValidationSuccess()
         {
-            const int id = 1;
-            A.CallTo(() => _statusRepository.GetById(id)).Returns(new Status());
+            A.CallTo(() => _metadataRepository.GetById(A<int>._)).Returns(new MetaData());
             A.CallTo(() => _serviceProvider.GetService(typeof(IConceptValidationService))).Returns(_validationService);
 
+            var listOfIdsFromDb = new List<int> {1, 2, 3};
 
-            var validationException = Record.Exception(() => _attribute.Validate(id, _validationContext));
+            var validationException = Record.Exception(() => _attribute.Validate(listOfIdsFromDb, _validationContext));
             Assert.Null(validationException);
         }
 
         [Fact]
-        public void Status_Id_Is_Not_Valid_Should_Throw_ValidationException()
+        public void MetaIds_Contains_Some_Ids_Not_In_Database_Should_Throw_ValidationException()
         {
-            const int id = 1;
-            A.CallTo(() => _statusRepository.GetById(id)).Returns(null);
+
+            A.CallTo(() => _metadataRepository.GetById(A<int>._)).Returns(new MetaData());
+            A.CallTo(() => _metadataRepository.GetById(4)).Returns(null);
             A.CallTo(() => _serviceProvider.GetService(typeof(IConceptValidationService))).Returns(_validationService);
 
-            Assert.Throws<ValidationException>(() => _attribute.Validate(id, _validationContext));
+            var listOfIdsFromDb = new List<int> { 1, 2, 3, 4 };
+
+            var validationException = Record.Exception(() => _attribute.Validate(listOfIdsFromDb, _validationContext));
+            Assert.IsType<ValidationException>(validationException);
         }
         
     }

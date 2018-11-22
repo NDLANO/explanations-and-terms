@@ -6,7 +6,6 @@
  *
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
@@ -73,20 +72,11 @@ namespace ConceptsMicroservice.Services
                 viewModel.Errors.TryAddModelError("Concept", "Object does not exists.");
                 return viewModel;
             }
-
-            // The concept must have metadata, and they must be valid objects that exists in the database.
-            if (!_metaRepository.MetaObjectsExists(newConceptVersion.Meta))
-            {
-                viewModel.Errors.TryAddModelError("Meta",
-                    $"Some of the metadata does not exists. It must exists before assigning it to concept.");
-                return viewModel;
-            }
             
 
             // Readonly fields
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
-            newConceptVersion.MetaIds = newConceptVersion.Meta.Select(x => x.Id).ToList();
 
             try
             {
@@ -103,16 +93,6 @@ namespace ConceptsMicroservice.Services
         public Response CreateConcept(Concept newConcept)
         {
             var viewModel = new Response();
-
-            // Metas must exist in the database
-            if (!_metaRepository.MetaObjectsExists(newConcept.Meta))
-            {
-                viewModel.Errors.TryAddModelError("Meta",
-                    $"Some of the metadata does not exists in the database.");
-                return viewModel;
-            }
-            
-            newConcept.MetaIds = newConcept.Meta.Select(x => x.Id).ToList();
 
             try
             {

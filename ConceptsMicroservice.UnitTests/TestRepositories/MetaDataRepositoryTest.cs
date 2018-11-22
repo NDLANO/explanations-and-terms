@@ -132,44 +132,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         }
         #endregion
 
-        #region MetaObjectsExists
-
-        [Fact]
-        public void MetaObjectsExists_Returns_False_When_Input_List_Is_Null()
-        {
-            Assert.False(MetaRepository.MetaObjectsExists(null));
-        }
-        [Fact]
-        public void MetaObjectsExists_Returns_False_When_Input_List_Is_Empty()
-        {
-            Assert.False(MetaRepository.MetaObjectsExists(new List<MetaData>()));
-        }
-        [Fact]
-        public void MetaObjectsExists_Returns_False_When_Input_List_Contains_Non_Existing_Meta()
-        {
-            var metaList = new List<MetaData>
-            {
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.MockMeta(_status, _category)
-            };
-
-            Assert.False(MetaRepository.MetaObjectsExists(metaList));
-        }
-        [Fact]
-        public void MetaObjectsExists_Returns_True_When_All_Metas_Exists()
-        {
-            var metaList = new List<MetaData>
-            {
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-                Mock.Database.InsertMeta(Mock.MockMeta(_status, _category)),
-            };
-
-            Assert.True(MetaRepository.MetaObjectsExists(metaList));
-        }
-        #endregion
+       
 
         #region SearchForMetadata
         [Fact]

@@ -23,21 +23,6 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
-        public bool MetaObjectsExists(List<MetaData> meta)
-        {
-            if (meta == null || meta.Count == 0)
-                return false;
-
-            foreach (var data in meta)
-            {
-                var m = GetById(data.Id);
-                if (m == null || m.Name != data.Name)
-                    return false;
-            }
-
-            return true;
-        }
-
         public List<MetaData> GetAll()
         {
             return _context.MetaData

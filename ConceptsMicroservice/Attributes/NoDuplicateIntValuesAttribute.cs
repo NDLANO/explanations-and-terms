@@ -20,7 +20,7 @@ namespace ConceptsMicroservice.Attributes
             var duplicates = Helpers.GetDuplicates(value as IEnumerable<int>).ToArray();
             if (duplicates.Any())
             {
-                return new ValidationResult($"Contains duplicate values {string.Join(",", duplicates)}"); 
+                return new ValidationResult("Duplicate values is not allowed"); 
             }
 
             return ValidationResult.Success;

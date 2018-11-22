@@ -5,11 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System.Collections.Generic;
+
 namespace ConceptsMicroservice.Services.Validation
 {
     public interface IConceptValidationService
     {
 
         bool StatusIdIsValidId(int id);
+        List<int> MetaIdsDoesNotExistInDatabase(IEnumerable<int> ids);
     }
 }

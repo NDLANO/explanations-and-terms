@@ -5,27 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using ConceptsMicroservice.Services.Validation;
 
 namespace ConceptsMicroservice.Attributes
 {
-    public class StatusIdExistsInDatabaseAttribute :  ValidationAttribute
+    public class MetaIdsMustExistInDatabaseAttribute :  ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             var service = (IConceptValidationService)validationContext
                 .GetService(typeof(IConceptValidationService));
             if (service == null)
-                return new ValidationResult("Could not validate status id");
+                return new ValidationResult("Could not validate metaIds");
 
-            var id = (int)value;
-            if (service.StatusIdIsValidId(id))
+            var notExistingIds = service.MetaIdsDoesNotExistInDatabase((IEnumerable<int>)value);
+            if (notExistingIds.Any())
             {
-                return ValidationResult.Success;
+                return new ValidationResult($"Metaid's({string.Join(",", notExistingIds)}) is not a valid metas."); 
             }
-
-            return new ValidationResult("StatusId is not a valid id.");
+            return ValidationResult.Success;
         }
     }
 }
