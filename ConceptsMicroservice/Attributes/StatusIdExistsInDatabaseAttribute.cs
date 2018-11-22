@@ -14,8 +14,7 @@ namespace ConceptsMicroservice.Attributes
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var service = (IConceptValidationService)validationContext
-                .GetService(typeof(IConceptValidationService));
+            var service = validationContext.GetService(typeof(IConceptValidationService)) as IConceptValidationService;
             if (service == null)
                 return new ValidationResult("Could not validate status id");
 

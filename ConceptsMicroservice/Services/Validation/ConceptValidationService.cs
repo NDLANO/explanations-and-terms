@@ -7,6 +7,8 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Repositories;
 
 namespace ConceptsMicroservice.Services.Validation
@@ -15,11 +17,13 @@ namespace ConceptsMicroservice.Services.Validation
     {
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta)
+        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category)
         {
             _statusRepository = status;
             _metadataRepository = meta;
+            _categoryRepository = category;
         }
         public bool StatusIdIsValidId(int id)
         {
@@ -32,7 +36,7 @@ namespace ConceptsMicroservice.Services.Validation
 
             if (ids == null)
                 return notExistingIds;
-
+            // TODO use GetByRangeIfMetaIds
             foreach (var id in ids)
             {
                 var meta = _metadataRepository.GetById(id);
@@ -41,6 +45,27 @@ namespace ConceptsMicroservice.Services.Validation
             }
 
             return notExistingIds;
+        }
+
+        public List<string> GetMissingRequiredCategories(List<int> metaIds)
+        {
+            var missingCategories = new List<string>();
+
+            if (metaIds == null)
+                metaIds = new List<int>();
+
+            var requiredCategories = _categoryRepository.GetRequiredCategories();
+
+            var metas = _metadataRepository.GetByRangeOfIds(metaIds);
+
+            foreach (var requiredCategory in requiredCategories)
+            {
+                var category = metas.FirstOrDefault(x => x.Category.Id == requiredCategory.Id);
+                if (category == null)
+                    missingCategories.Add(requiredCategory.Name);
+            }
+
+            return missingCategories;
         }
     }
 }

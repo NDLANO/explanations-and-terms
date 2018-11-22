@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+ 
 using System.Collections.Generic;
 using ConceptsMicroservice.Models;
 
@@ -14,6 +15,6 @@ namespace ConceptsMicroservice.Repositories
     {
         List<MetaCategory> GetAll();
         MetaCategory GetById(int id);
-
+        List<MetaCategory> GetRequiredCategories();
     }
 }

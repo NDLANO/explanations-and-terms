@@ -26,6 +26,7 @@ namespace ConceptsMicroservice.Models
         [Required]
         [NoDuplicateIntValues]
         [MetaIdsMustExistInDatabase]
+        [MustContainOneOfEachCategory]
         public List<int> MetaIds { get; set; }
         [Required] [Column("title")] public string Title { get; set; }
         [Required] [Column("content")] public string Content { get; set; }

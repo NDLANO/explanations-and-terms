@@ -67,6 +67,11 @@ namespace ConceptsMicroservice.UnitTests.TestModels
         {
             Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, NoDuplicateIntValuesAttribute>(nameof(Concept.MetaIds)));
         }
+        [Fact]
+        public void MetaIds_Should_Have_Attribute_MustContainOneOfEachCategoryAttribute()
+        {
+            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, MustContainOneOfEachCategoryAttribute>(nameof(Concept.MetaIds)));
+        }
         #endregion
     }
 }

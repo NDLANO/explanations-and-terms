@@ -15,5 +15,6 @@ namespace ConceptsMicroservice.Services.Validation
 
         bool StatusIdIsValidId(int id);
         List<int> MetaIdsDoesNotExistInDatabase(IEnumerable<int> ids);
+        List<string> GetMissingRequiredCategories(List<int> metaIds);
     }
 }

@@ -23,6 +23,11 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
+        public List<MetaData> GetByRangeOfIds(IEnumerable<int> ids)
+        {
+            return ids == null ? new List<MetaData>() : _context.MetaData.Where(x => ids.Contains(x.Id)).ToList();
+        }
+
         public List<MetaData> GetAll()
         {
             return _context.MetaData

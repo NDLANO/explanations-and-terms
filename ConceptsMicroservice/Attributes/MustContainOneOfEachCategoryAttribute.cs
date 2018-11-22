@@ -13,19 +13,19 @@ using ConceptsMicroservice.Services.Validation;
 
 namespace ConceptsMicroservice.Attributes
 {
-    public class MetaIdsMustExistInDatabaseAttribute :  ValidationAttribute
+    public class MustContainOneOfEachCategoryAttribute :  ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+
             var service = validationContext.GetService(typeof(IConceptValidationService)) as IConceptValidationService;
             if (service == null)
-                return new ValidationResult("Could not validate metaIds");
+                return new ValidationResult("Could not validate metaid's");
 
-            var notExistingIds = service.MetaIdsDoesNotExistInDatabase((IEnumerable<int>)value);
-            if (notExistingIds.Any())
-            {
-                return new ValidationResult($"Metaid's [{string.Join(",", notExistingIds)}] is not a valid metas."); 
-            }
+            var missingCategories = service.GetMissingRequiredCategories(value as List<int>);
+            if (missingCategories.Any())
+                return new ValidationResult($"Missing required meta(s) of category [{string.Join(", ", missingCategories)}]");
+
             return ValidationResult.Success;
         }
     }

@@ -12,12 +12,14 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         private readonly IConceptValidationService _validationService;
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
         public ConceptValidationServiceTest()
         {
             _statusRepository = A.Fake<IStatusRepository>();
             _metadataRepository = A.Fake<IMetadataRepository>();
-            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository);
+            _categoryRepository = A.Fake<ICategoryRepository>();
+            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository);
         }
         #region StatusIdIsValid
         [Fact]
@@ -67,7 +69,58 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var notExistingIds = _validationService.MetaIdsDoesNotExistInDatabase(new List<int> {1, 2, 3, 4});
             Assert.Single(notExistingIds);
         }
-        
+
         #endregion
+        #region GetMissingRequiredCategories
+
+        [Fact]
+        public void GetMissingRequiredCategories_Returns_All_Required_Categories_When_Input_Is_Null()
+        {
+            var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
+            var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
+            var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
+            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null));
+        }
+
+        [Fact]
+        public void GetMissingRequiredCategories_Returns_All_Required_Categories_When_Input_Is_Empty()
+        {
+            var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
+            var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
+            var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
+            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>()));
+        }
+
+        [Fact]
+        public void GetMissingRequiredCategories_Returns_Missing_Required_Categories_When_They_Are_Missing()
+        {
+            var presentCategory = new MetaCategory {Name = "Present", Id = 1};
+            var missingCategory = new MetaCategory {Name = "Missing", Id = 2};
+            var requiredCategories = new List<MetaCategory>{missingCategory, presentCategory};
+            var presentMeta = new MetaData {Category = presentCategory, Id = 1};
+
+            A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData>{ presentMeta });
+            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+
+            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}));
+        }
+
+        [Fact]
+        public void GetMissingRequiredCategories_Returns_Empty_List_When_All_Required_Categories_Is_Present()
+        {
+            var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
+            var requiredCategories = new List<MetaCategory> { presentCategory };
+            var presentMeta = new MetaData { Category = presentCategory, Id = 1 };
+
+            A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData> { presentMeta });
+            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+
+            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }));
+        }
+        #endregion
+        
     }
 }
