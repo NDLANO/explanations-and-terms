@@ -11,6 +11,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using ConceptsMicroservice.Attributes;
+using ConceptsMicroservice.Extensions;
+using ConceptsMicroservice.Utilities;
 using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models
@@ -46,24 +48,39 @@ namespace ConceptsMicroservice.Models
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
+            //Get column names
+            var idColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.Id, attr => attr.Name));
+            var metaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MetaIds, attr => attr.Name));
+            var externalIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.ExternalId, attr => attr.Name));
+            var titleColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Title, attr => attr.Name));
+            var contentColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Content, attr => attr.Name));
+            var authorColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Author, attr => attr.Name));
+            var sourceColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Source, attr => attr.Name));
+            var createdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Created, attr => attr.Name));
+            var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
+            var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
+            var metaObjectsColumn = reader.GetOrdinal("meta_object");
+
             var meta = new List<MetaData>();
             try
             {
-                meta = JsonConvert.DeserializeObject<List<MetaData>>(reader.GetString(9));
+                meta = JsonConvert.DeserializeObject<List<MetaData>>(reader.GetString(metaObjectsColumn));
             }
             catch { }
 
+
             var concept = new Concept
             {
-                Id = reader.GetInt32(0),
-                MetaIds = reader.GetFieldValue<int[]>(1).ToList(),
-                ExternalId = reader.GetInt32(2),
-                Title = reader.GetString(3),
-                Content = reader.GetString(4),
-                Author = reader.GetString(5),
-                Source = reader.GetString(6),
-                Created = reader.GetDateTime(7),
-                Updated = reader.GetDateTime(8),
+                Id = reader.GetInt32(idColumn),
+                MetaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
+                ExternalId = reader.GetInt32(externalIdColumn),
+                Title = reader.SafeGetString(titleColumn),
+                Content = reader.SafeGetString(contentColumn),
+                Author = reader.SafeGetString(authorColumn),
+                Source = reader.SafeGetString(sourceColumn),
+                Created = reader.GetDateTime(createdColumn),
+                Updated = reader.GetDateTime(updatedColumn),
+                StatusId = reader.GetInt32(statusIdColumn),
                 Meta = meta,
                 //Status = reader.GetFieldValue<Status>(9)
             };

@@ -106,10 +106,10 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public void DeleteAllRowsInAllTables()
         {
-            var conceptTableName = typeof(Concept).GetAttributeValue((TableAttribute table) => table.Name);
-            var metaTableName = typeof(MetaData).GetAttributeValue((TableAttribute table) => table.Name);
-            var categoryTableName = typeof(MetaCategory).GetAttributeValue((TableAttribute table) => table.Name);
-            var statusTableName = typeof(Status).GetAttributeValue((TableAttribute table) => table.Name);
+            var conceptTableName = typeof(Concept).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var metaTableName = typeof(MetaData).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var categoryTableName = typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var statusTableName = typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name);
 
             using (var conn = new NpgsqlConnection(DatabaseConfig.GetConnectionString()))
             {

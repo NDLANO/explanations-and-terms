@@ -155,7 +155,8 @@ namespace ConceptsMicroservice.Repositories
         {
             inserted.Id = 0;
             var concept = _context.Concepts.Add(inserted);
-            concept.Entity.Updated = DateTime.Now;
+            concept.Entity.Created = DateTime.Now;
+            concept.Entity.Updated = concept.Entity.Created;
             _context.SaveChanges();
             return concept.Entity;
         }

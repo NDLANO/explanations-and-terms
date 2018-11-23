@@ -13,14 +13,14 @@ namespace ConceptsMicroservice.Extensions
     public static class AttributeExtensions
     {
         /// <summary>
-        /// Retrieves the specified value from an attribute.
+        /// Retrieves the specified value from an class attribute.
         /// </summary>
         /// <typeparam name="TAttribute"></typeparam>
         /// <typeparam name="TValue"></typeparam>
         /// <param name="type"></param>
         /// <param name="valueSelector"></param>
         /// <returns></returns>
-        public static TValue GetAttributeValue<TAttribute, TValue>(
+        public static TValue GetClassAttributeValue<TAttribute, TValue>(
             this Type type,
             Func<TAttribute, TValue> valueSelector)
             where TAttribute : Attribute
