@@ -58,7 +58,6 @@ namespace ConceptsMicroservice.Models
             var sourceColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Source, attr => attr.Name));
             var createdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Created, attr => attr.Name));
             var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
-            var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
 
             var meta = new List<MetaData>();
@@ -80,7 +79,6 @@ namespace ConceptsMicroservice.Models
                 Source = reader.SafeGetString(sourceColumn),
                 Created = reader.GetDateTime(createdColumn),
                 Updated = reader.GetDateTime(updatedColumn),
-                StatusId = reader.GetInt32(statusIdColumn),
                 Meta = meta,
                 //Status = reader.GetFieldValue<Status>(9)
             };
