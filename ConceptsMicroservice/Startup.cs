@@ -18,6 +18,9 @@ using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Services.Validation;
 using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Utilities.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -43,26 +46,61 @@ namespace ConceptsMicroservice
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(_databaseConfig.GetConnectionString()));
             services.AddSwagger();
-            services.AddCors(
-                options =>
-                {
-                    options.AddPolicy("AllowAll",
-                        builder =>
-                        {
-                            builder
-                                .AllowAnyOrigin()
-                                .AllowAnyMethod()
-                                .AllowAnyHeader()
-                                .AllowCredentials();
-                        });
-                }
-                );
+            //services.AddCors(
+            //    options =>
+            //    {
+            //        options.AddPolicy("AllowAll",
+            //            builder =>
+            //            {
+            //                builder
+            //                    .AllowAnyOrigin()
+            //                    .AllowAnyMethod()
+            //                    .AllowAnyHeader()
+            //                    .AllowCredentials();
+            //            });
+            //    }
+            //    );
             services
                 .AddMvc()
                     .AddJsonOptions(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            //Today 23.11.2018 Auth0
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins("http://localhost:3000")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    });
+            });
+
+            string domain = $"https://{_config["Auth0:Domain"]}/";
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = domain;
+                options.Audience = _config["Auth0:ApiIdentifier"];
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("read:messages", policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
+            });
+
+            // register the scope authorization handler
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt =>
@@ -80,10 +118,13 @@ namespace ConceptsMicroservice
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
             ConfigureSwagger(app);
+
+            app.UseAuthentication();
 
             app.UseCors("AllowAll");
 
