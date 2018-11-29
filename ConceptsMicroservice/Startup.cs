@@ -95,7 +95,8 @@ namespace ConceptsMicroservice
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("read:messages", policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
+                options.AddPolicy(_config["Auth0:Admin"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Admin"], domain)));
+                options.AddPolicy("concept-test:write", policy => policy.Requirements.Add(new HasScopeRequirement("concept-write", domain)));
             });
 
             // register the scope authorization handler

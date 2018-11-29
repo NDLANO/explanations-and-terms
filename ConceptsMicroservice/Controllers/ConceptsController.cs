@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Configuration;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -29,10 +31,12 @@ namespace ConceptsMicroservice.Controllers
     public class ConceptController : ControllerBase
     {
         private readonly IConceptService _service;
+        private readonly IConfiguration _config;
 
         public ConceptController(IConceptService service)
         {
             _service = service;
+            //_config = config;
         }
         
         [HttpGet]
@@ -62,9 +66,8 @@ namespace ConceptsMicroservice.Controllers
         [HttpGet]
         public async  Task<ActionResult<Response>> GetAll()
         {
-            //string token = await HttpContext.GetTokenAsync("access_token");
             Models.Response conceptToBeDeleted = _service.GetConceptById(73);
-            string scope = ReturnScope();
+            string scope = ReturnScope(User);
             string test = await ReturnClaimEmail();
             var concepts = _service.GetAllConcepts();
             if (concepts != null)
@@ -86,70 +89,90 @@ namespace ConceptsMicroservice.Controllers
         [HttpPut]
         public async Task<ActionResult<Response>> UpdateConcept([Required][FromBody]Concept concept)
         {
-            string scope = ReturnScope();
+            string scope = ReturnScope(User);
             string usersEmail = await ReturnClaimEmail();
-            if (scope.Contains("concept-test:write") && usersEmail.Equals(concept.Author.ToLower()) || 
-                scope.Contains("concept-test:admin"))
+            var canUserUpdate = (scope.Contains("concept-test:write") && 
+                                 usersEmail.Equals(concept.Author.ToLower())) || 
+                                scope.Contains("concept-test:admin");
+            if (canUserUpdate)
             {
                 //do some thing...
+                if (concept == null)
+                {
+                    var errors = new ModelStateDictionary();
+                    errors.TryAddModelError("concept", "Concept is required");
+                    return BadRequest(new ModelStateErrorResponse(errors));
+                }
+
+                if (!ModelState.IsValid)
+                    return BadRequest(new ModelStateErrorResponse(ModelState));
+
+                var viewModel = _service.UpdateConcept(concept);
+                if (viewModel == null)
+                    return BadRequest(new ModelStateErrorResponse(ModelState));
+
+                if (viewModel.HasErrors())
+                    return BadRequest(viewModel);
+
+                return Ok(viewModel);
             }
-            if (concept == null)
+            else
             {
-                var errors = new ModelStateDictionary();
-                errors.TryAddModelError("concept", "Concept is required");
-                return BadRequest(new ModelStateErrorResponse(errors));
+                return Unauthorized();
             }
-
-            if (!ModelState.IsValid)
-                return BadRequest(new ModelStateErrorResponse(ModelState));
-
-            var viewModel = _service.UpdateConcept(concept);
-            if (viewModel == null)
-                return BadRequest(new ModelStateErrorResponse(ModelState));
-
-            if (viewModel.HasErrors())
-                return BadRequest(viewModel);
-
-            return Ok(viewModel);
         }
 
         [HttpPost]
-        public ActionResult<Response> CreateConcept([Required][FromBody]Concept concept)
+        [Authorize("concept-test:admin")]
+        [Authorize("concept-write")]
+        public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]Concept concept)
         {
-            bool isWriter = ReturnScope().Contains("concept:write") || 
-                            ReturnScope().Contains("concept:admin");
-            if (concept == null)
+            string scope = ReturnScope(User);
+            string usersEmail = await ReturnClaimEmail();
+            bool userCanPost = scope.Contains("concept:write") ||
+                               scope.Contains("concept:admin");
+            if (userCanPost)
             {
-                var errors = new ModelStateDictionary();
-                errors.TryAddModelError("concept", "Concept is required");
-                return BadRequest(new ModelStateErrorResponse(errors));
+                if (concept == null)
+                {
+                    var errors = new ModelStateDictionary();
+                    errors.TryAddModelError("concept", "Concept is required");
+                    return BadRequest(new ModelStateErrorResponse(errors));
+                }
+
+                if (!ModelState.IsValid)
+                    return BadRequest(new ModelStateErrorResponse(ModelState));
+
+                concept.Author = usersEmail;
+                var viewModel = _service.CreateConcept(concept);
+                if (viewModel == null)
+                    return BadRequest(new ModelStateErrorResponse(ModelState));
+
+                if (viewModel.HasErrors())
+                    return BadRequest(viewModel);
+
+                return Ok(viewModel);
             }
-
-            if (!ModelState.IsValid)
-                return BadRequest(new ModelStateErrorResponse(ModelState));
-
-            var viewModel = _service.CreateConcept(concept);
-            if (viewModel == null)
-                return BadRequest(new ModelStateErrorResponse(ModelState));
-
-            if (viewModel.HasErrors())
-                return BadRequest(viewModel);
-
-            return Ok(viewModel);
+            else
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpDelete("{id}")]
+        [Authorize("concept-test:admin")]
+        [Authorize("concept-write")]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
-            string scope = ReturnScope();
+            string scope = ReturnScope(User);
             string usersEmail = await ReturnClaimEmail();
             Models.Response conceptToBeDeleted = _service.GetConceptById(id);
             var concept = conceptToBeDeleted.Data as Concept;
-            if ((scope.Contains("concept:write") &&
-                 usersEmail.Equals(concept.Author.ToLower())) ||
-                scope.Contains("concept:admin"))
+            var canUserDelete = concept != null && ((scope.Contains("concept-test:write") && 
+                                                     usersEmail.Equals(concept.Author.ToLower())) ||
+                                                    scope.Contains("concept-test:admin"));
+            if (canUserDelete)
             {
-                //implement youe logic here; } e
                 var viewModel = _service.ArchiveConcept(id);
                 if (viewModel == null)
                     return NotFound();
@@ -159,55 +182,34 @@ namespace ConceptsMicroservice.Controllers
             }
             else
             {
-                var returnSomeKindOf = "return some kind of 401";
+               // StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status401Unauthorized);
+                return Unauthorized();
             }
-
-            //var viewModel = _service.ArchiveConcept(id);
-            //if (viewModel == null)
-            //    return NotFound();
-
-            //if (viewModel.HasErrors())
-            //    return BadRequest(viewModel);
-
             return NoContent();
         }
 
         #endregion
         #region check role
-        private bool IsThisUserAllowed(string role, string email)
-        {
-            bool isAllowed = false;
-            //do necessary  check for the roles/user in Access Token, Claims
-            //string claimsString = "";
-            //string test = "";
-            var scopeClaim = User.Claims.Where(c => c.Type.ToLower() == "scope");
-            var emailClaim = User.Claims.Where(c => c.Type.ToLower() == "email");
-            var roleClaim = User.Claims.Where(c => c.Type.ToLower() == "role");
-            if (emailClaim.ToString().ToLower() == email)
-            {
-                isAllowed = true;
-            }
-            return isAllowed;
-        }
-
-        private string ReturnScope()
+        private string ReturnScope(ClaimsPrincipal user)
         {
             string scopeValue = "";
-            IEnumerable<Claim> scope = User.Claims.Where(c => c.Type.ToLower() == "scope");
+            IEnumerable<Claim> scope = user.Claims.Where(c => c.Type.ToLower() == "scope");
             scopeValue = scope.First().Value;
             return scopeValue;
         }
 
         private async Task<string>  ReturnClaimEmail()
         {
-            string emailValue = "";
+            //auth0Domain should retrieve from appsettings
+            string auth0Domain = "ndla.eu.auth0.com";
+            //token should retrieve from httprequest header
+            //string token = await HttpContext.GetTokenAsync("access_token");
+            string token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik9FSTFNVVU0T0RrNU56TTVNekkyTXpaRE9EazFOMFl3UXpkRE1EUXlPRFZDUXpRM1FUSTBNQSJ9.eyJodHRwczovL25kbGEubm8vbmRsYV9pZCI6Ii0xak4yOGpob3VTT19XN1d5c1JJU1lPbyIsImh0dHBzOi8vbmRsYS5uby91c2VyX25hbWUiOiJuYXNzZXIgcmFoYmFyaSIsImh0dHBzOi8vbmRsYS5uby9jbGllbnRfaWQiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsImlzcyI6Imh0dHBzOi8vbmRsYS5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTQzMzI3ODM4MTI1NDc5MjI4MDMiLCJhdWQiOlsibmRsYV9zeXN0ZW0iLCJodHRwczovL25kbGEuZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTU0MzQ3NjUwMCwiZXhwIjoxNTQzNDgzNzAwLCJhenAiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsInNjb3BlIjoiY29uY2VwdC10ZXN0OmFkbWluIGNvbmNlcHQtdGVzdDp3cml0ZSBvcGVuaWQgcHJvZmlsZSBlbWFpbCJ9.JB3AUC036h9bGLbyrVBNYRpRyK0oSgohIuJVwAj6bk3PZ5bW0YDPdXjMdvUJ-1FH38Ap4cnxaKP1Y6Ng7a8LAhph9R7RW6uDjtmVrAxMq8AWn3unELF7H31GWQMwpVihRis8V5AS0jXWxnxC_B5heJDBn7OmZSGtsm1b3oC6z_E_1hFedjYmvwsHogUtOlHBc_W4buoc_V8I8T8z4VoIPECxgYBz9lFsdW2YhbwH5MtSLP8sWH3eLlZp0M4hUDjfJB5fhQJ0x0RsiswVt_RdtpZh_R5D1XaNnGBkgtynHLj_tOtmUsoKfhjIaNQN4l9MXtodNYBbAMNxnnapyC8MRw";
+            Auth0.AuthenticationApi.AuthenticationApiClient test =
+                new AuthenticationApiClient(auth0Domain);
+            Auth0.AuthenticationApi.Models.UserInfo authenticatedUser = await test.GetUserInfoAsync(token);
 
-            Auth0.AuthenticationApi.AuthenticationApiClient test  = 
-                new AuthenticationApiClient("ndla.eu.auth0.com");
-            Auth0.AuthenticationApi.Models.UserInfo thisUser = await test.GetUserInfoAsync(
-                "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik9FSTFNVVU0T0RrNU56TTVNekkyTXpaRE9EazFOMFl3UXpkRE1EUXlPRFZDUXpRM1FUSTBNQSJ9.eyJodHRwczovL25kbGEubm8vbmRsYV9pZCI6Ii0xak4yOGpob3VTT19XN1d5c1JJU1lPbyIsImh0dHBzOi8vbmRsYS5uby91c2VyX25hbWUiOiJuYXNzZXIgcmFoYmFyaSIsImh0dHBzOi8vbmRsYS5uby9jbGllbnRfaWQiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsImlzcyI6Imh0dHBzOi8vbmRsYS5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTQzMzI3ODM4MTI1NDc5MjI4MDMiLCJhdWQiOlsibmRsYV9zeXN0ZW0iLCJodHRwczovL25kbGEuZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTU0MzQxNTQxOCwiZXhwIjoxNTQzNDIyNjE4LCJhenAiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsInNjb3BlIjoiY29uY2VwdC10ZXN0OmFkbWluIGNvbmNlcHQtdGVzdDp3cml0ZSBvcGVuaWQgcHJvZmlsZSBlbWFpbCJ9.Y0Tv1Vkygy-r0YpIFbAdBqdkgGR07baP0EGTgQuQ3VupjuaE1BodkQtdlpy__z0svAq_5sRK-R7ZdVxLFjyjQ8kSrgr1VSKzqcsqw3eXUZv3J2_DfLWtIlU43DBwpBw_GXskud2ptyJnuW_gu8n7pJCcldmpZ6UmIvWj89q5TDRGp2jtUHJA2rCmudpzjYHwmVGVe-H4XeW283HsVNult6aaRmFZyEg0dfimgfVKnexA7MZsaDJUyDopIZvugUHQhC4i81zleP-7_0aFDkyE_F3e4oVr6E_Jhdg0NYH4DZDShHUU1QGemPjt5iKunPRnISvJmCkZ-4vEJ8s5wBu-uA");
-
-            return thisUser.Email;
+            return authenticatedUser.Email;
         }
         #endregion
     }
