@@ -106,7 +106,7 @@ namespace ConceptsMicroservice.Services
             return viewModel;
         }
 
-        public Response ArchiveConcept(int id)
+        public Response ArchiveConcept(int id, string usersEmail)
         {
             var updatedConcept = _conceptRepository.GetById(id);
             if (updatedConcept == null)
@@ -123,6 +123,7 @@ namespace ConceptsMicroservice.Services
 
             updatedConcept.Status = inactiveStatus;
             updatedConcept.StatusId = inactiveStatus.Id;
+            updatedConcept.Deleted_By = usersEmail;
 
             try
             {

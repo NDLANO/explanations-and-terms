@@ -47,20 +47,20 @@ namespace ConceptsMicroservice
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(_databaseConfig.GetConnectionString()));
             services.AddSwagger();
-            //services.AddCors(
-            //    options =>
-            //    {
-            //        options.AddPolicy("AllowAll",
-            //            builder =>
-            //            {
-            //                builder
-            //                    .AllowAnyOrigin()
-            //                    .AllowAnyMethod()
-            //                    .AllowAnyHeader()
-            //                    .AllowCredentials();
-            //            });
-            //    }
-            //    );
+            services.AddCors(
+                options =>
+                {
+                    options.AddPolicy("AllowAll",
+                        builder =>
+                        {
+                            builder
+                                .AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader()
+                                .AllowCredentials();
+                        });
+                }
+                );
             services
                 .AddMvc()
                     .AddJsonOptions(options => {
@@ -99,10 +99,6 @@ namespace ConceptsMicroservice
             {
                 options.AddPolicy(_config["Auth0:Scope:Admin"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Admin"], domain)));
                 options.AddPolicy(_config["Auth0:Scope:Write"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Write"], domain)));
-                //options.AddPolicy(_config["Auth0:Scope:Read"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Read"], domain)));
-                //options.AddPolicy("concept-test:admin", policy => policy.Requirements.Add(new HasScopeRequirement("concept-test:admin", domain)));
-                //options.AddPolicy("concept-test:write", policy => policy.Requirements.Add(new HasScopeRequirement("concept-test:write", domain)));
-                //options.AddPolicy("read:messages", policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
                 //options.AddPolicy("RequireElevatedRights", policy =>
                 //    policy.RequireRole(requiredRoles));
             });

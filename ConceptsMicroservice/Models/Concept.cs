@@ -37,6 +37,8 @@ namespace ConceptsMicroservice.Models
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("source_author")] public string Source_Author { get; set; }
+        [Column("deleted_by")] public string Deleted_By { get; set; }
+
         [Column("status_id")]
         [StatusIdExistsInDatabase]
         public int StatusId { get; set; }
