@@ -21,6 +21,7 @@ using ConceptsMicroservice.Utilities;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -82,6 +83,7 @@ namespace ConceptsMicroservice
             });
 
             string domain = $"https://{_config["Auth0:Domain"]}/";
+            string[] requiredRoles = { "concept:write", "write:messages", "read:messages"};
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -95,8 +97,14 @@ namespace ConceptsMicroservice
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(_config["Auth0:Admin"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Admin"], domain)));
-                options.AddPolicy("concept-test:write", policy => policy.Requirements.Add(new HasScopeRequirement("concept-write", domain)));
+                options.AddPolicy(_config["Auth0:Scope:Admin"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Admin"], domain)));
+                options.AddPolicy(_config["Auth0:Scope:Write"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Write"], domain)));
+                //options.AddPolicy(_config["Auth0:Scope:Read"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Read"], domain)));
+                //options.AddPolicy("concept-test:admin", policy => policy.Requirements.Add(new HasScopeRequirement("concept-test:admin", domain)));
+                //options.AddPolicy("concept-test:write", policy => policy.Requirements.Add(new HasScopeRequirement("concept-test:write", domain)));
+                //options.AddPolicy("read:messages", policy => policy.Requirements.Add(new HasScopeRequirement("read:messages", domain)));
+                //options.AddPolicy("RequireElevatedRights", policy =>
+                //    policy.RequireRole(requiredRoles));
             });
 
             // register the scope authorization handler

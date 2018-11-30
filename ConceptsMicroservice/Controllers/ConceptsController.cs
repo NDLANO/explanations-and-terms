@@ -27,7 +27,8 @@ namespace ConceptsMicroservice.Controllers
 {
     [Route("api/[Controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
+   // [Authorize(Policy = "RequireElevatedRights")]
     public class ConceptController : ControllerBase
     {
         private readonly IConceptService _service;
@@ -123,8 +124,8 @@ namespace ConceptsMicroservice.Controllers
         }
 
         [HttpPost]
-        [Authorize("concept-test:admin")]
-        [Authorize("concept-write")]
+        //[Authorize("concept-test:admin")]
+        //[Authorize("concept-write")]
         public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]Concept concept)
         {
             string scope = ReturnScope(User);
@@ -160,8 +161,10 @@ namespace ConceptsMicroservice.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize("concept-test:admin")]
-        [Authorize("concept-write")]
+        [Authorize(Policy = "concept-test:admin")]
+        [Authorize(Policy = "concept-test:write")]
+        //[Authorize(Policy = "ElevatedRights")] //""write:messages,concept-test:admin")]
+        //[Authorize(Policy = "RequireElevatedRights")]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
             string scope = ReturnScope(User);
@@ -204,7 +207,7 @@ namespace ConceptsMicroservice.Controllers
             string auth0Domain = "ndla.eu.auth0.com";
             //token should retrieve from httprequest header
             //string token = await HttpContext.GetTokenAsync("access_token");
-            string token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik9FSTFNVVU0T0RrNU56TTVNekkyTXpaRE9EazFOMFl3UXpkRE1EUXlPRFZDUXpRM1FUSTBNQSJ9.eyJodHRwczovL25kbGEubm8vbmRsYV9pZCI6Ii0xak4yOGpob3VTT19XN1d5c1JJU1lPbyIsImh0dHBzOi8vbmRsYS5uby91c2VyX25hbWUiOiJuYXNzZXIgcmFoYmFyaSIsImh0dHBzOi8vbmRsYS5uby9jbGllbnRfaWQiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsImlzcyI6Imh0dHBzOi8vbmRsYS5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTQzMzI3ODM4MTI1NDc5MjI4MDMiLCJhdWQiOlsibmRsYV9zeXN0ZW0iLCJodHRwczovL25kbGEuZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTU0MzQ3NjUwMCwiZXhwIjoxNTQzNDgzNzAwLCJhenAiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsInNjb3BlIjoiY29uY2VwdC10ZXN0OmFkbWluIGNvbmNlcHQtdGVzdDp3cml0ZSBvcGVuaWQgcHJvZmlsZSBlbWFpbCJ9.JB3AUC036h9bGLbyrVBNYRpRyK0oSgohIuJVwAj6bk3PZ5bW0YDPdXjMdvUJ-1FH38Ap4cnxaKP1Y6Ng7a8LAhph9R7RW6uDjtmVrAxMq8AWn3unELF7H31GWQMwpVihRis8V5AS0jXWxnxC_B5heJDBn7OmZSGtsm1b3oC6z_E_1hFedjYmvwsHogUtOlHBc_W4buoc_V8I8T8z4VoIPECxgYBz9lFsdW2YhbwH5MtSLP8sWH3eLlZp0M4hUDjfJB5fhQJ0x0RsiswVt_RdtpZh_R5D1XaNnGBkgtynHLj_tOtmUsoKfhjIaNQN4l9MXtodNYBbAMNxnnapyC8MRw";
+            string token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik9FSTFNVVU0T0RrNU56TTVNekkyTXpaRE9EazFOMFl3UXpkRE1EUXlPRFZDUXpRM1FUSTBNQSJ9.eyJodHRwczovL25kbGEubm8vbmRsYV9pZCI6Ii0xak4yOGpob3VTT19XN1d5c1JJU1lPbyIsImh0dHBzOi8vbmRsYS5uby91c2VyX25hbWUiOiJuYXNzZXIgcmFoYmFyaSIsImh0dHBzOi8vbmRsYS5uby9jbGllbnRfaWQiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsImlzcyI6Imh0dHBzOi8vbmRsYS5ldS5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTQzMzI3ODM4MTI1NDc5MjI4MDMiLCJhdWQiOlsibmRsYV9zeXN0ZW0iLCJodHRwczovL25kbGEuZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTU0MzU2ODQ0OSwiZXhwIjoxNTQzNTc1NjQ5LCJhenAiOiJXVTBLcjRDRGtyTTB1TDl4WWVGVjRjbDlHYTF2QjNKWSIsInNjb3BlIjoiY29uY2VwdC10ZXN0OmFkbWluIGNvbmNlcHQtdGVzdDp3cml0ZSBvcGVuaWQgcHJvZmlsZSBlbWFpbCJ9.ECZgy7VasVeWqNQJ57CzJOg7H6ZMaTNk9x7peswGrYNsQT_0LmCmrmP0QxUpBjCT8BS9nXzrGV32zMXEWZN0KvTdTMkEduBbwy-Qh_g5rmZxIyqQr_1-9ylv5X0VuwMKIHIVDDuOyVq52uuo4QOgSDuDptLHGNPD2H6PMS9TeKfA0ptASwJaZZxfrbFBzFhERLgRio1VtMScdkVb-84Mk9EZPBhzXua5hwa06GnxwHcoALCjf5l66MA0AoHR9SuXhdqDVkoL-PNB7iVgOZko2TrEx_Gid9rR8YCbdNay4ZU5xQCuFZ51BT0r5pXx0j2CftWuuAb3mXCNg_JiaXE8jw";
             Auth0.AuthenticationApi.AuthenticationApiClient test =
                 new AuthenticationApiClient(auth0Domain);
             Auth0.AuthenticationApi.Models.UserInfo authenticatedUser = await test.GetUserInfoAsync(token);
