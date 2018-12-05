@@ -25,6 +25,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IConceptRepository ConceptRepository;
         protected readonly IMetadataRepository MetaRepository;
         protected readonly IStatusRepository StatusRepository;
+        private readonly string allowedUserEmail = "someBody@somedomain";
 
         private Status _status;
 
@@ -87,7 +88,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetByName(A<string>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(Mock.MockConcept(_status));
 
-            var response = Service.ArchiveConcept(0);
+            var response = Service.ArchiveConcept(0, allowedUserEmail);
 
             Assert.NotNull(response.Data);
             Assert.IsType<Concept>(response.Data);
@@ -99,7 +100,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetByName(A<string>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(Mock.MockConcept(_status));
 
-            var response = Service.ArchiveConcept(0);
+            var response = Service.ArchiveConcept(0, allowedUserEmail);
 
             Assert.False(response.HasErrors());
         }
@@ -110,7 +111,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetByName(A<string>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Throws<Exception>();
 
-            var response = Service.ArchiveConcept(0);
+            var response = Service.ArchiveConcept(0, allowedUserEmail);
 
             Assert.True(response.HasErrors());
         }
@@ -120,7 +121,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
             A.CallTo(() => StatusRepository.GetByName(A<string>._)).Returns(null);
 
-            var response = Service.ArchiveConcept(0);
+            var response = Service.ArchiveConcept(0, allowedUserEmail);
 
             Assert.True(response.HasErrors());
         }
@@ -129,7 +130,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         {
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(null);
 
-            var response = Service.ArchiveConcept(0);
+            var response = Service.ArchiveConcept(0, allowedUserEmail);
 
             Assert.Null(response);
         }
