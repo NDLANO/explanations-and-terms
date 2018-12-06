@@ -13,7 +13,6 @@ using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -61,11 +60,8 @@ namespace ConceptsMicroservice.Controllers
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<Response>> GetAll()
+        public ActionResult<Response> GetAll()
         {
-            Models.Response conceptToBeDeleted = _service.GetConceptById(73);
-            string scope = _tokenHelper.ReturnScope(User);
-            string test = await _tokenHelper.ReturnClaimEmail(HttpContext);
             var concepts = _service.GetAllConcepts();
             if (concepts != null)
                 return Ok(concepts);
@@ -86,24 +82,14 @@ namespace ConceptsMicroservice.Controllers
         [HttpPut]
         [Authorize(Policy = "concept-test:admin")]
         [Authorize(Policy = "concept-test:write")]
-        public async Task<ActionResult<Response>> UpdateConcept([Required][FromBody]Concept concept)
+        public ActionResult<Response> UpdateConcept([Required][FromBody]Concept concept)
         {
-            
             if (concept == null)
             {
                 var errors = new ModelStateDictionary();
                 errors.TryAddModelError("concept", "Concept is required");
                 return BadRequest(new ModelStateErrorResponse(errors));
             }
-
-            string scope = _tokenHelper.ReturnScope(User);
-            string usersEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
-            var canUserUpdate = (scope.Contains("concept-test:write") &&
-                                 usersEmail.Equals(concept.AuthorEmail.ToLower())) ||
-                                scope.Contains("concept-test:admin");
-
-            if (!canUserUpdate)
-                return Unauthorized();
 
             if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
@@ -118,42 +104,32 @@ namespace ConceptsMicroservice.Controllers
             return Ok(viewModel);
 
         }
+        
 
         [HttpPost]
         [Authorize(Policy = "concept-test:admin")]
         [Authorize(Policy = "concept-test:write")]
         public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]Concept concept)
         {
-            string scope = _tokenHelper.ReturnScope(User);
-            string usersEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
-            bool userCanPost = scope.Contains("concept-test:write") ||
-                               scope.Contains("concept-test:admin");
-            if (userCanPost)
+            if (concept == null)
             {
-                if (concept == null)
-                {
-                    var errors = new ModelStateDictionary();
-                    errors.TryAddModelError("concept", "Concept is required");
-                    return BadRequest(new ModelStateErrorResponse(errors));
-                }
-
-                if (!ModelState.IsValid)
-                    return BadRequest(new ModelStateErrorResponse(ModelState));
-
-                concept.AuthorName = usersEmail;
-                var viewModel = _service.CreateConcept(concept);
-                if (viewModel == null)
-                    return BadRequest(new ModelStateErrorResponse(ModelState));
-
-                if (viewModel.HasErrors())
-                    return BadRequest(viewModel);
-
-                return Ok(viewModel);
+                var errors = new ModelStateDictionary();
+                errors.TryAddModelError("concept", "Concept is required");
+                return BadRequest(new ModelStateErrorResponse(errors));
             }
-            else
-            {
-                return Unauthorized();
-            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(new ModelStateErrorResponse(ModelState));
+
+            concept.AuthorName = await _tokenHelper.ReturnClaimEmail(HttpContext);
+            var viewModel = _service.CreateConcept(concept);
+            if (viewModel == null)
+                return BadRequest(new ModelStateErrorResponse(ModelState));
+
+            if (viewModel.HasErrors())
+                return BadRequest(viewModel);
+
+            return Ok(viewModel);
         }
 
         [HttpDelete("{id}")]
@@ -161,51 +137,19 @@ namespace ConceptsMicroservice.Controllers
         [Authorize(Policy = "concept-test:write")]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
-            string token = await _tokenHelper.ReturnToken(HttpContext); //HttpContext.GetTokenAsync("access_token");
-            string scope = _tokenHelper.ReturnScope(User);
+            
             string usersEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
-            Models.Response conceptToBeDeleted = _service.GetConceptById(id);
-            var concept = conceptToBeDeleted.Data as Concept;
-            var canUserDelete = concept != null && ((scope.Contains("concept-test:write") && 
-                                                     usersEmail.Equals(concept.AuthorName.ToLower())) ||
-                                                    scope.Contains("concept-test:admin"));
-            if (canUserDelete)
-            {
-                var viewModel = _service.ArchiveConcept(id, usersEmail);
-                if (viewModel == null)
-                    return NotFound();
+            
+            var viewModel = _service.ArchiveConcept(id, usersEmail);
+            if (viewModel == null)
+                return NotFound();
 
-                if (viewModel.HasErrors())
-                    return BadRequest(viewModel);
-            }
-            else
-            {
-                return Unauthorized();
-            }
+            if (viewModel.HasErrors())
+                return BadRequest(viewModel);
+       
             return NoContent();
         }
 
-        #endregion
-        #region check role
-        //private string ReturnScope(ClaimsPrincipal user)
-        //{
-        //    string scopeValue = "";
-        //    IEnumerable<Claim> scope = user.Claims.Where(c => c.Type.ToLower() == "scope");
-        //    scopeValue = scope.First().Value;
-        //    return scopeValue;
-        //}
-
-        //private async Task<string>  ReturnClaimEmail()
-        //{
-        //    //auth0Domain should retrieve from appsettings
-        //    string auth0Domain = "ndla.eu.auth0.com";
-        //    string token = await HttpContext.GetTokenAsync("access_token");
-        //    Auth0.AuthenticationApi.AuthenticationApiClient test =
-        //        new AuthenticationApiClient(auth0Domain);
-        //    Auth0.AuthenticationApi.Models.UserInfo authenticatedUser = await test.GetUserInfoAsync(token);
-
-        //    return authenticatedUser.Email;
-        //}
         #endregion
     }
 }

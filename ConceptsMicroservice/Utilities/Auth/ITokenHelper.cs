@@ -8,16 +8,16 @@
 
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace ConceptsMicroservice.Utilities.Auth
 {
     public interface ITokenHelper
     {
-        Task<string> ReturnClaimEmail(Microsoft.AspNetCore.Http.HttpContext context);
-        //async Task<string> ReturnClaimEmail();
+        Task<string> ReturnClaimEmail(HttpContext context);
 
         string ReturnScope(ClaimsPrincipal user);
 
-        Task<string> ReturnToken(Microsoft.AspNetCore.Http.HttpContext context);
+        Task<string> ReturnToken(HttpContext context);
     }
 }
