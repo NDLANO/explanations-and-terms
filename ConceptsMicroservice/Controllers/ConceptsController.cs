@@ -95,7 +95,7 @@ namespace ConceptsMicroservice.Controllers
             string scope = ReturnScope(User);
             string usersEmail = await ReturnClaimEmail();
             var canUserUpdate = (scope.Contains("concept-test:write") && 
-                                 usersEmail.Equals(concept.Author.ToLower())) || 
+                                 usersEmail.Equals(concept.AuthorName.ToLower())) || 
                                 scope.Contains("concept-test:admin");
             if (canUserUpdate)
             {
@@ -146,7 +146,7 @@ namespace ConceptsMicroservice.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(new ModelStateErrorResponse(ModelState));
 
-                concept.Author = usersEmail;
+                concept.AuthorName = usersEmail;
                 var viewModel = _service.CreateConcept(concept);
                 if (viewModel == null)
                     return BadRequest(new ModelStateErrorResponse(ModelState));
@@ -174,7 +174,7 @@ namespace ConceptsMicroservice.Controllers
             Models.Response conceptToBeDeleted = _service.GetConceptById(id);
             var concept = conceptToBeDeleted.Data as Concept;
             var canUserDelete = concept != null && ((scope.Contains("concept-test:write") && 
-                                                     usersEmail.Equals(concept.Author.ToLower())) ||
+                                                     usersEmail.Equals(concept.AuthorName.ToLower())) ||
                                                     scope.Contains("concept-test:admin"));
             if (canUserDelete)
             {

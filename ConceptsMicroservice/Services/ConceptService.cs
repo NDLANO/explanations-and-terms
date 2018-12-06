@@ -123,7 +123,7 @@ namespace ConceptsMicroservice.Services
 
             updatedConcept.Status = inactiveStatus;
             updatedConcept.StatusId = inactiveStatus.Id;
-            updatedConcept.Deleted_By = usersEmail;
+            updatedConcept.DeletedBy = usersEmail;
 
             try
             {

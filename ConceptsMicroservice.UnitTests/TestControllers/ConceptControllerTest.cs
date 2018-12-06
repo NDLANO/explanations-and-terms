@@ -36,7 +36,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             _concept = new Concept
             {
                 Title = "Title",
-                Author = "Author",
+                AuthorName = "AuthorName",
                 Content = "Content",
                 Created = DateTime.Now,
                 Updated = DateTime.Now,

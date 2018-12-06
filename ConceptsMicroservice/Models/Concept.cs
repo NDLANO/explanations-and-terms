@@ -32,12 +32,13 @@ namespace ConceptsMicroservice.Models
         public List<int> MetaIds { get; set; }
         [Required] [Column("title")] public string Title { get; set; }
         [Required] [Column("content")] public string Content { get; set; }
-        [Required] [Column("author")] public string Author { get; set; }
+        [Column("author_email")] public string AuthorEmail { get; set; }
+        [Column("author_name")] public string AuthorName { get; set; }
         [Column("source")] public string Source { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
-        [Column("source_author")] public string Source_Author { get; set; }
-        [Column("deleted_by")] public string Deleted_By { get; set; }
+        [Required][Column("source_author")] public string SourceAuthor { get; set; }
+        [Column("deleted_by")] public string DeletedBy { get; set; }
 
         [Column("status_id")]
         [StatusIdExistsInDatabase]
@@ -57,10 +58,13 @@ namespace ConceptsMicroservice.Models
             var externalIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.ExternalId, attr => attr.Name));
             var titleColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Title, attr => attr.Name));
             var contentColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Content, attr => attr.Name));
-            var authorColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Author, attr => attr.Name));
+            var authorNameColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorName, attr => attr.Name));
+            var authorEmailColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorEmail, attr => attr.Name));
+            var sourceAuthorColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.SourceAuthor, attr => attr.Name));
             var sourceColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Source, attr => attr.Name));
             var createdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Created, attr => attr.Name));
             var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
+            var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
 
             var meta = new List<MetaData>();
@@ -78,11 +82,14 @@ namespace ConceptsMicroservice.Models
                 ExternalId = reader.GetInt32(externalIdColumn),
                 Title = reader.SafeGetString(titleColumn),
                 Content = reader.SafeGetString(contentColumn),
-                Author = reader.SafeGetString(authorColumn),
+                AuthorName = reader.SafeGetString(authorNameColumn),
+                AuthorEmail = reader.SafeGetString(authorEmailColumn),
                 Source = reader.SafeGetString(sourceColumn),
+                SourceAuthor = reader.SafeGetString(sourceAuthorColumn),
                 Created = reader.GetDateTime(createdColumn),
                 Updated = reader.GetDateTime(updatedColumn),
                 Meta = meta,
+                StatusId = statusIdColumn,
                 //Status = reader.GetFieldValue<Status>(9)
             };
 

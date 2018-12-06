@@ -30,12 +30,12 @@ namespace ConceptsMicroservice.UnitTests.TestModels
             Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.Content)));
         }
         #endregion
-        #region Author
+        #region AuthorName
 
         [Fact]
         public void Author_Should_Have_Attribute_Required()
         {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.Author)));
+            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Concept, RequiredAttribute>(nameof(Concept.AuthorName)));
         }
         #endregion
         #region Source
