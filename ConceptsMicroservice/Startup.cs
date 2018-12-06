@@ -187,6 +187,7 @@ namespace ConceptsMicroservice
 
 
             services.AddScoped<IDatabaseConfig, DatabaseConfig>();
+            services.AddScoped<ITokenHelper, TokenHelper>();
 
             services.AddScoped<IConceptValidationService, ConceptValidationService>();
         }
