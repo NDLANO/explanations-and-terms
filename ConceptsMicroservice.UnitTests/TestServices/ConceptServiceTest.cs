@@ -25,7 +25,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IConceptRepository ConceptRepository;
         protected readonly IMetadataRepository MetaRepository;
         protected readonly IStatusRepository StatusRepository;
-        private readonly string allowedUserEmail = "someBody@somedomain";
+        private readonly string allowedUserEmail = "somebody@somedomain";
 
         private Status _status;
 

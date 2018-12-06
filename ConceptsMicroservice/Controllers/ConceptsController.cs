@@ -61,7 +61,6 @@ namespace ConceptsMicroservice.Controllers
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        //[ProducesResponseType(404)]
         public async Task<ActionResult<Response>> GetAll()
         {
             Models.Response conceptToBeDeleted = _service.GetConceptById(73);
