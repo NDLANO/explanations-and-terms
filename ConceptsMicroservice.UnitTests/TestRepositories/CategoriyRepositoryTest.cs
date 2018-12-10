@@ -72,5 +72,33 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         }
         #endregion
 
+        #region GetRequiredCategories
+
+        [Fact]
+        public void GetRequiredCategories_Returns_EmptyList_If_No_Required_Categories_Exists()
+        {
+
+            Assert.Empty(CategoryRepository.GetAll());
+            var notRequiredCategory = Mock.MockCategory();
+            notRequiredCategory.IsRequired = false;
+            Mock.Database.InsertCategory(notRequiredCategory);
+
+            Assert.Empty(CategoryRepository.GetRequiredCategories());
         }
+        [Fact]
+        public void GetRequiredCategories_Returns_List_Of_Categories_When_Some_Exists()
+        {
+
+            Assert.Empty(CategoryRepository.GetAll());
+            var notRequiredCategory = Mock.MockCategory();
+            notRequiredCategory.IsRequired = false;
+
+            var requiredCategory = Mock.MockCategory();
+            requiredCategory.IsRequired = true;
+            Mock.Database.InsertCategory(requiredCategory);
+
+            Assert.Single(CategoryRepository.GetRequiredCategories());
+        }
+        #endregion
+    }
 }

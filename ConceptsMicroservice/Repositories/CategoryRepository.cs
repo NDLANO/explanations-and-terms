@@ -32,11 +32,7 @@ namespace ConceptsMicroservice.Repositories
 
         public List<MetaCategory> GetRequiredCategories()
         {
-            // TODO
-            // IS hardcoded for now, but metaCategories gets a IsRequired property in the next phase.
-            // Must test it then.
-            return _context.Categories.Where(x => x.Name.Equals("Licence") || x.Name.Equals("Language")).ToList();
+            return _context.Categories.Where(x => x.IsRequired).ToList();
         }
-        
     }
 }
