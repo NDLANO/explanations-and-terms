@@ -41,8 +41,9 @@ namespace ConceptsMicroservice.Utilities.Auth
         public string ReturnScope(ClaimsPrincipal user)
         {
             var scopeValue = "";
-            IEnumerable<Claim> scope = user.Claims.Where(c => c.Type.ToLower() == "scope");
-            scopeValue = scope.First().Value;
+            var scope = user.Claims.FirstOrDefault(c => c.Type.ToLower() == "scope");
+            if (scope != null)
+                scopeValue = scope.Value;
 
             return scopeValue;
         }

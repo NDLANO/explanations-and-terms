@@ -84,6 +84,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
             var concept = new Concept
             {
+                AuthorEmail = "AuthorEmail",
+                SourceAuthor = "SourceAuthor",
                 AuthorName = "AuthorName",
                 Content = "Content",
                 Source = "Source",

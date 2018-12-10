@@ -75,7 +75,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
             {
                 Source = $"Source_{Guid.NewGuid()}",
                 Title = $"Title_{Guid.NewGuid()}",
-                AuthorName = $"Author_{Guid.NewGuid()}",
+                AuthorName = $"AuthorName_{Guid.NewGuid()}",
+                AuthorEmail = $"AuthorEmail_{Guid.NewGuid()}",
+                SourceAuthor = $"SourceAuthor_{Guid.NewGuid()}",
                 Content = $"Content_{Guid.NewGuid()}",
                 Meta = meta,
                 MetaIds = meta.Select(x => x.Id).ToList(),

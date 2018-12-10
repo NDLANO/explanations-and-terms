@@ -32,12 +32,12 @@ namespace ConceptsMicroservice.Models
         public List<int> MetaIds { get; set; }
         [Required] [Column("title")] public string Title { get; set; }
         [Required] [Column("content")] public string Content { get; set; }
+        [Required] [Column("source_author")] public string SourceAuthor { get; set; }
         [Column("author_email")] public string AuthorEmail { get; set; }
         [Column("author_name")] public string AuthorName { get; set; }
         [Column("source")] public string Source { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
-        [Required][Column("source_author")] public string SourceAuthor { get; set; }
         [Column("deleted_by")] public string DeletedBy { get; set; }
 
         [Column("status_id")]
@@ -65,6 +65,7 @@ namespace ConceptsMicroservice.Models
             var createdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Created, attr => attr.Name));
             var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
             var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
+            var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
 
             var meta = new List<MetaData>();
@@ -88,8 +89,10 @@ namespace ConceptsMicroservice.Models
                 SourceAuthor = reader.SafeGetString(sourceAuthorColumn),
                 Created = reader.GetDateTime(createdColumn),
                 Updated = reader.GetDateTime(updatedColumn),
+                StatusId = reader.GetInt32(statusIdColumn),
+                DeletedBy = reader.SafeGetString(deletedByColumn),
+
                 Meta = meta,
-                StatusId = statusIdColumn,
                 //Status = reader.GetFieldValue<Status>(9)
             };
 
