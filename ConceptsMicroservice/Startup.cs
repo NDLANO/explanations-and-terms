@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,6 @@ using ConceptsMicroservice.Utilities;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -31,13 +31,13 @@ namespace ConceptsMicroservice
     {
         private readonly IHostingEnvironment _env;
         private readonly IConfiguration _config;
-        private readonly IDatabaseConfig _databaseConfig;
+        private readonly IConfigHelper _configHelper;
 
         public Startup(IHostingEnvironment env, IConfiguration config)
         {
             _env = env;
             _config = config;
-            _databaseConfig = new DatabaseConfig(_env, _config);
+            _configHelper = new ConfigHelper(_env, _config);
         }
         
         public void ConfigureServices(IServiceCollection services)
@@ -45,7 +45,7 @@ namespace ConceptsMicroservice
             AddDependencies(services);
             services
                 .AddEntityFrameworkNpgsql()
-                .AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(_databaseConfig.GetConnectionString()));
+                .AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(new DatabaseConfig(_configHelper).GetConnectionString()));
             services.AddSwagger();
             services.AddCors(
                 options =>
@@ -68,43 +68,7 @@ namespace ConceptsMicroservice
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            //Today 23.11.2018 Auth0
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowSpecificOrigin",
-                    builder =>
-                    {
-                        builder
-                            .WithOrigins("http://localhost:3000")
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials();
-                    });
-            });
-
-            string domain = $"https://{_config["Auth0:Domain"]}/";
-            string[] requiredRoles = { "concept:write", "write:messages", "read:messages"};
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(options =>
-            {
-                options.Authority = domain;
-                options.Audience = _config["Auth0:ApiIdentifier"];
-            });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(_config["Auth0:Scope:Admin"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Admin"], domain)));
-                options.AddPolicy(_config["Auth0:Scope:Write"], policy => policy.Requirements.Add(new HasScopeRequirement(_config["Auth0:Scope:Write"], domain)));
-                //options.AddPolicy("RequireElevatedRights", policy =>
-                //    policy.RequireRole(requiredRoles));
-            });
-
-            // register the scope authorization handler
-            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+            ConfigureAuthentication(services);
 
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
@@ -114,6 +78,38 @@ namespace ConceptsMicroservice
             });
 
             SetOptions(services);
+        }
+
+        public void ConfigureAuthentication(IServiceCollection services)
+        {
+            var auth0Domain = $"https://{_configHelper.GetVariable("AUTH0_DOMAIN")}/";
+            var scopes = new List<string>
+            {
+                _configHelper.GetVariable("AUTH0_SCOPE__CONCEPT_WRITE"),
+                _configHelper.GetVariable("AUTH0_SCOPE__CONCEPT_ADMIN")
+            };
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = auth0Domain;
+                options.Audience = _configHelper.GetVariable("AUTH0_AUDIENCE");
+            });
+
+            services.AddAuthorization(options =>
+            {
+                foreach (var scope in scopes)
+                {
+                    options.AddPolicy(scope, policy => policy.Requirements.Add(new HasScopeRequirement(scope, auth0Domain)));
+                }
+            });
+
+            // register the scope authorization handler
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -188,6 +184,7 @@ namespace ConceptsMicroservice
 
             services.AddScoped<IDatabaseConfig, DatabaseConfig>();
             services.AddScoped<ITokenHelper, TokenHelper>();
+            services.AddScoped<IConfigHelper, ConfigHelper>();
 
             services.AddScoped<IConceptValidationService, ConceptValidationService>();
         }

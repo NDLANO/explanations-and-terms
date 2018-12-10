@@ -5,31 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-using System;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-
 namespace ConceptsMicroservice.Utilities
 {
     public class DatabaseConfig : IDatabaseConfig
     {
-        private readonly IHostingEnvironment _env;
-        private readonly IConfiguration _config;
+        private readonly IConfigHelper _configHelper;
 
-        public DatabaseConfig(IHostingEnvironment env, IConfiguration config)
+        public DatabaseConfig(IConfigHelper configHelper)
         {
-            _env = env;
-            _config = config;
+            _configHelper = configHelper;
         }
         public string GetConnectionString()
         {
-            if (_env != null && _env.IsDevelopment())
-                return _config.GetConnectionString("ConceptsDatabase");
-
-            var host = Environment.GetEnvironmentVariable("DB_HOST");
-            var database = Environment.GetEnvironmentVariable("DB_DATABASE");
-            var user = Environment.GetEnvironmentVariable("DB_USER");
-            var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+            var host = _configHelper.GetVariable("DB_HOST");
+            var database = _configHelper.GetVariable("DB_DATABASE");
+            var user = _configHelper.GetVariable("DB_USER");
+            var password = _configHelper.GetVariable("DB_PASSWORD");
             return $"Host={host};Database={database};Username={user};Password={password};";
         }
     }
