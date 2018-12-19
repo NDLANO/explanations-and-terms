@@ -17,10 +17,10 @@ namespace ConceptsMicroservice.Utilities
         }
         public string GetConnectionString()
         {
-            var host = _configHelper.GetVariable("DB_HOST");
-            var database = _configHelper.GetVariable("DB_DATABASE");
-            var user = _configHelper.GetVariable("DB_USER");
-            var password = _configHelper.GetVariable("DB_PASSWORD");
+            var host = _configHelper.GetVariable(EnvironmentVariables.DatabaseHost);
+            var database = _configHelper.GetVariable(EnvironmentVariables.DatabaseName);
+            var user = _configHelper.GetVariable(EnvironmentVariables.DatabaseUsername);
+            var password = _configHelper.GetVariable(EnvironmentVariables.DatabasePassword);
             return $"Host={host};Database={database};Username={user};Password={password};";
         }
     }

@@ -82,11 +82,11 @@ namespace ConceptsMicroservice
 
         public void ConfigureAuthentication(IServiceCollection services)
         {
-            var auth0Domain = $"https://{_configHelper.GetVariable("AUTH0_DOMAIN")}/";
+            var auth0Domain = $"https://{_configHelper.GetVariable(EnvironmentVariables.Auth0Domain)}/";
             var scopes = new List<string>
             {
-                _configHelper.GetVariable("AUTH0_SCOPE__CONCEPT_WRITE"),
-                _configHelper.GetVariable("AUTH0_SCOPE__CONCEPT_ADMIN")
+                _configHelper.GetVariable(EnvironmentVariables.Auth0ScopeConceptWrite),
+                _configHelper.GetVariable(EnvironmentVariables.Auth0ScopeConceptAdmin)
             };
 
             services.AddAuthentication(options =>
@@ -97,7 +97,7 @@ namespace ConceptsMicroservice
             }).AddJwtBearer(options =>
             {
                 options.Authority = auth0Domain;
-                options.Audience = _configHelper.GetVariable("AUTH0_AUDIENCE");
+                options.Audience = _configHelper.GetVariable(EnvironmentVariables.Auth0Audience);
             });
 
             services.AddAuthorization(options =>

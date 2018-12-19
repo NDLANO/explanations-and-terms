@@ -34,6 +34,16 @@ namespace ConceptsMicroservice.Utilities.Auth
             return authenticatedUser.Email;
         }
 
+        public async Task<string> ReturnClaimFullName(HttpContext context)
+        {
+            var auth0Domain = _configHelper.GetVariable(EnvironmentVariables.Auth0Domain);
+            var token = await context.GetTokenAsync("access_token");
+            var authApiClient = new AuthenticationApiClient(auth0Domain);
+            var authenticatedUser = await authApiClient.GetUserInfoAsync(token);
+
+            return authenticatedUser.FullName;
+        }
+
         public string ReturnScope(ClaimsPrincipal user)
         {
             var scopeValue = "";

@@ -20,8 +20,6 @@ namespace ConceptsMicroservice.Controllers
 {
     [Route("api/[Controller]")]
     [ApiController]
-    //[Authorize]
-   // [Authorize(Policy = "RequireElevatedRights")]
     public class ConceptController : ControllerBase
     {
         private readonly IConceptService _service;
@@ -80,8 +78,8 @@ namespace ConceptsMicroservice.Controllers
         }
 
         [HttpPut]
-        [Authorize(Policy = "concept-test:admin")]
-        [Authorize(Policy = "concept-test:write")]
+        [Authorize(Policy = "concept:admin")]
+        [Authorize(Policy = "concept:write")]
         public ActionResult<Response> UpdateConcept([Required][FromBody]Concept concept)
         {
             if (concept == null)
@@ -107,8 +105,8 @@ namespace ConceptsMicroservice.Controllers
         
 
         [HttpPost]
-        [Authorize(Policy = "concept-test:admin")]
-        [Authorize(Policy = "concept-test:write")]
+        [Authorize(Policy = "concept:admin")]
+        [Authorize(Policy = "concept:write")]
         public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]Concept concept)
         {
             if (concept == null)
@@ -121,7 +119,8 @@ namespace ConceptsMicroservice.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
-            concept.AuthorName = await _tokenHelper.ReturnClaimEmail(HttpContext);
+            concept.AuthorEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
+            concept.AuthorName = await _tokenHelper.ReturnClaimFullName(HttpContext);
             var viewModel = _service.CreateConcept(concept);
             if (viewModel == null)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
@@ -133,8 +132,8 @@ namespace ConceptsMicroservice.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "concept-test:admin")]
-        [Authorize(Policy = "concept-test:write")]
+        [Authorize(Policy = "concept:admin")]
+        [Authorize(Policy = "concept:write")]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
             
