@@ -6,33 +6,29 @@
  *
  */
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Auth0.AuthenticationApi;
-using ConceptsMicroservice.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace ConceptsMicroservice.Utilities.Auth
 {
     public class TokenHelper: ITokenHelper
     {
-        private readonly IConfiguration _config;
+        private readonly IConfigHelper _configHelper;
 
-        public TokenHelper(IConfiguration config)
+        public TokenHelper(IConfigHelper config)
         {
-            _config = config;
+            _configHelper = config;
         }
 
         public async Task<string> ReturnClaimEmail(HttpContext context)
         {
-            var auth0Domain = _config["Auth0:Domain"];
+            var auth0Domain = _configHelper.GetVariable(EnvironmentVariables.Auth0Domain);
             var token = await context.GetTokenAsync("access_token");
-            AuthenticationApiClient authApiClient =
-                new AuthenticationApiClient(auth0Domain);
+            var authApiClient = new AuthenticationApiClient(auth0Domain);
             var authenticatedUser = await authApiClient.GetUserInfoAsync(token);
 
             return authenticatedUser.Email;
