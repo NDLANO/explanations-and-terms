@@ -5,13 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-using Microsoft.AspNetCore.Mvc;
+
+using System.Collections.Generic;
+using System.Net;
 using ConceptsMicroservice.Models;
+using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Services;
+using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [Route("api/[Controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -21,6 +27,14 @@ namespace ConceptsMicroservice.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Find all categories used for metadata.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of all the categories.
+        /// </remarks>
+        [SwaggerResponse(200, typeof(List<MetaCategory>), Description = "List of categories")]
+        [SwaggerResponse(400, null, Description = "Empty response")]
         [HttpGet]
         public ActionResult<Response> GetAllCategories()
         {
@@ -30,6 +44,16 @@ namespace ConceptsMicroservice.Controllers
 
             return BadRequest();
         }
+
+        /// <summary>
+        /// Fetch specified category.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single category.
+        /// </remarks>
+        /// <param name="id">Id of the category that is to be fetched.</param>
+        [SwaggerResponse(200, typeof(MetaCategory), Description = "A single category")]
+        [SwaggerResponse(401, null, Description = "Empty response")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetCategoryById(int id)
         {
