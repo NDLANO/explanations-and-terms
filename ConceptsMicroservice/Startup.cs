@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -22,8 +25,12 @@ using ConceptsMicroservice.Utilities;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using NJsonSchema;
 
 namespace ConceptsMicroservice
 {
@@ -32,6 +39,8 @@ namespace ConceptsMicroservice
         private readonly IHostingEnvironment _env;
         private readonly IConfiguration _config;
         private readonly IConfigHelper _configHelper;
+
+        private const string ApiVersion1 = "1.0";
 
         public Startup(IHostingEnvironment env, IConfiguration config)
         {
@@ -43,10 +52,12 @@ namespace ConceptsMicroservice
         public void ConfigureServices(IServiceCollection services)
         {
             AddDependencies(services);
+            // Entity
             services
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(new DatabaseConfig(_configHelper).GetConnectionString()));
-            services.AddSwagger();
+
+
             services.AddCors(
                 options =>
                 {
@@ -62,14 +73,36 @@ namespace ConceptsMicroservice
                 }
                 );
             services
+                .AddRouting(options => options.LowercaseUrls = true)
                 .AddMvc()
                     .AddJsonOptions(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            ConfigureAuthentication(services);
+            services.AddApiVersioning(o => {
+                o.ReportApiVersions = true;
+                o.AssumeDefaultVersionWhenUnspecified = true;
+                o.DefaultApiVersion = new ApiVersion(1, 0);
+            });
+            //            services.AddVersionedApiExplorer(options => options.SubstituteApiVersionInUrl = true);
+            services.AddSwaggerDocument(config =>
+            {
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Explanations and terms API";
+                    document.Info.Description = "Services for accessing explanations from NDLA.";
+                    document.Info.TermsOfService = "https://ndla.no/";
+                    document.Info.License = new NSwag.SwaggerLicense
+                    {
+                        Name = "GPL v3.0",
+                        Url = "http://www.gnu.org/licenses/gpl-3.0.en.html"
+                    };
+                };
+            });
 
+            ConfigureAuthentication(services);
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt =>
@@ -123,7 +156,9 @@ namespace ConceptsMicroservice
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
+
             ConfigureSwagger(app);
+
 
             app.UseAuthentication();
 
@@ -152,20 +187,8 @@ namespace ConceptsMicroservice
             const string SWAGGER_BASE_URL = "/swagger";
             var v1_route = $"{SWAGGER_BASE_URL}/v1/swagger.json";
 
-            app.UseSwaggerWithApiExplorer(config =>
-            {
-                config.GeneratorSettings.OperationProcessors.TryGet<ApiVersionProcessor>()
-                    .IncludedVersions = new[] { "1.0" };
-                config.SwaggerRoute = v1_route;
-
-                config.GeneratorSettings.Title = "Concepts API";
-                config.GeneratorSettings.Description = "API for NDLA's Concepts microservice";
-            });
-
-            app.UseSwaggerUi3(config =>
-            {
-                config.SwaggerRoutes.Add(new SwaggerUi3Route("v1.0", v1_route));
-            });
+            app.UseSwagger();
+            app.UseSwaggerUi3();
         }
         public void AddDependencies(IServiceCollection services)
         {
