@@ -6,14 +6,18 @@
  *
  */
 using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
+using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [Route("api/[Controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
     [ApiController]
     public class MetadataController : ControllerBase
     {
@@ -22,7 +26,14 @@ namespace ConceptsMicroservice.Controllers
         {
             _service = service;
         }
-
+        /// <summary>
+        /// Find all metadata.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of all the metadata.
+        /// </remarks>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [HttpGet]
         public ActionResult<Response> GetAll()
         {
@@ -33,8 +44,17 @@ namespace ConceptsMicroservice.Controllers
             return BadRequest();
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Search for metadata.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of metadata.
+        /// </remarks>
+        /// <param name="query">Id of the category that is to be fetched.</param>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [Route("[action]")]
+        [HttpGet]
         public ActionResult<List<MetaData>> Search([FromQuery] MetaSearchQuery query = null)
         {
             var meta = _service.SearchForMetadata(query);
@@ -44,6 +64,15 @@ namespace ConceptsMicroservice.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Fetch specified metadata.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single metadata.
+        /// </remarks>
+        /// <param name="id">Id of the metadata that is to be fetched.</param>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(MetaData), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "Not found")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {

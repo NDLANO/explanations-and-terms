@@ -11,7 +11,13 @@ namespace ConceptsMicroservice.Models.Search
 {
     public class MetaSearchQuery
     {
+        /// <summary>
+        /// The name of the metadata itself.
+        /// </summary>
         [FromQuery] public string Name { get; set; }
+        /// <summary>
+        /// The name of the metadata category.
+        /// </summary>
         [FromQuery] public string Category { get; set; }
 
         /// <summary>

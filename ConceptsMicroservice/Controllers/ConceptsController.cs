@@ -18,7 +18,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [Route("api/[Controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
     [ApiController]
     public class ConceptController : ControllerBase
     {
