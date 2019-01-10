@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Services;
+using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -21,6 +25,14 @@ namespace ConceptsMicroservice.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Find all status.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of all the status.
+        /// </remarks>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Status>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [HttpGet]
         public ActionResult<Response> GetAllStatus()
         {

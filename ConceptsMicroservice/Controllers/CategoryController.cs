@@ -33,8 +33,8 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the categories.
         /// </remarks>
-        [SwaggerResponse(200, typeof(List<MetaCategory>), Description = "List of categories")]
-        [SwaggerResponse(400, null, Description = "Empty response")]
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaCategory>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [HttpGet]
         public ActionResult<Response> GetAllCategories()
         {
@@ -52,8 +52,8 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single category.
         /// </remarks>
         /// <param name="id">Id of the category that is to be fetched.</param>
-        [SwaggerResponse(200, typeof(MetaCategory), Description = "A single category")]
-        [SwaggerResponse(401, null, Description = "Empty response")]
+        [SwaggerResponse(200, typeof(MetaCategory), Description = "OK")]
+        [SwaggerResponse(401, null, Description = "Not found")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetCategoryById(int id)
         {
