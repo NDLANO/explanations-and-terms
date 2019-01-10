@@ -6,8 +6,10 @@
  *
  */
 
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
@@ -15,6 +17,7 @@ using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -32,7 +35,16 @@ namespace ConceptsMicroservice.Controllers
             _service = service;
             _tokenHelper = tokenHelper;
         }
-        
+
+        /// <summary>
+        /// Search for concepts.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of concepts.
+        /// </remarks>
+        /// <param name="query"></param>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> Search([FromQuery]ConceptSearchQuery query = null)
@@ -44,6 +56,14 @@ namespace ConceptsMicroservice.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Finds all concept titles.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of concept titles.
+        /// </remarks>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<string>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> AllTitles()
@@ -57,9 +77,15 @@ namespace ConceptsMicroservice.Controllers
 
         #region CRUD
 
+        /// <summary>
+        /// Finds all concepts.
+        /// </summary>
+        /// <remarks>
+        /// Returns a list of concepts.
+        /// </remarks>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
         public ActionResult<Response> GetAll()
         {
             var concepts = _service.GetAllConcepts();
@@ -69,6 +95,15 @@ namespace ConceptsMicroservice.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Fetch specified concept.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single concept.
+        /// </remarks>
+        /// <param name="id">Id of the concept that is to be fetched.</param>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "If concept with the specified id does not exist")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {
@@ -79,6 +114,15 @@ namespace ConceptsMicroservice.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Update the specified concept.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single concept.
+        /// </remarks>
+        /// <param name="concept">The concept to be updated with values.</param>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(Concept), Description = "If update was success")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(ModelStateErrorResponse), Description = "If concept validation failed")]
         [HttpPut]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
@@ -104,8 +148,16 @@ namespace ConceptsMicroservice.Controllers
             return Ok(viewModel);
 
         }
-        
 
+        /// <summary>
+        /// Create a concept.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single concept.
+        /// </remarks>
+        /// <param name="concept" >The concept to be created.</param>
+        [SwaggerResponse(HttpStatusCode.OK, typeof(Concept), Description = "If creation was success")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(ModelStateErrorResponse), Description = "If concept validation failed")]
         [HttpPost]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
@@ -132,14 +184,22 @@ namespace ConceptsMicroservice.Controllers
 
             return Ok(viewModel);
         }
-
+        /// <summary>
+        /// Update the specified concept.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single concept.
+        /// </remarks>
+        /// <param name="id">The id of the concepts to be deleted.</param>
+        [SwaggerResponse(HttpStatusCode.NoContent, null, Description = "If deletion was success")]
+        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "If concept with the specified id does not exist")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "TODO make serverError")]
         [HttpDelete("{id}")]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
-            
-            string usersEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
+            var usersEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
             
             var viewModel = _service.ArchiveConcept(id, usersEmail);
             if (viewModel == null)

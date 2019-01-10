@@ -14,7 +14,13 @@ namespace ConceptsMicroservice.Models.Search
 {
     public class ConceptSearchQuery
     {
+        /// <summary>
+        /// The concept title (will match start of titles).
+        /// </summary>
         [FromQuery] public string Title { get; set; }
+        /// <summary>
+        /// A list of metadata id's (int), where each id is represented as meta=id.
+        /// </summary>
         [FromQuery(Name = "meta")] public List<int> MetaIds { get; set; }
 
         /// <summary>

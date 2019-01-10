@@ -50,7 +50,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of metadata.
         /// </remarks>
-        /// <param name="query">Id of the category that is to be fetched.</param>
+        /// <param name="query"></param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
         [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
         [Route("[action]")]
