@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +58,7 @@ namespace ConceptsMicroservice
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
 
-            services.AddConceptsSwaggerDocumentation();
+            services.AddConceptsSwaggerDocumentation(_configHelper);
 
             services.AddOptions(_config);
         }
@@ -76,7 +75,7 @@ namespace ConceptsMicroservice
 
             app.UseStaticFiles();
 
-            app.UseConceptSwaggerDocumentation();
+            app.UseConceptSwaggerDocumentation(_configHelper);
 
             app.UseAuthentication();
 
