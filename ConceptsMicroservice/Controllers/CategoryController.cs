@@ -34,7 +34,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of all the categories.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaCategory>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet]
         public ActionResult<Response> GetAllCategories()
         {
@@ -42,7 +42,7 @@ namespace ConceptsMicroservice.Controllers
             if (categories != null)
                 return Ok(categories);
 
-            return BadRequest();
+            return StatusCode((int)HttpStatusCode.InternalServerError);
         }
 
         /// <summary>
