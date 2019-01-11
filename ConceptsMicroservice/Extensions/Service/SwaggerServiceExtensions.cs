@@ -33,11 +33,12 @@ namespace ConceptsMicroservice.Extensions.Service
                         Name = "GPL v3.0",
                         Url = "http://www.gnu.org/licenses/gpl-3.0.en.html"
                     };
+                    document.Schemes = new[] {SwaggerSchema.Https};
                     /*
 
                     const string OauthSecurity = "oauth2";
-                    var conceptWrite = configHelper.GetVariable(EnvironmentVariables.Auth0ScopeConceptWrite);
-                    var oauthDomain = configHelper.GetVariable(EnvironmentVariables.Auth0Domain);
+                    var conceptWrite = "writeScope;
+                    var oauthDomain = "domain";
                     document.SecurityDefinitions.Add(OauthSecurity, new SwaggerSecurityScheme
                     {
                         Type = SwaggerSecuritySchemeType.OAuth2,
@@ -46,7 +47,7 @@ namespace ConceptsMicroservice.Extensions.Service
                         {
                             Implicit = new OpenApiOAuthFlow()
                             {
-                                Scopes = new Dictionary<string, string> {{conceptWrite, conceptWrite} },
+                                Scopes = new Dictionary<string, string> {{"label", "value"} },
                                 AuthorizationUrl = $"https://{oauthDomain}"
                             }
                         }
