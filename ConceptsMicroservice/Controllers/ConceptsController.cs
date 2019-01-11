@@ -22,10 +22,7 @@ using NSwag.Annotations;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [ApiController]
-    public class ConceptController : ControllerBase
+    public class ConceptController : BaseController
     {
         private readonly IConceptService _service;
         private readonly ITokenHelper _tokenHelper;
@@ -44,7 +41,7 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="query"></param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> Search([FromQuery]ConceptSearchQuery query = null)
@@ -53,7 +50,7 @@ namespace ConceptsMicroservice.Controllers
             if (concepts != null)
                 return Ok(concepts);
 
-            return BadRequest();
+            return InternalServerError();
         }
 
         /// <summary>
@@ -63,7 +60,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concept titles.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<string>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> AllTitles()
@@ -72,7 +69,7 @@ namespace ConceptsMicroservice.Controllers
             if (concepts != null)
                 return Ok(concepts);
 
-            return BadRequest();
+            return InternalServerError();
         }
 
         #region CRUD
@@ -84,7 +81,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concepts.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet]
         public ActionResult<Response> GetAll()
         {
@@ -92,7 +89,7 @@ namespace ConceptsMicroservice.Controllers
             if (concepts != null)
                 return Ok(concepts);
 
-            return BadRequest();
+            return InternalServerError();
         }
 
         /// <summary>
@@ -103,15 +100,19 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="id">Id of the concept that is to be fetched.</param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "If concept with the specified id does not exist")]
+        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "If a concept with the specified id does not exist")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {
             var concept = _service.GetConceptById(id);
-            if (concept != null)
-                return Ok(concept);
 
-            return NotFound();
+            if (concept == null)
+                return InternalServerError();
+            if (concept.Data == null)
+                return NotFound();
+            
+            return Ok(concept);
         }
 
         /// <summary>

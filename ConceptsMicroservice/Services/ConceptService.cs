@@ -6,7 +6,6 @@
  *
  */
 using System;
-using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
@@ -28,37 +27,62 @@ namespace ConceptsMicroservice.Services
 
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
-            return new Response
+            try
             {
-                Data = query == null ? _conceptRepository.GetAll() : _conceptRepository.SearchForConcepts(query)
-            };
+                return new Response
+                {
+                    Data = query == null ? _conceptRepository.GetAll() : _conceptRepository.SearchForConcepts(query)
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Response GetConceptById(int id)
         {
-            var concept = _conceptRepository.GetById(id);
-            if (concept == null)
-                return null;
-            return new Response
+            try
             {
-                Data = concept
-            };
+                return new Response
+                {
+                    Data = _conceptRepository.GetById(id)
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Response GetAllConcepts()
         {
-            return new Response
+            try
             {
-                Data = _conceptRepository.GetAll()
-            };
+                return new Response
+                {
+                    Data = _conceptRepository.GetAll()
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Response GetAllConceptTitles()
         {
-            return new Response
+            try
             {
-                Data = _conceptRepository.GetAllTitles()
-            };
+                return new Response
+                {
+                    Data = _conceptRepository.GetAllTitles()
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Response UpdateConcept(Concept newConceptVersion)
