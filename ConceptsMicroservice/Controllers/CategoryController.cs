@@ -16,10 +16,7 @@ using NSwag.Annotations;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoryController : BaseController
     {
         private readonly ICategoryService _service;
         public CategoryController(ICategoryService service)
@@ -42,7 +39,7 @@ namespace ConceptsMicroservice.Controllers
             if (categories != null)
                 return Ok(categories);
 
-            return StatusCode((int)HttpStatusCode.InternalServerError);
+            return InternalServerError();
         }
 
         /// <summary>
@@ -52,16 +49,20 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single category.
         /// </remarks>
         /// <param name="id">Id of the category that is to be fetched.</param>
-        [SwaggerResponse(200, typeof(MetaCategory), Description = "OK")]
-        [SwaggerResponse(401, null, Description = "Not found")]
+        [SwaggerResponse(HttpStatusCode.OK, typeof(MetaCategory), Description = "OK")]
+        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "There exists no categories with the specified id")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetCategoryById(int id)
         {
             var category = _service.GetCategoryById(id);
-            if (category != null)
-                return Ok(category);
 
-            return NotFound();
+            if (category == null)
+                return InternalServerError();
+            if (category.Data == null)
+                return NotFound();
+            
+            return Ok(category);
         }
     }
 }

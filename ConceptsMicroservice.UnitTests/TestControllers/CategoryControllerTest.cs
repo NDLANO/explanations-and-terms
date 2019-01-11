@@ -6,6 +6,7 @@
  *
  */
 using System.Collections.Generic;
+using System.Net;
 using ConceptsMicroservice.Controllers;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Services;
@@ -58,29 +59,39 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         }
 
         [Fact]
-        public void GetById_Returns_400_When_Id_Is_Not_Valid()
+        public void GetById_Returns_401_When_Id_Is_Not_Valid()
         {
-            A.CallTo(() => _service.GetCategoryById(A<int>._)).Returns(null);
+            A.CallTo(() => _service.GetCategoryById(A<int>._)).Returns(new Response{Data = null});
 
             var result = _controller.GetCategoryById(0);
             var notFoundResult = result.Result as NotFoundResult;
 
-            Assert.Equal(404, notFoundResult.StatusCode);
+            Assert.Equal((int)HttpStatusCode.NotFound, notFoundResult.StatusCode);
         }
 
+        [Fact]
+        public void GetById_Returns_500_When_Service_Is_Null()
+        {
+            A.CallTo(() => _service.GetCategoryById(A<int>._)).Returns(null);
+
+            var result = _controller.GetCategoryById(0);
+            var status = result.Result as StatusCodeResult;
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
+        }
         #endregion
 
         #region GetAll
 
         [Fact]
-        public void GetAll_Returns_Status_400_No_Categories_Is_Found()
+        public void GetAll_Returns_Status_500_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.GetAllCategories()).Returns(null);
 
             var result = _controller.GetAllCategories();
-            var bad = result.Result as BadRequestResult;
+            var status = result.Result as StatusCodeResult;
 
-            Assert.Equal(400, bad.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
 
         [Fact]

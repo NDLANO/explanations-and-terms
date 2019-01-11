@@ -21,21 +21,32 @@ namespace ConceptsMicroservice.Services
 
         public Response GetAllCategories()
         {
-            return new Response
+            try
             {
-                Data = _categoryRepository.GetAll()
-            };
+                return new Response
+                {
+                    Data = _categoryRepository.GetAll()
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Response GetCategoryById(int id)
         {
-            var category = _categoryRepository.GetById(id);
-            if (category == null)
-                return null;
-            return new Response
+            try
             {
-                Data = category
-            };
+                return new Response
+                {
+                    Data = _categoryRepository.GetById(id)
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
