@@ -55,9 +55,19 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         #region GetById
 
         [Fact]
-        public void GetById_Returns_Null_If_The_Concept_With_ID_Does_Not_Exist()
+        public void GetById_Returns_With_Empty_Data_If_The_Concept_With_ID_Does_Not_Exist()
         {
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(null);
+
+            var response = Service.GetConceptById(1);
+
+            Assert.Null(response.Data);
+        }
+
+        [Fact]
+        public void GetById_Returns_Null_If_An_Error_Occured()
+        {
+            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Throws<Exception>();
 
             var response = Service.GetConceptById(1);
 
@@ -160,10 +170,21 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             Assert.IsType<List<Concept>>(results.Data);
         }
+
+
+        [Fact]
+        public void SearchForConcepts_Returns_Null_If_An_Error_Occured()
+        {
+            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Throws<Exception>();
+
+            var results = Service.SearchForConcepts(new ConceptSearchQuery());
+
+            Assert.Null(results);
+        }
         #endregion
 
         #region Create
-        
+
 
         [Fact]
         public void CreateConcept_Returns_With_Error_When_RepoInsert_Throws_Exception()
@@ -268,6 +289,16 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var response = Service.GetAllConceptTitles();
 
             Assert.IsType<List<string>>(response.Data);
+        }
+
+        [Fact]
+        public void GetAllConceptsTitles_Returns_Null_If_An_Error_Occured()
+        {
+            A.CallTo(() => ConceptRepository.GetAllTitles()).Throws<Exception>();
+
+            var results = Service.GetAllConceptTitles();
+
+            Assert.Null(results);
         }
         #endregion
     }

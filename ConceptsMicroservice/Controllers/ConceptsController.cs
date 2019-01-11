@@ -122,8 +122,6 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="concept">The concept to be updated with values.</param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(Concept), Description = "If update was success")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(ModelStateErrorResponse), Description = "If concept validation failed")]
         [SwaggerIgnore]
         [HttpPut]
         [Authorize(Policy = "concept:admin")]
@@ -158,8 +156,6 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="concept" >The concept to be created.</param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(Concept), Description = "If creation was success")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(ModelStateErrorResponse), Description = "If concept validation failed")]
         [SwaggerIgnore]
         [HttpPost]
         [Authorize(Policy = "concept:admin")]
@@ -194,9 +190,6 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="id">The id of the concepts to be deleted.</param>
-        [SwaggerResponse(HttpStatusCode.NoContent, null, Description = "If deletion was success")]
-        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "If concept with the specified id does not exist")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "TODO make serverError")]
         [SwaggerIgnore]
         [HttpDelete("{id}")]
         [Authorize(Policy = "concept:admin")]

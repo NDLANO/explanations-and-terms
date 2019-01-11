@@ -21,13 +21,20 @@ namespace ConceptsMicroservice.Services
 
         public Response SearchForMetadata(MetaSearchQuery query)
         {
-            var response = new Response();
-            if (query == null || query.HasNoQuery())
-                response.Data = _metadataRepository.GetAll();
-            else
-                response.Data = _metadataRepository.SearchForMetadata(query);
+            try
+            {
+                var response = new Response();
+                if (query == null || query.HasNoQuery())
+                    response.Data = _metadataRepository.GetAll();
+                else
+                    response.Data = _metadataRepository.SearchForMetadata(query);
 
-            return response;
+                return response;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Response GetById(int id)
@@ -48,10 +55,17 @@ namespace ConceptsMicroservice.Services
 
         public Response GetAll()
         {
-            return new Response
+            try
             {
-                Data = _metadataRepository.GetAll()
-            };
+                return new Response
+                {
+                    Data = _metadataRepository.GetAll()
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

@@ -6,26 +6,11 @@
  *
  */
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Repositories;
 
 namespace ConceptsMicroservice.Services
 {
-    public class StatusService : IStatusService
+    public interface IStatusService
     {
-        private readonly IStatusRepository _statusRepository;
-
-        public StatusService(IStatusRepository status)
-        {
-            _statusRepository = status;
-        }
-
-        public Response GetAllStatus()
-        {
-            return new Response
-            {
-                Data = _statusRepository.GetAll()
-            };
-        }
-
+        Response GetAllStatus();
     }
 }

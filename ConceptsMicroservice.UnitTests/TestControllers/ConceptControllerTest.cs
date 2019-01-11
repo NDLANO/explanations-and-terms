@@ -393,13 +393,13 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         #region Search
 
         [Fact]
-        public void Search_Returns_400_If_Service_Returned_Null()
+        public void Search_Returns_500_If_Service_Returned_Null()
         {
             A.CallTo(() => _service.SearchForConcepts(A<ConceptSearchQuery>._)).Returns(null);
             var result = _controller.Search(null);
-            var bad = result.Result as BadRequestResult;
+            var status = result.Result as StatusCodeResult;
 
-            Assert.Equal(400, bad.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
 
         [Fact]
@@ -452,14 +452,14 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
 
         #region GetAllTitles
         [Fact]
-        public void AllTitles_Returns_400_If_Service_Returns_Null()
+        public void AllTitles_Returns_500_If_Service_Returns_Null()
         {
             A.CallTo(() => _service.GetAllConceptTitles()).Returns(null);
 
             var result = _controller.AllTitles();
-            var bad = result.Result as BadRequestResult;
+            var status = result.Result as StatusCodeResult;
 
-            Assert.Equal(400, bad.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
 
         [Fact]
