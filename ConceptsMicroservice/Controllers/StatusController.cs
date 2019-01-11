@@ -34,7 +34,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of all the status.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<Status>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet]
         public ActionResult<Response> GetAllStatus()
         {
@@ -42,7 +42,7 @@ namespace ConceptsMicroservice.Controllers
             if (status != null)
                 return Ok(status);
 
-            return BadRequest();
+            return StatusCode((int)HttpStatusCode.InternalServerError);
         }
     }
 }
