@@ -21,15 +21,17 @@ namespace ConceptsMicroservice.Models
         [Column("name")]
         public string Name { get; set; }
         [Required]
-        [Column("description")]
+        [Column("description")] 
         public string Description { get; set; }
-        [Column("created")]
-        public DateTime Created { get; set; }
-        [Column("updated")]
-        public DateTime Updated { get; set; }
-        [Column("can_have_multiple")]
-        public bool CanHaveMultiple { get; set; }
-        [Column("is_required")]
-        public bool IsRequired { get; set; }
+        [Column("created")] public DateTime Created { get; set; }
+        [Column("updated")] public DateTime Updated { get; set; }
+        /// <summary>
+        /// Is id possible to have more then one meta of this category.
+        /// </summary>
+        [Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
+        /// <summary>
+        /// Is it required to have at least one meta of this category.
+        /// </summary>
+        [Column("is_required")] public bool IsRequired { get; set; }
     }
 }

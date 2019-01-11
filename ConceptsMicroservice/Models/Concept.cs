@@ -32,9 +32,21 @@ namespace ConceptsMicroservice.Models
         public List<int> MetaIds { get; set; }
         [Required] [Column("title")] public string Title { get; set; }
         [Required] [Column("content")] public string Content { get; set; }
+        /// <summary>
+        /// The name of the author who wrote the text
+        /// </summary>
         [Required] [Column("source_author")] public string SourceAuthor { get; set; }
+        /// <summary>
+        /// The email of who created this concept.
+        /// </summary>
         [Column("author_email")] public string AuthorEmail { get; set; }
+        /// <summary>
+        /// The name of who created this concept.
+        /// </summary>
         [Column("author_name")] public string AuthorName { get; set; }
+        /// <summary>
+        /// Where the content originated
+        /// </summary>
         [Column("source")] public string Source { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
