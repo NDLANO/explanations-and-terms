@@ -6,6 +6,7 @@
  *
  */
 using System.Collections.Generic;
+using System.Net;
 using ConceptsMicroservice.Controllers;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
@@ -33,14 +34,14 @@ namespace MetasMicroservice.UnitTests.TestControllers
         }
 
         [Fact]
-        public void Search_Returns_400_When_Service_Returns_Null()
+        public void Search_Returns_500_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.SearchForMetadata(A<MetaSearchQuery>._)).Returns(null);
 
             var result = _controller.Search();
-            var badRequest = result.Result as BadRequestResult;
+            var status = result.Result as StatusCodeResult;
 
-            Assert.Equal(400, badRequest.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
 
         [Fact]
@@ -68,14 +69,14 @@ namespace MetasMicroservice.UnitTests.TestControllers
         #region GetAll
 
         [Fact]
-        public void GetAll_Returns_Status_400_No_Metas_Is_Found()
+        public void GetAll_Returns_Status_500_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.GetAll()).Returns(null);
 
             var result = _controller.GetAll();
-            var bad = result.Result as BadRequestResult;
+            var status = result.Result as StatusCodeResult;
 
-            Assert.Equal(400, bad.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
 
         [Fact]
@@ -127,14 +128,25 @@ namespace MetasMicroservice.UnitTests.TestControllers
         }
 
         [Fact]
-        public void GetById_Returns_400_When_Id_Is_Not_Valid()
+        public void GetById_Returns_404_When_Id_Is_Not_Valid()
+        {
+            A.CallTo(() => _service.GetById(A<int>._)).Returns(new Response{Data = null});
+
+            var result = _controller.GetById(0);
+            var status = result.Result as StatusCodeResult;
+
+            Assert.Equal((int)HttpStatusCode.NotFound, status.StatusCode);
+        }
+
+        [Fact]
+        public void GetById_Returns_500_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.GetById(A<int>._)).Returns(null);
 
             var result = _controller.GetById(0);
-            var notFoundResult = result.Result as NotFoundResult;
+            var status = result.Result as StatusCodeResult;
 
-            Assert.Equal(404, notFoundResult.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
 
         #endregion

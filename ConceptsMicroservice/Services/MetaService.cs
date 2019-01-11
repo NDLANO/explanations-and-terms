@@ -32,13 +32,18 @@ namespace ConceptsMicroservice.Services
 
         public Response GetById(int id)
         {
-            var meta = _metadataRepository.GetById(id);
-            if (meta == null)
-                return null;
-            return new Response
+            try
             {
-                Data = meta
-            };
+                return new Response
+                {
+                    Data = _metadataRepository.GetById(id)
+                };
+            }
+            catch
+            {
+                return null;
+            }
+            
         }
 
         public Response GetAll()

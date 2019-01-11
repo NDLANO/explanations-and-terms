@@ -16,10 +16,7 @@ using NSwag.Annotations;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [ApiController]
-    public class MetadataController : ControllerBase
+    public class MetadataController : BaseController
     {
         private readonly IMetadataService _service;
         public MetadataController(IMetadataService service)
@@ -33,7 +30,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of all the metadata.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet]
         public ActionResult<Response> GetAll()
         {
@@ -41,7 +38,7 @@ namespace ConceptsMicroservice.Controllers
             if (meta != null)
                 return Ok(meta);
 
-            return BadRequest();
+            return InternalServerError();
         }
 
         /// <summary>
@@ -52,7 +49,7 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="query"></param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.BadRequest, null, Description = "Bad request")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [Route("[action]")]
         [HttpGet]
         public ActionResult<List<MetaData>> Search([FromQuery] MetaSearchQuery query = null)
@@ -61,7 +58,7 @@ namespace ConceptsMicroservice.Controllers
             if (meta != null)
                 return Ok(meta);
 
-            return BadRequest();
+            return InternalServerError();
         }
 
         /// <summary>
@@ -72,15 +69,19 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="id">Id of the metadata that is to be fetched.</param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(MetaData), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "Not found")]
+        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "There exists no metadata with the specified id")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {
             var meta = _service.GetById(id);
-            if (meta != null)
-                return Ok(meta);
 
-            return NotFound();
+            if (meta == null)
+                return InternalServerError();
+            if (meta.Data == null)
+                return NotFound();
+
+            return Ok(meta);
         }
     }
 }

@@ -16,10 +16,7 @@ using NSwag.Annotations;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    [ApiController]
-    public class StatusController : ControllerBase
+    public class StatusController : BaseController
     {
         private readonly IStatusService _service;
         public StatusController(IStatusService service)
@@ -42,7 +39,7 @@ namespace ConceptsMicroservice.Controllers
             if (status != null)
                 return Ok(status);
 
-            return StatusCode((int)HttpStatusCode.InternalServerError);
+            return InternalServerError();
         }
     }
 }
