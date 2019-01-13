@@ -21,7 +21,7 @@ using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [ApiVersion("2")]
+    [ApiVersion("1")]
     public class ConceptController : BaseController
     {
         private readonly IConceptService _service;

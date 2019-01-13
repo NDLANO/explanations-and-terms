@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
 using ConceptsMicroservice.Utilities;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -46,27 +45,20 @@ namespace ConceptsMicroservice
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddVersionedApiExplorer();
-            services.AddApiVersioning(o => {
-                o.ReportApiVersions = true;
-                o.AssumeDefaultVersionWhenUnspecified = true;
-                o.DefaultApiVersion = new ApiVersion(1, 0);
-            });
-            
-            services.AddConceptsSwaggerDocumentation(_configHelper);
-            
+            services.AddConceptApiVersioning();
 
             services.AddConceptsAuthentication(_configHelper);
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
 
-
             services.AddOptions(_config);
+
+            services.AddConceptsSwaggerDocumentation();
         }
         
         
-        public void Configure(IApplicationBuilder app, IApiVersionDescriptionProvider provider)
+        public void Configure(IApplicationBuilder app)
         {
             if (_env.IsDevelopment())
             {
@@ -79,7 +71,7 @@ namespace ConceptsMicroservice
 
             app.UseMvc();
 
-            app.UseConceptSwaggerDocumentation(_configHelper, provider);
+            app.UseConceptSwaggerDocumentation();
 
             app.UseAuthentication();
 
