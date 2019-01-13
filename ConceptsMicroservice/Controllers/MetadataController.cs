@@ -15,7 +15,7 @@ using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [ApiVersion("1.0")]
+    [ApiVersion("1")]
     public class MetadataController : BaseController
     {
         private readonly IMetadataService _service;
@@ -30,7 +30,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of all the metadata.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
         [HttpGet]
         public ActionResult<Response> GetAll()
         {
@@ -49,7 +49,7 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="query"></param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
         [Route("[action]")]
         [HttpGet]
         public ActionResult<List<MetaData>> Search([FromQuery] MetaSearchQuery query = null)
@@ -69,8 +69,8 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="id">Id of the metadata that is to be fetched.</param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(MetaData), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "There exists no metadata with the specified id")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [SwaggerResponse(HttpStatusCode.NotFound, typeof(void), Description = "There exists no metadata with the specified id")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {

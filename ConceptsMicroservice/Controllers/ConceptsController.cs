@@ -21,7 +21,7 @@ using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [ApiVersion("1.0")]
+    [ApiVersion("2")]
     public class ConceptController : BaseController
     {
         private readonly IConceptService _service;
@@ -41,7 +41,7 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="query"></param>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> Search([FromQuery]ConceptSearchQuery query = null)
@@ -60,7 +60,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concept titles.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<string>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> AllTitles()

@@ -6,25 +6,58 @@
  *
  */
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using ConceptsMicroservice.Utilities;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
+using NJsonSchema;
 using NSwag;
+using NSwag.AspNetCore;
+using NSwag.SwaggerGeneration.Processors;
+using NSwag.SwaggerGeneration.WebApi;
 
 namespace ConceptsMicroservice.Extensions.Service
 {
     public static class SwaggerServiceExtensions
     {
+        
         public static IServiceCollection AddConceptsSwaggerDocumentation(this IServiceCollection services,
             IConfigHelper configHelper)
         {
 
-            services.AddSwaggerDocument(config =>
+            return services;
+        }
+
+        private static string SwaggerJsonPath(string version)
+        {
+            return $"swagger/v{version}/swagger.json";
+        }
+
+        public static IApplicationBuilder UseConceptSwaggerDocumentation(this IApplicationBuilder app
+            , IConfigHelper configHelper, IApiVersionDescriptionProvider provider)
+        {
+            
+            foreach (var description in provider.ApiVersionDescriptions)
             {
+                app.UseSwaggerUi3WithApiExplorer(config =>
+                {
+                    config.GeneratorSettings.OperationProcessors.TryGet<ApiVersionProcessor>().IncludedVersions = new[] { description.ApiVersion.ToString() };
+                    config.SwaggerRoute = SwaggerJsonPath(description.ApiVersion.ToString());
+                   
+                });
+            }
+            app.UseSwaggerUi3(typeof(Startup).GetTypeInfo().Assembly, config =>
+            {
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    var version = description.ApiVersion.ToString();
+                    config.SwaggerRoutes.Add(new SwaggerUi3Route($"v{version}", $"/{SwaggerJsonPath(version)}"));
+                }
                 config.PostProcess = document =>
                 {
                     document.Security = new List<SwaggerSecurityRequirement>();
-                    document.Info.Version = "v1";
                     document.Info.Title = "Explanations and terms API";
                     document.Info.Description = "Documentation for the Explanation and terms API from NDLA.";
                     document.Info.TermsOfService = "https://ndla.no/";
@@ -33,45 +66,12 @@ namespace ConceptsMicroservice.Extensions.Service
                         Name = "GPL v3.0",
                         Url = "http://www.gnu.org/licenses/gpl-3.0.en.html"
                     };
-                    document.Schemes = new[] {SwaggerSchema.Https};
-                    /*
-
-                    const string OauthSecurity = "oauth2";
-                    var conceptWrite = "writeScope;
-                    var oauthDomain = "domain";
-                    document.SecurityDefinitions.Add(OauthSecurity, new SwaggerSecurityScheme
-                    {
-                        Type = SwaggerSecuritySchemeType.OAuth2,
-                        Flow = SwaggerOAuth2Flow.Implicit,
-                        Flows = new OpenApiOAuthFlows()
-                        {
-                            Implicit = new OpenApiOAuthFlow()
-                            {
-                                Scopes = new Dictionary<string, string> {{"label", "value"} },
-                                AuthorizationUrl = $"https://{oauthDomain}"
-                            }
-                        }
-                    });
-                    document.Security.Add(new NSwag.SwaggerSecurityRequirement { { OauthSecurity, new string[] { } }, });
-                    */
+                    document.Schemes = new[] { SwaggerSchema.Https };
                 };
+                config.GeneratorSettings.Title = "Explanations and terms API";
+                config.GeneratorSettings.Description = "Documentation for the Explanation and terms API from NDLA.";
             });
 
-            return services;
-        }
-
-        public static IApplicationBuilder UseConceptSwaggerDocumentation(this IApplicationBuilder app
-            , IConfigHelper configHelper)
-        {
-            app.UseSwaggerUi3(options =>
-            {
-                /*options.OAuth2Client = new OAuth2ClientSettings
-                {
-                    AppName = "Explanations and terms NDLA",
-                };*/
-
-            });
-            app.UseSwagger();
 
             return app;
         }

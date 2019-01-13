@@ -15,7 +15,7 @@ using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
-    [ApiVersion("1.0")]
+    [ApiVersion("1")]
     public class StatusController : BaseController
     {
         private readonly IStatusService _service;
@@ -31,7 +31,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of all the status.
         /// </remarks>
         [SwaggerResponse(HttpStatusCode.OK, typeof(List<Status>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
         [HttpGet]
         public ActionResult<Response> GetAllStatus()
         {

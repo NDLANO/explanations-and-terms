@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
 using ConceptsMicroservice.Utilities;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -41,32 +42,33 @@ namespace ConceptsMicroservice
             services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddMvc()
-                    .AddJsonOptions(options => {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
+                .AddJsonOptions(options => {
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddVersionedApiExplorer();
             services.AddApiVersioning(o => {
                 o.ReportApiVersions = true;
                 o.AssumeDefaultVersionWhenUnspecified = true;
                 o.DefaultApiVersion = new ApiVersion(1, 0);
             });
-            //            services.AddVersionedApiExplorer(options => options.SubstituteApiVersionInUrl = true);
+            
+            services.AddConceptsSwaggerDocumentation(_configHelper);
+            
 
             services.AddConceptsAuthentication(_configHelper);
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
 
-            services.AddConceptsSwaggerDocumentation(_configHelper);
 
             services.AddOptions(_config);
         }
         
         
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IApiVersionDescriptionProvider provider)
         {
-            if (env.IsDevelopment())
+            if (_env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -75,13 +77,14 @@ namespace ConceptsMicroservice
 
             app.UseStaticFiles();
 
-            app.UseConceptSwaggerDocumentation(_configHelper);
+            app.UseMvc();
+
+            app.UseConceptSwaggerDocumentation(_configHelper, provider);
 
             app.UseAuthentication();
 
             app.UseCors(CorsServiceExtensions.AllowAll);
 
-            app.UseMvc();
         }
     }
 }
