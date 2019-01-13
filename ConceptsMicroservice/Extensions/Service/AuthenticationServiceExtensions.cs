@@ -6,7 +6,7 @@
  *
  */
 using System.Collections.Generic;
-using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,13 +17,12 @@ namespace ConceptsMicroservice.Extensions.Service
     public static class AuthenticationServiceExtensions
     {
         public static IServiceCollection AddConceptsAuthentication(this IServiceCollection services,
-            IConfigHelper configHelper)
+            Auth0Config config)
         {
-            var auth0Domain = $"https://{configHelper.GetVariable(EnvironmentVariables.Auth0Domain)}/";
             var scopes = new List<string>
             {
-                configHelper.GetVariable(EnvironmentVariables.Auth0ScopeConceptWrite),
-                configHelper.GetVariable(EnvironmentVariables.Auth0ScopeConceptAdmin)
+                config.Scope.ConceptAdmin,
+                config.Scope.ConceptWrite,
             };
 
             services.AddAuthentication(options =>
@@ -33,8 +32,8 @@ namespace ConceptsMicroservice.Extensions.Service
 
             }).AddJwtBearer(options =>
             {
-                options.Authority = auth0Domain;
-                options.Audience = configHelper.GetVariable(EnvironmentVariables.Auth0Audience);
+                options.Authority = config.DomainUrl;
+                options.Audience = config.Audience;
             });
 
             services.AddAuthorization(options =>
@@ -42,7 +41,7 @@ namespace ConceptsMicroservice.Extensions.Service
                 foreach (var scope in scopes)
                 {
                     options.AddPolicy(scope,
-                        policy => policy.Requirements.Add(new HasScopeRequirement(scope, auth0Domain)));
+                        policy => policy.Requirements.Add(new HasScopeRequirement(scope, config.DomainUrl)));
                 }
             });
 

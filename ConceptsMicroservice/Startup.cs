@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
-using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Models.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -21,21 +21,27 @@ namespace ConceptsMicroservice
     {
         private readonly IHostingEnvironment _env;
         private readonly IConfiguration _config;
-        private readonly IConfigHelper _configHelper;
         
 
         public Startup(IHostingEnvironment env, IConfiguration config)
         {
             _env = env;
             _config = config;
-            _configHelper = new ConfigHelper(_env, _config);
         }
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions(_config);
             services.AddDependencies();
-            
-            services.AddEntity(_configHelper);
+
+            var auth0Config = new Auth0Config();
+            _config.GetSection("Auth0").Bind(auth0Config);
+
+
+            var databaseConfig = new DatabaseConfig();
+            _config.GetSection("Database").Bind(databaseConfig);
+
+            services.AddEntity(databaseConfig);
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
@@ -47,13 +53,11 @@ namespace ConceptsMicroservice
             services.AddConceptApiVersioning();
 
             services.AddCorsForConcepts();
-            services.AddConceptsAuthentication(_configHelper);
+            services.AddConceptsAuthentication(auth0Config);
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
-
-            services.AddOptions(_config);
-
+            
             services.AddConceptsSwaggerDocumentation();
         }
         
@@ -71,11 +75,12 @@ namespace ConceptsMicroservice
 
             app.UseCors(CorsServiceExtensions.AllowAll);
 
+            app.UseConceptSwaggerDocumentation();
+
             app.UseAuthentication();
 
             app.UseMvc();
 
-            app.UseConceptSwaggerDocumentation();
         }
     }
 }

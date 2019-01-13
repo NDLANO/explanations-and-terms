@@ -10,8 +10,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Models.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace ConceptsMicroservice.UnitTests.Mock
@@ -19,13 +20,13 @@ namespace ConceptsMicroservice.UnitTests.Mock
     public class MockDatabase : IMockDatabase
     {
         public ConceptsContext Context { get; set; }
-        public IDatabaseConfig DatabaseConfig { get; set; }
+        public DatabaseConfig DatabaseConfig { get; set; }
 
-        public MockDatabase()
+        public MockDatabase(IOptions<DatabaseConfig> config)
         {
-            DatabaseConfig = new DatabaseConfig();
+            DatabaseConfig = config.Value;
             var options = new DbContextOptionsBuilder<ConceptsContext>()
-                .UseNpgsql(DatabaseConfig.GetConnectionString())
+                .UseNpgsql(DatabaseConfig.ConnectionString)
                 .Options;
 
             Context = new ConceptsContext(options);
@@ -113,7 +114,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
             var categoryTableName = typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name);
             var statusTableName = typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name);
 
-            using (var conn = new NpgsqlConnection(DatabaseConfig.GetConnectionString()))
+            using (var conn = new NpgsqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 using (var cmd = new NpgsqlCommand($"DELETE FROM {conceptTableName}", conn))

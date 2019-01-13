@@ -6,7 +6,7 @@
  *
  */
 using ConceptsMicroservice.Context;
-using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Models.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,11 +14,10 @@ namespace ConceptsMicroservice.Extensions.Service
 {
     public static class EntityServiceExtensions
     {
-        public static IServiceCollection AddEntity(this IServiceCollection services, IConfigHelper configHelper)
+        public static IServiceCollection AddEntity(this IServiceCollection services, DatabaseConfig config)
         {
-            var connectionString = new DatabaseConfig(configHelper).GetConnectionString();
             services.AddEntityFrameworkNpgsql();
-            services.AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(connectionString));
+            services.AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(config.ConnectionString));
 
             return services;
         }

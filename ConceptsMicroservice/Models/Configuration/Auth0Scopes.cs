@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-namespace ConceptsMicroservice.Utilities
+namespace ConceptsMicroservice.Models.Configuration
 {
-    public interface IDatabaseConfig
+    public class Auth0Scopes
     {
-        string GetConnectionString();
+        public string ConceptWrite { get; set; }
+        public string ConceptAdmin { get; set; }
     }
 }

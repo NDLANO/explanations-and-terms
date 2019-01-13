@@ -11,9 +11,10 @@ using System.Data;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Search;
-using ConceptsMicroservice.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -22,15 +23,15 @@ namespace ConceptsMicroservice.Repositories
     public class ConceptRepository : IConceptRepository
     {
         private readonly ConceptsContext _context;
-        private readonly IDatabaseConfig _databaseConfig;
+        private readonly DatabaseConfig _databaseConfig;
 
         private readonly Func<NpgsqlDataReader, List<Concept>> _sqlResultToListOfConceptsFunc;
         private readonly Func<NpgsqlDataReader, List<string>> _sqlResultToListOfConceptTitlesFunc;
 
-        public ConceptRepository(ConceptsContext context, IDatabaseConfig config)
+        public ConceptRepository(ConceptsContext context, IOptions<DatabaseConfig> config)
         {
             _context = context;
-            _databaseConfig = config;
+            _databaseConfig = config.Value;
 
             _sqlResultToListOfConceptsFunc = reader =>
             {
@@ -65,7 +66,7 @@ namespace ConceptsMicroservice.Repositories
             if (paramsNpgsqlParameters == null)
                 paramsNpgsqlParameters = new List<NpgsqlParameter>();
 
-            using (var connection = new Npgsql.NpgsqlConnection(_databaseConfig.GetConnectionString()))
+            using (var connection = new Npgsql.NpgsqlConnection(_databaseConfig.ConnectionString))
             {
                 connection.Open();
 

@@ -30,10 +30,7 @@ namespace ConceptsMicroservice.Extensions.Service
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
 
-
-            services.AddScoped<IDatabaseConfig, DatabaseConfig>();
             services.AddScoped<ITokenHelper, TokenHelper>();
-            services.AddScoped<IConfigHelper, ConfigHelper>();
 
             services.AddScoped<IConceptValidationService, ConceptValidationService>();
 

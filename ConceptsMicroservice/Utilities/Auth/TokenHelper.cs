@@ -10,25 +10,26 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Auth0.AuthenticationApi;
+using ConceptsMicroservice.Models.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Utilities.Auth
 {
     public class TokenHelper: ITokenHelper
     {
-        private readonly IConfigHelper _configHelper;
+        private readonly Auth0Config _auth0Config;
 
-        public TokenHelper(IConfigHelper config)
+        public TokenHelper(IOptions<Auth0Config> config)
         {
-            _configHelper = config;
+            _auth0Config = config.Value;
         }
 
         public async Task<string> ReturnClaimEmail(HttpContext context)
         {
-            var auth0Domain = _configHelper.GetVariable(EnvironmentVariables.Auth0Domain);
             var token = await context.GetTokenAsync("access_token");
-            var authApiClient = new AuthenticationApiClient(auth0Domain);
+            var authApiClient = new AuthenticationApiClient(_auth0Config.Domain);
             var authenticatedUser = await authApiClient.GetUserInfoAsync(token);
 
             return authenticatedUser.Email;
@@ -36,9 +37,8 @@ namespace ConceptsMicroservice.Utilities.Auth
 
         public async Task<string> ReturnClaimFullName(HttpContext context)
         {
-            var auth0Domain = _configHelper.GetVariable(EnvironmentVariables.Auth0Domain);
             var token = await context.GetTokenAsync("access_token");
-            var authApiClient = new AuthenticationApiClient(auth0Domain);
+            var authApiClient = new AuthenticationApiClient(_auth0Config.Domain);
             var authenticatedUser = await authApiClient.GetUserInfoAsync(token);
 
             return authenticatedUser.FullName;

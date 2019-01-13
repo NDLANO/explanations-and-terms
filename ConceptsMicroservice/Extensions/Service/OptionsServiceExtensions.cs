@@ -1,12 +1,11 @@
-﻿/**
- * Copyright (c) 2018-present, NDLA.
+/** Copyright (c) 2018-present, NDLA.
  *
  * This source code is licensed under the GPLv3 license found in the
  * LICENSE file in the root directory of this source tree.
  *
  */
 
-using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Models.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 namespace ConceptsMicroservice.Extensions.Service
@@ -19,7 +18,8 @@ namespace ConceptsMicroservice.Extensions.Service
         /// </summary>
         public static IServiceCollection AddOptions(this IServiceCollection services, IConfiguration config)
         {
-            services.Configure<DatabaseConfig>(config);
+            services.Configure<Auth0Config>(config.GetSection("Auth0"));
+            services.Configure<DatabaseConfig>(config.GetSection("Database"));
 
             return services;
         }

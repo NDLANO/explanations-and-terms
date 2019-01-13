@@ -8,14 +8,14 @@
 using System;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Utilities;
+using ConceptsMicroservice.Models.Configuration;
 
 namespace ConceptsMicroservice.UnitTests.Mock
 {
     public interface IMockDatabase : IDisposable
     {
         ConceptsContext Context { get; set; }
-        IDatabaseConfig DatabaseConfig { get; set; }
+        DatabaseConfig DatabaseConfig { get; set; }
 
         MetaCategory InsertCategory(MetaCategory mc);
         Status InsertStatus(Status ms);
