@@ -37,7 +37,6 @@ namespace ConceptsMicroservice
             
             services.AddEntity(_configHelper);
 
-            services.AddCorsForConcepts();
             services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddMvc()
@@ -47,6 +46,7 @@ namespace ConceptsMicroservice
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddConceptApiVersioning();
 
+            services.AddCorsForConcepts();
             services.AddConceptsAuthentication(_configHelper);
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
@@ -69,14 +69,13 @@ namespace ConceptsMicroservice
 
             app.UseStaticFiles();
 
-            app.UseMvc();
-
-            app.UseConceptSwaggerDocumentation();
+            app.UseCors(CorsServiceExtensions.AllowAll);
 
             app.UseAuthentication();
 
-            app.UseCors(CorsServiceExtensions.AllowAll);
+            app.UseMvc();
 
+            app.UseConceptSwaggerDocumentation();
         }
     }
 }
