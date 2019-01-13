@@ -11,6 +11,7 @@ using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.UnitTests.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -22,9 +23,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
         public ConceptsContext Context { get; set; }
         public DatabaseConfig DatabaseConfig { get; set; }
 
-        public MockDatabase(IOptions<DatabaseConfig> config)
+        public MockDatabase()
         {
-            DatabaseConfig = config.Value;
+            DatabaseConfig = ConfigHelper.GetApplicationConfiguration();
             var options = new DbContextOptionsBuilder<ConceptsContext>()
                 .UseNpgsql(DatabaseConfig.ConnectionString)
                 .Options;

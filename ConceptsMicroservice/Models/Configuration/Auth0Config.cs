@@ -12,6 +12,6 @@ namespace ConceptsMicroservice.Models.Configuration
         public string Domain{ get; set; }
         public string Audience { get; set; }
         public Auth0Scopes Scope { get; set; }
-        public string DomainUrl => $"https://{Domain}";
+        public string DomainUrl => $"https://{Domain}/";
     }
 }

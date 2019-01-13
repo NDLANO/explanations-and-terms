@@ -6,7 +6,9 @@
  *
  */
 using System;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.UnitTests.Mock;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests

@@ -45,6 +45,9 @@ namespace ConceptsMicroservice
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
+            services.AddCorsForConcepts();
+            services.AddConceptsAuthentication(auth0Config);
+
             services.AddMvc()
                 .AddJsonOptions(options => {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -52,8 +55,6 @@ namespace ConceptsMicroservice
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddConceptApiVersioning();
 
-            services.AddCorsForConcepts();
-            services.AddConceptsAuthentication(auth0Config);
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
