@@ -11,7 +11,6 @@ using System.Net;
 using ConceptsMicroservice.Models;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Services;
-using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -30,8 +29,8 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the categories.
         /// </remarks>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaCategory>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<MetaCategory>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAllCategories()
         {
@@ -49,9 +48,9 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single category.
         /// </remarks>
         /// <param name="id">Id of the category that is to be fetched.</param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(MetaCategory), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.NotFound, typeof(void), Description = "There exists no categories with the specified id")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MetaCategory))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(void))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet("{id}")]
         public ActionResult<Response> GetCategoryById(int id)
         {

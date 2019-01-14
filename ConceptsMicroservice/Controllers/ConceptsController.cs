@@ -17,7 +17,6 @@ using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -40,8 +39,8 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concepts.
         /// </remarks>
         /// <param name="query"></param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Concept>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> Search([FromQuery]ConceptSearchQuery query = null)
@@ -59,8 +58,8 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of concept titles.
         /// </remarks>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<string>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<string>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
         public ActionResult<Response> AllTitles()
@@ -80,8 +79,8 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of concepts.
         /// </remarks>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Concept>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAll()
         {
@@ -99,9 +98,9 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="id">Id of the concept that is to be fetched.</param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Concept>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.NotFound, null, Description = "If a concept with the specified id does not exist")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, null, Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Concept>))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound, Type = null)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = null)]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {
@@ -122,7 +121,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="concept">The concept to be updated with values.</param>
-        [SwaggerIgnore]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPut]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
@@ -156,7 +155,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="concept" >The concept to be created.</param>
-        [SwaggerIgnore]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
@@ -190,7 +189,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="id">The id of the concepts to be deleted.</param>
-        [SwaggerIgnore]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpDelete("{id}")]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]

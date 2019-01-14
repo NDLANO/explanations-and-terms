@@ -11,7 +11,6 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Services;
-using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -30,8 +29,8 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the status.
         /// </remarks>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<Status>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Status>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAllStatus()
         {
