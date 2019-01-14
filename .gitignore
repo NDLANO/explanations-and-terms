@@ -262,4 +262,3 @@ __pycache__/
 
 appsettings.Development.json
 appsettings.test.json
-ConceptsMicroservice.UnitTest/appsettings.test.json
