@@ -5,11 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-using System.Collections.Generic;
+
+using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
-using NSwag;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace ConceptsMicroservice.Extensions.Service
 {
@@ -27,33 +30,40 @@ namespace ConceptsMicroservice.Extensions.Service
                 .GetRequiredService<IApiVersionDescriptionProvider>();
             foreach (var description in provider.ApiVersionDescriptions)
             {
-                services.AddSwaggerDocument(config =>
+                services.AddSwaggerGen(config =>
                 {
-                    config.DocumentName = Version(description);
-
-                    config.ApiGroupNames = new[] { Version(description) };
-                    config.PostProcess = document =>
+                    config.SwaggerDoc(Version(description), new Info
                     {
-                        document.Security = new List<SwaggerSecurityRequirement>();
-                        document.Info.Title = "Explanations and terms API";
-                        document.Info.Description = "Documentation for the Explanation and terms API from NDLA.";
-                        document.Info.TermsOfService = "https://ndla.no/";
-                        document.Info.License = new NSwag.SwaggerLicense
+                        Version = Version(description),
+                        Title = "Explanations and terms API",
+                        Description = "Documentation for the Explanation and terms API from NDLA.",
+                        TermsOfService = "https://ndla.no/",
+                        License = new License
                         {
                             Name = "GPL v3.0",
                             Url = "http://www.gnu.org/licenses/gpl-3.0.en.html"
-                        };
-                        document.Schemes = new[] { SwaggerSchema.Https };
-                    };
+                        },
+                    });
+                    // Set the comments path for the Swagger JSON and UI.
+                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                    config.IncludeXmlComments(xmlPath);
                 });
             }
+
             return services;
         }
 
-        public static IApplicationBuilder UseConceptSwaggerDocumentation(this IApplicationBuilder app)
+        public static IApplicationBuilder UseConceptSwaggerDocumentation(this IApplicationBuilder app, IApiVersionDescriptionProvider provider)
         {
             app.UseSwagger();
-            app.UseSwaggerUi3();
+            app.UseSwaggerUI(options =>
+            {
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{Version(description)}/swagger.json", Version(description));
+                }
+            });
             return app;
         }
     }

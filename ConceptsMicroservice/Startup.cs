@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
 using ConceptsMicroservice.Models.Configuration;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -63,7 +64,7 @@ namespace ConceptsMicroservice
         }
         
         
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IApiVersionDescriptionProvider provider)
         {
             if (_env.IsDevelopment())
             {
@@ -76,7 +77,7 @@ namespace ConceptsMicroservice
 
             app.UseCors(CorsServiceExtensions.AllowAll);
 
-            app.UseConceptSwaggerDocumentation();
+            app.UseConceptSwaggerDocumentation(provider);
 
             app.UseAuthentication();
 

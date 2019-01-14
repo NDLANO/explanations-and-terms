@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
-using NSwag.Annotations;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -29,8 +28,8 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the metadata.
         /// </remarks>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<MetaData>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAll()
         {
@@ -48,8 +47,8 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of metadata.
         /// </remarks>
         /// <param name="query"></param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(List<MetaData>), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<MetaData>))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [Route("[action]")]
         [HttpGet]
         public ActionResult<List<MetaData>> Search([FromQuery] MetaSearchQuery query = null)
@@ -68,9 +67,9 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single metadata.
         /// </remarks>
         /// <param name="id">Id of the metadata that is to be fetched.</param>
-        [SwaggerResponse(HttpStatusCode.OK, typeof(MetaData), Description = "OK")]
-        [SwaggerResponse(HttpStatusCode.NotFound, typeof(void), Description = "There exists no metadata with the specified id")]
-        [SwaggerResponse(HttpStatusCode.InternalServerError, typeof(void), Description = "Unknown error")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MetaData))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(void))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet("{id}")]
         public ActionResult<Response> GetById(int id)
         {
