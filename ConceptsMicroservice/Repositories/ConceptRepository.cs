@@ -28,10 +28,10 @@ namespace ConceptsMicroservice.Repositories
         private readonly Func<NpgsqlDataReader, List<Concept>> _sqlResultToListOfConceptsFunc;
         private readonly Func<NpgsqlDataReader, List<string>> _sqlResultToListOfConceptTitlesFunc;
 
-        public ConceptRepository(ConceptsContext context, DatabaseConfig config)
+        public ConceptRepository(ConceptsContext context, IOptions<DatabaseConfig> config)
         {
             _context = context;
-            _databaseConfig = config;
+            _databaseConfig = config.Value;
 
             _sqlResultToListOfConceptsFunc = reader =>
             {
