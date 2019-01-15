@@ -32,6 +32,7 @@ namespace ConceptsMicroservice.Extensions.Service
             {
                 services.AddSwaggerGen(config =>
                 {
+                    
                     config.SwaggerDoc(Version(description), new Info
                     {
                         Version = Version(description),
