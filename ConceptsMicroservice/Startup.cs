@@ -34,20 +34,10 @@ namespace ConceptsMicroservice
         {
             services.AddOptions(_config);
             services.AddDependencies();
-
-            var auth0Config = new Auth0Config();
-            _config.GetSection("Auth0").Bind(auth0Config);
-
-
-            var databaseConfig = new DatabaseConfig();
-            _config.GetSection("Database").Bind(databaseConfig);
-
-            services.AddEntity(databaseConfig);
-
+            services.AddEntity(_config);
             services.AddRouting(options => options.LowercaseUrls = true);
-
             services.AddCorsForConcepts();
-            services.AddConceptsAuthentication(auth0Config);
+            services.AddConceptsAuthentication(_config);
 
             services.AddMvc()
                 .AddJsonOptions(options => {

@@ -6,6 +6,7 @@
  */
 
 using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 namespace ConceptsMicroservice.Extensions.Service
@@ -18,8 +19,8 @@ namespace ConceptsMicroservice.Extensions.Service
         /// </summary>
         public static IServiceCollection AddOptions(this IServiceCollection services, IConfiguration config)
         {
-            services.Configure<Auth0Config>(config.GetSection("Auth0"));
-            services.Configure<DatabaseConfig>(config.GetSection("Database"));
+            services.Configure<Auth0Config>(config.GetSection(ConfigSections.Auth0));
+            services.Configure<DatabaseConfig>(config.GetSection(ConfigSections.Database));
 
             return services;
         }

@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-namespace ConceptsMicroservice.Models.ExternalApi.Image
+namespace ConceptsMicroservice.Utilities
 {
-    public class TypeName
+    public static class ConfigSections
     {
-        public string Type { get; set; }
-        public string Name { get; set; }
+        public static readonly string Auth0 = "Auth0";
+        public static readonly string Database = "Database";
     }
 }

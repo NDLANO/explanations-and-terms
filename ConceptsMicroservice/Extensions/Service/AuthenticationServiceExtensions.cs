@@ -7,9 +7,11 @@
  */
 using System.Collections.Generic;
 using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Utilities;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ConceptsMicroservice.Extensions.Service
@@ -17,12 +19,15 @@ namespace ConceptsMicroservice.Extensions.Service
     public static class AuthenticationServiceExtensions
     {
         public static IServiceCollection AddConceptsAuthentication(this IServiceCollection services,
-            Auth0Config config)
+            IConfiguration config)
         {
+            var auth0Config = new Auth0Config();
+            config.GetSection(ConfigSections.Auth0).Bind(auth0Config);
+
             var scopes = new List<string>
             {
-                config.Scope.ConceptAdmin,
-                config.Scope.ConceptWrite,
+                auth0Config.Scope.ConceptAdmin,
+                auth0Config.Scope.ConceptWrite,
             };
 
             services.AddAuthentication(options =>
@@ -32,8 +37,8 @@ namespace ConceptsMicroservice.Extensions.Service
 
             }).AddJwtBearer(options =>
             {
-                options.Authority = config.DomainUrl;
-                options.Audience = config.Audience;
+                options.Authority = auth0Config.DomainUrl;
+                options.Audience = auth0Config.Audience;
             });
 
             services.AddAuthorization(options =>
@@ -41,7 +46,7 @@ namespace ConceptsMicroservice.Extensions.Service
                 foreach (var scope in scopes)
                 {
                     options.AddPolicy(scope,
-                        policy => policy.Requirements.Add(new HasScopeRequirement(scope, config.DomainUrl)));
+                        policy => policy.Requirements.Add(new HasScopeRequirement(scope, auth0Config.DomainUrl)));
                 }
             });
 
