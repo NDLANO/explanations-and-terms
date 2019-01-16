@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
-using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.UnitTests.Helpers;
@@ -92,6 +91,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Content = "Content",
                 Source = "Source",
                 Title = "Title",
+                MediaIds = new List<int>()
             };
 
             category = InsertCategory(category);

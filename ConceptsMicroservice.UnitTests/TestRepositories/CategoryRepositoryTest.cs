@@ -6,7 +6,7 @@
  *
  */
 using System;
-using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.UnitTests.Mock;
 using Xunit;

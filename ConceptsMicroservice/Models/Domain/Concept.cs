@@ -59,7 +59,7 @@ namespace ConceptsMicroservice.Models.Domain
         
         public virtual Status Status {get;set; }
         [NotMapped] public List<MetaData> Meta { get; set; }
-        [NotMapped] public List<ConceptMedia> Media { get; set; }
+        [NotMapped] public List<Media> Media { get; set; }
 
         public static List<T> GetJsonList<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
@@ -112,7 +112,7 @@ namespace ConceptsMicroservice.Models.Domain
                 StatusId = reader.GetInt32(statusIdColumn),
                 DeletedBy = reader.SafeGetString(deletedByColumn),
                 Meta = GetJsonList<MetaData>(reader, metaObjectsColumn),
-                Media = GetJsonList<ConceptMedia>(reader, mediaObjectsColumn),
+                Media = GetJsonList<Media>(reader, mediaObjectsColumn),
             };
 
             return concept;

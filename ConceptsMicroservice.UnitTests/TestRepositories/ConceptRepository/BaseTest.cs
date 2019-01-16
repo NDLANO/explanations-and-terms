@@ -7,7 +7,9 @@
  */
 using System;
 using ConceptsMicroservice.Repositories;
+using ConceptsMicroservice.UnitTests.Helpers;
 using ConceptsMicroservice.UnitTests.Mock;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
@@ -20,8 +22,9 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         public BaseTest()
         {
             Mock = new Mock.Mock();
+            var config = Options.Create(ConfigHelper.GetApplicationConfiguration());
 
-            ConceptRepository = new Repositories.ConceptRepository(Mock.Database.Context, Mock.Database.DatabaseConfig);
+            ConceptRepository = new Repositories.ConceptRepository(Mock.Database.Context, config);
         }
 
         public void Dispose()

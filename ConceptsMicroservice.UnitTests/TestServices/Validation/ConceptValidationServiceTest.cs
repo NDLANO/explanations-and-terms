@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services.Validation;
 using FakeItEasy;
