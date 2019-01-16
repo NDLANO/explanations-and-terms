@@ -9,7 +9,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ConceptsMicroservice.Models
+namespace ConceptsMicroservice.Models.Domain
 {
     [Table("status", Schema = "public")]
     public class Status

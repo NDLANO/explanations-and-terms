@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConceptsMicroservice.Extensions

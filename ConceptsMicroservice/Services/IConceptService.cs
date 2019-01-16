@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 
 namespace ConceptsMicroservice.Services

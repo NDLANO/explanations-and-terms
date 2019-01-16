@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-using ConceptsMicroservice.Logger;
-using ConceptsMicroservice.Models;
+ 
+using ConceptsMicroservice.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConceptsMicroservice.Context
@@ -20,9 +19,9 @@ namespace ConceptsMicroservice.Context
         public DbSet<Concept> Concepts { get; set; }
         public DbSet<MetaCategory> Categories { get; set; }
         public DbSet<Status> Status { get; set; }
+        public DbSet<Media> Media { get; set; }
+        public DbSet<MediaType> MediaTypes { get; set; }
+        public DbSet<ConceptMedia> ConceptMedia { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseLoggerFactory(Loggers.SqlLoggerFactory);
     }
 }

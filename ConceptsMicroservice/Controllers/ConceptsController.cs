@@ -12,6 +12,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;

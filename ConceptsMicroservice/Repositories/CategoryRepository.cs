@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 
 namespace ConceptsMicroservice.Repositories
 {

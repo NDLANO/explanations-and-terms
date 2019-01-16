@@ -7,6 +7,7 @@
  */
 using System;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
 
@@ -122,7 +123,7 @@ namespace ConceptsMicroservice.Services
             {
                 viewModel.Data = _conceptRepository.Insert(newConcept);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not insert concept.");
             }

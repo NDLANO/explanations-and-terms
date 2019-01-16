@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 

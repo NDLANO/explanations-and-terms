@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,7 +16,7 @@ using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Utilities;
 using Newtonsoft.Json;
 
-namespace ConceptsMicroservice.Models
+namespace ConceptsMicroservice.Models.Domain
 {
     [Table("concepts", Schema = "public")]
     public class Concept
@@ -51,16 +52,29 @@ namespace ConceptsMicroservice.Models
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("deleted_by")] public string DeletedBy { get; set; }
-
+        [Column("media")] public List<int> MediaIds { get; set; } = new List<int>();
         [Column("status_id")]
         [StatusIdExistsInDatabase]
         public int StatusId { get; set; }
-
-        public virtual Status Status {get;set; }
         
-        [NotMapped]
+        public virtual Status Status {get;set; }
+        [NotMapped] public List<MetaData> Meta { get; set; }
+        [NotMapped] public List<ConceptMedia> Media { get; set; }
 
-        public List<MetaData> Meta { get; set; }
+        public static List<T> GetJsonList<T>(Npgsql.NpgsqlDataReader reader, int column)
+        {
+            var member = new List<T>();
+            try
+            {
+                member = JsonConvert.DeserializeObject<List<T>>(reader.GetString(column));
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return member;
+        }
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
@@ -79,19 +93,13 @@ namespace ConceptsMicroservice.Models
             var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
             var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
-
-            var meta = new List<MetaData>();
-            try
-            {
-                meta = JsonConvert.DeserializeObject<List<MetaData>>(reader.GetString(metaObjectsColumn));
-            }
-            catch { }
-
+            var mediaObjectsColumn = reader.GetOrdinal("media_object");
 
             var concept = new Concept
             {
                 Id = reader.GetInt32(idColumn),
                 MetaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
+                MediaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
                 ExternalId = reader.GetInt32(externalIdColumn),
                 Title = reader.SafeGetString(titleColumn),
                 Content = reader.SafeGetString(contentColumn),
@@ -103,9 +111,8 @@ namespace ConceptsMicroservice.Models
                 Updated = reader.GetDateTime(updatedColumn),
                 StatusId = reader.GetInt32(statusIdColumn),
                 DeletedBy = reader.SafeGetString(deletedByColumn),
-
-                Meta = meta,
-                //Status = reader.GetFieldValue<Status>(9)
+                Meta = GetJsonList<MetaData>(reader, metaObjectsColumn),
+                Media = GetJsonList<ConceptMedia>(reader, mediaObjectsColumn),
             };
 
             return concept;

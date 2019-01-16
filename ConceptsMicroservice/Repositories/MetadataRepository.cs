@@ -10,6 +10,7 @@ using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using Microsoft.EntityFrameworkCore;
 

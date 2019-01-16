@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Services;
 
 namespace ConceptsMicroservice.Controllers
