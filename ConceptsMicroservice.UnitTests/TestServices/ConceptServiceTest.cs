@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services;

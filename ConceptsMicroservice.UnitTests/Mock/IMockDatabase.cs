@@ -9,6 +9,7 @@ using System;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Models.Domain;
 
 namespace ConceptsMicroservice.UnitTests.Mock
 {

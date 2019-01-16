@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 
 namespace ConceptsMicroservice.UnitTests.Mock
 {

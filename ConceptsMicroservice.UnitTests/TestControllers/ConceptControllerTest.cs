@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Controllers;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;

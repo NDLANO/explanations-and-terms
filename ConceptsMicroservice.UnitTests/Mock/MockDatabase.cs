@@ -11,9 +11,9 @@ using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.UnitTests.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace ConceptsMicroservice.UnitTests.Mock
