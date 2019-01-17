@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("concepts/api/v{version:apiVersion}/[controller]")]
     [Produces("application/json")]
     public class BaseController : ControllerBase
     {
