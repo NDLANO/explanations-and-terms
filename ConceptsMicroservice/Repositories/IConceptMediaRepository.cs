@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 
 namespace ConceptsMicroservice.Repositories
 {
@@ -15,8 +16,8 @@ namespace ConceptsMicroservice.Repositories
     {
         bool Delete(ConceptMedia relation);
         List<ConceptMedia> GetMediaForConcept(Concept concept);
-        ConceptMedia Insert(Concept concept, int externalId, int mediaType);
+        ConceptMedia Insert(Concept concept, string externalId, int mediaType);
         bool DeleteMediaForConcept(Concept concept, List<ConceptMedia> conceptMedia);
-        List<ConceptMedia> InsertMediaForConcept(Concept concept, List<ConceptMedia> conceptMedia);
+        List<ConceptMedia> InsertMediaForConcept(Concept concept, List<MediaWithMediaType> conceptMedia);
     }
 }

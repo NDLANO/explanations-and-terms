@@ -13,6 +13,7 @@ using System.Net;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
@@ -160,7 +161,7 @@ namespace ConceptsMicroservice.Controllers
         [HttpPost]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
-        public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]Concept concept)
+        public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]CreateOrUpdateConcept concept)
         {
             if (concept == null)
             {

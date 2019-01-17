@@ -6,8 +6,12 @@
  *
  */
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
 
@@ -16,14 +20,14 @@ namespace ConceptsMicroservice.Services
     public class ConceptService : IConceptService
     {
         private readonly IConceptRepository _conceptRepository;
-        private readonly IMetadataRepository _metaRepository;
+        private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
 
-        public ConceptService(IConceptRepository concept, IMetadataRepository meta, IStatusRepository status)
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media)
         {
             _conceptRepository = concept;
-            _metaRepository = meta;
             _statusRepository = status;
+            _conceptMediaRepository = media;
         }
 
         public Response SearchForConcepts(ConceptSearchQuery query)
@@ -115,18 +119,25 @@ namespace ConceptsMicroservice.Services
             return viewModel;
         }
 
-        public Response CreateConcept(Concept newConcept)
+        public Response CreateConcept(CreateOrUpdateConcept newConcept)
         {
             var viewModel = new Response();
 
             try
             {
-                viewModel.Data = _conceptRepository.Insert(newConcept);
+                var concept = Mapper.Map<Concept>(newConcept);
+
+                concept = _conceptRepository.Insert(concept);
+                var media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);
+
+                concept.Media = media.Select(x => x.Media).ToList();
+                viewModel.Data = concept;
             }
             catch (Exception e)
             {
-                viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not insert concept.");
+                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not insert concept.");
             }
+
 
             return viewModel;
         }

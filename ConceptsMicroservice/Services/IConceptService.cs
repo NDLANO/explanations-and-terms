@@ -8,6 +8,7 @@
 
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 
 namespace ConceptsMicroservice.Services
@@ -19,7 +20,7 @@ namespace ConceptsMicroservice.Services
         Response GetAllConcepts();
         Response GetAllConceptTitles();
         Response UpdateConcept(Concept newConceptVersion);
-        Response CreateConcept(Concept newConcept);
+        Response CreateConcept(CreateOrUpdateConcept newConcept);
         Response ArchiveConcept(int id, string usersEmail);
     }
 }

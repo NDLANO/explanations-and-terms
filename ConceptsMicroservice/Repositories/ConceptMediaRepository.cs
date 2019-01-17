@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConceptsMicroservice.Repositories
@@ -32,13 +33,19 @@ namespace ConceptsMicroservice.Repositories
         }
         public bool DeleteMediaForConcept(Concept concept, List<ConceptMedia> conceptMedia)
         {
+            if (concept == null || conceptMedia == null)
+                return false;
+
             _context.ConceptMedia.RemoveRange(conceptMedia);
             return _context.SaveChanges() == conceptMedia.Count;
         }
-        public List<ConceptMedia> InsertMediaForConcept(Concept concept, List<ConceptMedia> conceptMedia)
+        public List<ConceptMedia> InsertMediaForConcept(Concept concept, List<MediaWithMediaType> conceptMedia)
         {
+            if (concept == null || conceptMedia == null)
+                return new List<ConceptMedia>();
+
             return conceptMedia
-                .Select(x => Insert(concept, x.Media.ExternalId, x.Media.MediaTypeId))
+                .Select(x => Insert(concept, x.ExternalId, x.MediaTypeId))
                 .ToList();
         }
 
@@ -52,7 +59,7 @@ namespace ConceptsMicroservice.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        private Media AddOrGetMediaWithExternalId(int externalId, int mediaType)
+        private Media AddOrGetMediaWithExternalId(string externalId, int mediaType)
         {
             var media = _context.Media
                 .Include(x => x.MediaType)
@@ -62,7 +69,8 @@ namespace ConceptsMicroservice.Repositories
                 media = new Media
                 {
                     ExternalId = externalId,
-                    MediaTypeId = mediaType
+                    MediaTypeId = mediaType,
+                    MediaType = _context.MediaTypes.Find(mediaType)
                 };
                 _context.Media.Add(media);
             }
@@ -70,7 +78,7 @@ namespace ConceptsMicroservice.Repositories
             return media;
         }
 
-        public ConceptMedia Insert(Concept concept, int externalId, int mediaType)
+        public ConceptMedia Insert(Concept concept, string externalId, int mediaType)
         {
             if (concept == null)
                 return null;
@@ -81,6 +89,7 @@ namespace ConceptsMicroservice.Repositories
             {
                 ConceptId = concept.Id,
                 MediaId = media.Id,
+                Media = media
             };
             _context.ConceptMedia.Add(relation);
             _context.SaveChanges();

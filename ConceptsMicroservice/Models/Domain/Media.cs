@@ -16,7 +16,7 @@ namespace ConceptsMicroservice.Models.Domain
     public class Media
     {
         [Key] [Column("id")] public int Id { get; set; }
-        [Column("external_id")] public int ExternalId { get; set; }
+        [Column("external_id")] public string ExternalId { get; set; }
         [Column("media_type_id")] public int MediaTypeId { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }

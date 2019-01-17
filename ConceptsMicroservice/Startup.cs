@@ -61,6 +61,8 @@ namespace ConceptsMicroservice
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMapping();
+
             app.UseDefaultFiles();
 
             app.UseStaticFiles();
