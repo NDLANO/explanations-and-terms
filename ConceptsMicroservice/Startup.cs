@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +35,7 @@ namespace ConceptsMicroservice
         {
             services.AddOptions(_config);
             services.AddDependencies();
-            services.AddMappings();
+            services.AddAutoMapper();
             services.AddEntity(_config);
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCorsForConcepts();

@@ -299,24 +299,15 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             Assert.Equal(400, badRequest.StatusCode);
         }
         [Fact]
-        public void CreateConcept_Returns_400_When_Service_Returns_Null()
+        public void CreateConcept_Returns_500_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(null);
             var result = _controller.CreateConcept(_createConcept);
-            var badRequest = result.Result.Result as BadRequestObjectResult;
+            var status = result.Result.Result as StatusCodeResult;
 
-            Assert.Equal(400, badRequest.StatusCode);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }
-
-        [Fact]
-        public void CreateConcept_Returns_400_If_Service_Returns_Errors()
-        {
-            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(_errorResponse);
-            var result = _controller.CreateConcept(_createConcept);
-            var badRequest = result.Result.Result as BadRequestObjectResult;
-
-            Assert.Equal(400, badRequest.StatusCode);
-        }
+        
 
         [Fact]
         public void CreateConcept_Returns_200_On_Successful_Update()

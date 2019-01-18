@@ -6,7 +6,6 @@
  *
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using ConceptsMicroservice.Models;
@@ -101,7 +100,7 @@ namespace ConceptsMicroservice.Services
             // Concept does not exist in the database, so cannot update it.
             if (oldConceptVersion == null)
             {
-                viewModel.Errors.TryAddModelError("Concept", "Object does not exists.");
+                viewModel.Errors.TryAddModelError("errorMessage", "Object does not exists.");
                 return viewModel;
             }
             
@@ -116,7 +115,7 @@ namespace ConceptsMicroservice.Services
             }
             catch (Exception)
             {
-                viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not update concept.");
+                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not update concept.");
             }
             
             return viewModel;
@@ -134,13 +133,12 @@ namespace ConceptsMicroservice.Services
                 var media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);
 
                 concept.Media = media.Select(x => x.Media).ToList();
-                viewModel.Data = concept;
+                viewModel.Data = _mapper.Map<ConceptDTO>(concept);
             }
-            catch (Exception e)
+            catch
             {
-                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not insert concept.");
+                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not delete insert concept.");
             }
-
 
             return viewModel;
         }
@@ -156,7 +154,7 @@ namespace ConceptsMicroservice.Services
             var inactiveStatus = _statusRepository.GetByName(Status.STATUS_ARCHVIED);
             if (inactiveStatus == null)
             {
-                viewModel.Errors.TryAddModelError("Status", $"Did not found \"{Status.STATUS_ARCHVIED}\" status");
+                viewModel.Errors.TryAddModelError("errorMessage", $"Did not found \"{Status.STATUS_ARCHVIED}\" status");
                 return viewModel;
             }
 
@@ -170,7 +168,7 @@ namespace ConceptsMicroservice.Services
             }
             catch (Exception)
             {
-                viewModel.Errors.TryAddModelError("Concept", "An database error has occured. Could not delete concept.");
+                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not delete concept.");
             }
 
             return viewModel;

@@ -15,10 +15,12 @@ namespace ConceptsMicroservice.Profiles
     {
         public MappingProfile()
         {
-            Mapper.Initialize(cfg => {
-                cfg.CreateMap<CreateOrUpdateConcept, Concept>()
-                    .ForMember(x => x.Media, opt => opt.Ignore());
-            });
+
+            CreateMap<CreateOrUpdateConcept, Concept>()
+                .ForMember(x => x.Media, opt => opt.Ignore())
+                .ForMember(x => x.MediaIds, opt => opt.Ignore())
+                .ForMember(x => x.Status, opt => opt.Ignore())
+                .ForMember(x => x.Meta, opt => opt.Ignore());
         }
     }
 }

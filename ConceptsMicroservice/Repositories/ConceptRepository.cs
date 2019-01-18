@@ -159,7 +159,7 @@ namespace ConceptsMicroservice.Repositories
             concept.Entity.Created = DateTime.Now;
             concept.Entity.Updated = concept.Entity.Created;
             _context.SaveChanges();
-            return concept.Entity;
+            return GetById(concept.Entity.Id);
         }
 
         public List<string> GetAllTitles()

@@ -40,10 +40,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             ConceptMediaRepository = A.Fake<IConceptMediaRepository>();
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
-
-            AutoMapper.Mapper.Reset();
-            var mappings = new MapperConfigurationExpression();
-            mappings.AddProfile<MappingProfile>();
+            
             Mapper = AutoMapper.Mapper.Instance;
 
             Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper);
@@ -199,20 +196,97 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
 
         [Fact]
-        public void CreateConcept_Returns_With_Error_When_RepoInsert_Throws_Exception()
+        public void CreateConcept_Returns_Null_Data_When_RepoInsert_Throws_Exception()
         {
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Throws<Exception>();
 
             var mockConcept = Mock.MockCreateOrUpdateConcept();
 
             var viewModel = Service.CreateConcept(mockConcept);
-
-            Assert.True(viewModel.HasErrors());
+            
             Assert.Null(viewModel.Data);
         }
 
         [Fact]
-        public void CreateConcept_Returns_Response_With_Concept_On_Success()
+        public void CreateConcept_Calls_InsertMediaForConcept_On_Success()
+        {
+            var mockConcept = Mock.MockConcept(_status);
+            var mockMediaConcept = Mock.MockCreateOrUpdateConcept();
+
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
+            A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
+            var viewModel = Service.CreateConcept(mockMediaConcept);
+
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._))
+                .MustHaveHappened(1, Times.Exactly);
+        }
+
+        [Fact]
+        public void CreateConcept_Returns_Inserted_Media_On_Success()
+        {
+            var oneMedia = new MediaWithMediaType
+            {
+                ExternalId = "1",
+                MediaTypeId = 1
+            };
+            var twoMedia = new MediaWithMediaType
+            {
+                ExternalId = "2",
+                MediaTypeId = 2
+            };
+            var mockConcept = Mock.MockConcept(_status);
+            var mockMediaConcept = Mock.MockCreateOrUpdateConcept();
+            mockMediaConcept.Media = new List<MediaWithMediaType>
+            {
+                oneMedia,
+                twoMedia
+            };
+
+            var conceptMediaList = new List<ConceptMedia>
+            {
+                new ConceptMedia
+                {
+                    Media = new Media
+                    {
+                        ExternalId = oneMedia.ExternalId,
+                        MediaType = new MediaType
+                        {
+                            Id = oneMedia.MediaTypeId
+                        }
+                    }
+                },
+                new ConceptMedia
+                {
+                    Media = new Media
+                    {
+                        ExternalId = twoMedia.ExternalId,
+                        MediaType = new MediaType
+                        {
+                            Id = twoMedia.MediaTypeId
+                        }
+                    }
+                }
+            };
+
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
+            A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(conceptMediaList);
+            var viewModel = Service.CreateConcept(mockMediaConcept);
+
+            var concept = viewModel.Data as ConceptDTO;
+
+            Assert.Equal(concept.Media.Count, mockMediaConcept.Media.Count);
+
+            for (var i = 0; i < concept.Media.Count; i++)
+            {
+                Assert.Equal(concept.Media[i].ExternalId, mockMediaConcept.Media[i].ExternalId);
+                Assert.Equal(concept.Media[i].MediaType.Id, mockMediaConcept.Media[i].MediaTypeId);
+            }
+        }
+
+        [Fact]
+        public void CreateConcept_Returns_Response_With_ConceptDTO_On_Success()
         {
             var mockConcept = Mock.MockConcept(_status);
             var mockMediaConcept = Mock.MockCreateOrUpdateConcept();
@@ -223,7 +297,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var viewModel = Service.CreateConcept(mockMediaConcept);
 
             Assert.NotNull(viewModel.Data);
-            Assert.IsType<Concept>(viewModel.Data);
+            Assert.IsType<ConceptDTO>(viewModel.Data);
         }
 
         [Fact]
