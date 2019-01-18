@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 
 namespace ConceptsMicroservice.UnitTests.Mock
 {
@@ -83,6 +84,21 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Meta = meta,
                 MetaIds = meta.Select(x => x.Id).ToList(),
                 Status = status
+            };
+        }
+
+        public CreateOrUpdateConcept MockCreateOrUpdateConcept()
+        {
+            return new CreateOrUpdateConcept()
+            {
+                Source = $"Source_{Guid.NewGuid()}",
+                Title = $"Title_{Guid.NewGuid()}",
+                AuthorName = $"AuthorName_{Guid.NewGuid()}",
+                AuthorEmail = $"AuthorEmail_{Guid.NewGuid()}",
+                SourceAuthor = $"SourceAuthor_{Guid.NewGuid()}",
+                Content = $"Content_{Guid.NewGuid()}",
+                Media = new List<MediaWithMediaType>(),
+                DeletedBy = $"DeletedBy_{Guid.NewGuid()}",
             };
         }
 

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
-using ConceptsMicroservice.Models.Configuration;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -34,6 +33,7 @@ namespace ConceptsMicroservice
         {
             services.AddOptions(_config);
             services.AddDependencies();
+            services.AddMappings();
             services.AddEntity(_config);
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddCorsForConcepts();
@@ -60,8 +60,6 @@ namespace ConceptsMicroservice
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseMapping();
 
             app.UseDefaultFiles();
 

@@ -7,22 +7,23 @@
  */
 
 using AutoMapper;
-using ConceptsMicroservice.Models.Domain;
-using ConceptsMicroservice.Models.DTO;
-using Microsoft.AspNetCore.Builder;
+using ConceptsMicroservice.Profiles;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ConceptsMicroservice.Extensions.Service
 {
     public static class MapperServiceExtensions
     {
-        public static IApplicationBuilder UseMapping(this IApplicationBuilder app)
+        public static IServiceCollection AddMappings(this IServiceCollection services)
         {
 
-            Mapper.Initialize(cfg => {
-                cfg.CreateMap<CreateOrUpdateConcept, Concept>()
-                    .ForMember(x => x.Media, opt => opt.Ignore());
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
             });
-            return app;
+            var mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+            return services;
         }
     }
 }

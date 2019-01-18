@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using ConceptsMicroservice.Controllers;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
@@ -30,6 +31,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         private readonly IConceptService _service;
         private readonly ConceptController _controller;
         private readonly Concept _concept;
+        private readonly CreateOrUpdateConcept _createConcept;
         private Response _errorResponse;
         private readonly ConceptSearchQuery _searchQuery;
         private readonly Response _listResponse;
@@ -48,6 +50,14 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
            
             _service = A.Fake<IConceptService>();
             _controller = new ConceptController(_service, _tokenHelper);
+            _createConcept = new CreateOrUpdateConcept
+            {
+                Title = "Title",
+                AuthorName = "AuthorName",
+                Content = "Content",
+                Created = DateTime.Now,
+                Updated = DateTime.Now,
+            };
             _concept = new Concept
             {
                 Title = "Title",
@@ -283,7 +293,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void CreateConcept_Returns_400_On_ModelState_Error()
         {
             _controller.ModelState.TryAddModelError("error", "error");
-            var result = _controller.CreateConcept(_concept);
+            var result = _controller.CreateConcept(_createConcept);
             var badRequest = result.Result.Result as BadRequestObjectResult;
 
             Assert.Equal(400, badRequest.StatusCode);
@@ -291,8 +301,8 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_400_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(null);
-            var result = _controller.CreateConcept(_concept);
+            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(null);
+            var result = _controller.CreateConcept(_createConcept);
             var badRequest = result.Result.Result as BadRequestObjectResult;
 
             Assert.Equal(400, badRequest.StatusCode);
@@ -301,8 +311,8 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_400_If_Service_Returns_Errors()
         {
-            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(_errorResponse);
-            var result = _controller.CreateConcept(_concept);
+            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(_errorResponse);
+            var result = _controller.CreateConcept(_createConcept);
             var badRequest = result.Result.Result as BadRequestObjectResult;
 
             Assert.Equal(400, badRequest.StatusCode);
@@ -311,9 +321,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_200_On_Successful_Update()
         {
-            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(_singleResponse);
 
-            var result = _controller.CreateConcept(_concept);
+            var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
 
             Assert.Equal(200, ok.StatusCode);
@@ -321,9 +331,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_A_Response_With_A_Concept_On_Successful_Update()
         {
-            A.CallTo(() => _service.CreateConcept(A<Concept>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(_singleResponse);
 
-            var result = _controller.CreateConcept(_concept);
+            var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
 
             Assert.IsType<Concept>(((Response)ok.Value).Data);

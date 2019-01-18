@@ -23,11 +23,14 @@ namespace ConceptsMicroservice.Services
         private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
 
-        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media)
+        private readonly IMapper _mapper;
+
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper)
         {
             _conceptRepository = concept;
             _statusRepository = status;
             _conceptMediaRepository = media;
+            _mapper = mapper;
         }
 
         public Response SearchForConcepts(ConceptSearchQuery query)
@@ -125,7 +128,7 @@ namespace ConceptsMicroservice.Services
 
             try
             {
-                var concept = Mapper.Map<Concept>(newConcept);
+                var concept = _mapper.Map<Concept>(newConcept);
 
                 concept = _conceptRepository.Insert(concept);
                 var media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);

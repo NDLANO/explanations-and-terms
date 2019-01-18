@@ -7,35 +7,46 @@
  */
 using System;
 using System.Collections.Generic;
-using ConceptsMicroservice.Models;
+using AutoMapper;
+using AutoMapper.Configuration;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
+using ConceptsMicroservice.Profiles;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services;
+using ConceptsMicroservice.UnitTests.Helpers;
 using ConceptsMicroservice.UnitTests.Mock;
 using FakeItEasy;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestServices
 {
-    public class ConceptServiceTest
+    public class ConceptServiceTest : IClassFixture<InitMapper>
     {
 
         protected readonly IMock Mock;
         protected readonly IConceptService Service;
         protected readonly IConceptRepository ConceptRepository;
-        protected readonly IMetadataRepository MetaRepository;
+        protected readonly IConceptMediaRepository ConceptMediaRepository;
         protected readonly IStatusRepository StatusRepository;
+        protected readonly IMapper Mapper;
         private readonly string allowedUserEmail = "somebody@somedomain";
 
         private Status _status;
 
         public ConceptServiceTest()
         {
-            MetaRepository = A.Fake<IMetadataRepository>();
+            ConceptMediaRepository = A.Fake<IConceptMediaRepository>();
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
-            Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, MetaRepository, StatusRepository);
+
+            AutoMapper.Mapper.Reset();
+            var mappings = new MapperConfigurationExpression();
+            mappings.AddProfile<MappingProfile>();
+            Mapper = AutoMapper.Mapper.Instance;
+
+            Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper);
             Mock = new Mock.Mock();
             _status = new Status();
 
@@ -192,7 +203,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         {
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Throws<Exception>();
 
-            var mockConcept = Mock.MockConcept(_status);
+            var mockConcept = Mock.MockCreateOrUpdateConcept();
 
             var viewModel = Service.CreateConcept(mockConcept);
 
@@ -204,11 +215,12 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         public void CreateConcept_Returns_Response_With_Concept_On_Success()
         {
             var mockConcept = Mock.MockConcept(_status);
+            var mockMediaConcept = Mock.MockCreateOrUpdateConcept();
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
-
-            var viewModel = Service.CreateConcept(mockConcept);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
+            var viewModel = Service.CreateConcept(mockMediaConcept);
 
             Assert.NotNull(viewModel.Data);
             Assert.IsType<Concept>(viewModel.Data);
@@ -222,7 +234,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
 
-            var viewModel = Service.CreateConcept(mockConcept);
+            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept());
 
             Assert.False(viewModel.HasErrors());
         }
