@@ -162,9 +162,14 @@ namespace ConceptsMicroservice.Repositories
             return concept.Entity;
         }
 
-        public List<string> GetAllTitles()
+        public List<string> GetAllTitles(string language)
         {
-            return RunStoredFunction("get_all_concept_titles", _sqlResultToListOfConceptTitlesFunc);
+            var sqlParameters = new List<NpgsqlParameter>();
+            sqlParameters.Add(new NpgsqlParameter("languagecode", NpgsqlDbType.Varchar)
+            {
+                Value = language
+            });
+            return RunStoredFunction("get_all_concept_titles", _sqlResultToListOfConceptTitlesFunc, sqlParameters);
         }
     }
 }

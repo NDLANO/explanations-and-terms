@@ -13,6 +13,7 @@ using System.Linq;
 using ConceptsMicroservice.Attributes;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Utilities;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2.HPack;
 using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models
@@ -57,11 +58,14 @@ namespace ConceptsMicroservice.Models
         public int StatusId { get; set; }
 
         public virtual Status Status {get;set; }
-        
+        [Column("language_id")] public int LanguageId { get; set; }
+        [Column("media_ids")]
+        public List<int> MediaIds { get; set; }
+
         [NotMapped]
-
         public List<MetaData> Meta { get; set; }
-
+        public List<Media> Media { get; set; }
+        
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
             //Get column names
@@ -78,7 +82,12 @@ namespace ConceptsMicroservice.Models
             var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
             var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
             var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
+            var languageIdColumn = reader.GetOrdinal("language_id");
+            var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
+            var mediaObjectsColumn = reader.GetOrdinal("media_object");
+
+
 
             var meta = new List<MetaData>();
             try
@@ -86,6 +95,16 @@ namespace ConceptsMicroservice.Models
                 meta = JsonConvert.DeserializeObject<List<MetaData>>(reader.GetString(metaObjectsColumn));
             }
             catch { }
+
+            var media = new List<Media>();
+            try
+            {
+                media = JsonConvert.DeserializeObject<List<Media>>(reader.GetString(mediaObjectsColumn));
+            }
+            catch (Exception mediaColumnException)
+            {
+                //throw;
+            }
 
 
             var concept = new Concept
@@ -103,9 +122,11 @@ namespace ConceptsMicroservice.Models
                 Updated = reader.GetDateTime(updatedColumn),
                 StatusId = reader.GetInt32(statusIdColumn),
                 DeletedBy = reader.SafeGetString(deletedByColumn),
-
+                LanguageId = reader.GetInt16(languageIdColumn),
+                MediaIds =  reader.GetFieldValue<int[]>(mediaIdsColumn).ToList(),
                 Meta = meta,
                 //Status = reader.GetFieldValue<Status>(9)
+                Media =  media,
             };
 
             return concept;

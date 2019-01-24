@@ -70,16 +70,16 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-        public Response GetAllConceptTitles()
+        public Response GetAllConceptTitles(string language)
         {
             try
             {
                 return new Response
                 {
-                    Data = _conceptRepository.GetAllTitles()
+                    Data = _conceptRepository.GetAllTitles(language)
                 };
             }
-            catch
+            catch (Exception e)
             {
                 return null;
             }
