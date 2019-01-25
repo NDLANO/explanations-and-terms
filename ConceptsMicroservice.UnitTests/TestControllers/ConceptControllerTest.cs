@@ -38,6 +38,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         private readonly string _allowedScope =
             "concept-test:write taxonomy-staging:write concept-staging:write taxonomy-test:write";
         private readonly string _allowedToken = "";
+        private readonly string languageCode = "nb";
 
         public ConceptControllerTest()
         {
@@ -454,9 +455,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void AllTitles_Returns_500_If_Service_Returns_Null()
         {
-            A.CallTo(() => _service.GetAllConceptTitles()).Returns(null);
+            A.CallTo(() => _service.GetAllConceptTitles(languageCode)).Returns(null);
 
-            var result = _controller.AllTitles();
+            var result = _controller.AllTitles(languageCode);
             var status = result.Result as StatusCodeResult;
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
@@ -465,9 +466,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void AllTitles_Returns_200_If_Service_Is_Not_Null()
         {
-            A.CallTo(() => _service.GetAllConceptTitles()).Returns(new Response());
+            A.CallTo(() => _service.GetAllConceptTitles(languageCode)).Returns(new Response());
 
-            var result = _controller.AllTitles();
+            var result = _controller.AllTitles(languageCode);
             var ok = result.Result as OkObjectResult;
 
             Assert.Equal(200, ok.StatusCode);
@@ -476,9 +477,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void AllTitles_Returns_A_List_Of_Strings()
         {
-            A.CallTo(() => _service.GetAllConceptTitles()).Returns(new Response{Data = new List<string>()});
+            A.CallTo(() => _service.GetAllConceptTitles(languageCode)).Returns(new Response{Data = new List<string>()});
 
-            var result = _controller.AllTitles();
+            var result = _controller.AllTitles(languageCode);
             var ok = result.Result as OkObjectResult;
 
             Assert.IsType<List<string>>(((Response)ok.Value).Data);

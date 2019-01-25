@@ -39,11 +39,13 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
 
         #endregion
 
+        private readonly string languageCode = "nb";
+
         #region GetAllTitles
         [Fact]
         public void GetAllTitles_Returns_Empty_List_If_No_Concept_Exists()
         {
-            var concepts = ConceptRepository.GetAllTitles();
+            var concepts = ConceptRepository.GetAllTitles(languageCode);
 
             Assert.Empty(concepts);
         }
@@ -60,7 +62,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                 Mock.Database.InsertConcept(Mock.MockConcept(status, new List<MetaData>{meta}))
             };
 
-            var titles = ConceptRepository.GetAllTitles();
+            var titles = ConceptRepository.GetAllTitles(languageCode);
 
             Assert.NotEmpty(titles);
             foreach (var concept in insertedConcepts)
