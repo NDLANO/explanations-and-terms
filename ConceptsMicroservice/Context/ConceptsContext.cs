@@ -20,6 +20,7 @@ namespace ConceptsMicroservice.Context
         public DbSet<Concept> Concepts { get; set; }
         public DbSet<MetaCategory> Categories { get; set; }
         public DbSet<Status> Status { get; set; }
+        public DbSet<Media> Media { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

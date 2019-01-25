@@ -110,7 +110,6 @@ namespace ConceptsMicroservice.Models
             var concept = new Concept
             {
                 Id = reader.GetInt32(idColumn),
-                MetaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
                 ExternalId = reader.GetInt32(externalIdColumn),
                 Title = reader.SafeGetString(titleColumn),
                 Content = reader.SafeGetString(contentColumn),
@@ -123,8 +122,9 @@ namespace ConceptsMicroservice.Models
                 StatusId = reader.GetInt32(statusIdColumn),
                 DeletedBy = reader.SafeGetString(deletedByColumn),
                 LanguageId = reader.GetInt16(languageIdColumn),
-                MediaIds =  reader.GetFieldValue<int[]>(mediaIdsColumn).ToList(),
+                MetaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
                 Meta = meta,
+                MediaIds = reader.GetFieldValue<int[]>(mediaIdsColumn).ToList(),
                 //Status = reader.GetFieldValue<Status>(9)
                 Media =  media,
             };
