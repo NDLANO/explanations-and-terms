@@ -124,6 +124,9 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="concept">The concept to be updated with values.</param>
         [ApiExplorerSettings(IgnoreApi = true)]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDTO))]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ModelStateErrorResponse))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpPut]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
@@ -132,7 +135,7 @@ namespace ConceptsMicroservice.Controllers
             if (concept == null)
             {
                 var errors = new ModelStateDictionary();
-                errors.TryAddModelError("concept", "Concept is required");
+                errors.TryAddModelError("errorMessage", "Concept is required");
                 return BadRequest(new ModelStateErrorResponse(errors));
             }
 
@@ -140,11 +143,8 @@ namespace ConceptsMicroservice.Controllers
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
             var viewModel = _service.UpdateConcept(concept);
-            if (viewModel == null)
-                return BadRequest(new ModelStateErrorResponse(ModelState));
-
-            if (viewModel.HasErrors())
-                return BadRequest(viewModel);
+            if (viewModel?.Data == null)
+                return InternalServerError();
 
             return Ok(viewModel);
 
