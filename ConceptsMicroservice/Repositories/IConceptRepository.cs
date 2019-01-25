@@ -18,6 +18,6 @@ namespace ConceptsMicroservice.Repositories
         List<Concept> GetAll();
         Concept Update(Concept updated);
         Concept Insert(Concept inserted);
-        List<string> GetAllTitles();
+        List<string> GetAllTitles(string language);
     }
 }

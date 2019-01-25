@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1")]
+    [Route("concepts/concept-api")]
     public class ConceptController : BaseController
     {
         private readonly IConceptService _service;
@@ -62,9 +63,9 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
-        public ActionResult<Response> AllTitles()
+        public ActionResult<Response> AllTitles(string language)
         {
-            var concepts = _service.GetAllConceptTitles();
+            var concepts = _service.GetAllConceptTitles(language);
             if (concepts != null)
                 return Ok(concepts);
 
