@@ -16,6 +16,7 @@ using ConceptsMicroservice.Services;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1")]
+    [Route("concepts/meta-api")]
     public class MetadataController : BaseController
     {
         private readonly IMetadataService _service;

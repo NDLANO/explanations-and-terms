@@ -40,5 +40,6 @@ namespace ConceptsMicroservice.Models.DTO
         public Status Status { get; set; }
         public List<MetaData> Meta { get; set; }
         public List<Media> Media { get; set; }
+        public Language Language { get; set; }
     }
 }

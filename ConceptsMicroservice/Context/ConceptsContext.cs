@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
- 
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConceptsMicroservice.Context
@@ -19,9 +19,9 @@ namespace ConceptsMicroservice.Context
         public DbSet<Concept> Concepts { get; set; }
         public DbSet<MetaCategory> Categories { get; set; }
         public DbSet<Status> Status { get; set; }
-        public DbSet<Media> Media { get; set; }
+        public DbSet<Models.Domain.Media> Media { get; set; }
         public DbSet<MediaType> MediaTypes { get; set; }
         public DbSet<ConceptMedia> ConceptMedia { get; set; }
-
+        public DbSet<Language> Languages { get; set; }
     }
 }

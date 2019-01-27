@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using ConceptsMicroservice.Context;
@@ -34,6 +36,10 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public MetaCategory InsertCategory(MetaCategory mc)
         {
+            if (mc.LanguageId == 0)
+                mc.LanguageId = InsertLanguage().Id;
+            
+
             var cat = Context.Categories.Add(mc).Entity;
             Context.SaveChanges();
             return cat;
@@ -41,6 +47,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public Status InsertStatus(Status ms)
         {
+            if (ms.LanguageId == 0)
+                ms.LanguageId = InsertLanguage().Id;
             var status = Context.Status.Add(ms).Entity;
             Context.SaveChanges();
             return status;
@@ -49,19 +57,56 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public MetaData InsertMeta(MetaData m)
         {
+            if (m.LanguageId == 0)
+                m.LanguageId = InsertLanguage().Id;
+
+            if (m.Category != null && m.Category.LanguageId == 0)
+                m.Category.LanguageId = InsertLanguage().Id;
+
+
+            if (m.Status != null && m.Status.LanguageId == 0)
+                m.Status.LanguageId = InsertLanguage().Id;
+
             var meta = Context.MetaData.Add(m).Entity;
             Context.SaveChanges();
             return meta;
         }
         public Concept InsertConcept(Concept c)
         {
+            if (c.LanguageId == 0)
+                c.LanguageId = InsertLanguage().Id;
+
+
+            if (c.Status != null && c.Status.LanguageId == 0)
+                c.Status.LanguageId = InsertLanguage().Id;
             var concept = Context.Concepts.Add(c).Entity;
             Context.SaveChanges();
             return concept;
         }
+        public Language InsertLanguage(Language l = null)
+        {
+            if (l == null)
+                l = new Language
+                {
+                    Name = $"Bokmål {Guid.NewGuid()}",
+                    Description = "Description",
+                    Abbreviation = "nb"
+                };
+
+            var lang = Context.Languages.Add(l).Entity;
+            Context.SaveChanges();
+            return lang;
+        }
 
         public Concept CreateAndInsertAConcept()
         {
+            var language = new Language
+            {
+                Name = $"Bokmål {Guid.NewGuid()}",
+                Description = "Description",
+                Abbreviation = "nb"
+            };
+
             var category = new MetaCategory
             {
                 Name = "Name",
@@ -94,12 +139,21 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 MediaIds = new List<int>()
             };
 
+            language = InsertLanguage(language);
+            category.LanguageId = language.Id;
+            status.LanguageId = language.Id;
+            meta.LanguageId = language.Id;
+            concept.LanguageId = language.Id;
+
             category = InsertCategory(category);
+
             status = InsertStatus(status);
+
             meta.Category = category;
             meta.Status = status;
             meta = InsertMeta(meta);
 
+            concept.MediaIds = new List<int>();
             concept.Meta = new List<MetaData> { meta };
             concept.MetaIds = new List<int> { meta.Id };
             concept.Status = status;

@@ -8,12 +8,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using ConceptsMicroservice.Context;
-using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Search;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
@@ -132,10 +131,17 @@ namespace ConceptsMicroservice.Repositories
 
         public Concept GetById(int id)
         {
-            return _context.Concepts
-                .AsNoTracking()
-                .Include(x => x.Status)
-                .FirstOrDefaultWithMetadata(x => x.Id == id, _context.MetaData);
+            var sqlParameters = new List<NpgsqlParameter>();
+            sqlParameters.Add(new NpgsqlParameter("concept_id", NpgsqlDbType.Integer)
+            {
+                Value = id
+            });
+            return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
+            //RunStoredFunction("get_concepts_by_id", _sqlResultToListOfConceptTitlesFunc, sqlParameters);
+            //return _context.Concepts
+            //    .AsNoTracking()
+            //    .Include(x => x.Status)
+            //    .FirstOrDefaultWithMetadata(x => x.Id == id, _context.MetaData);
         }
 
         public List<Concept> GetAll()
@@ -162,9 +168,14 @@ namespace ConceptsMicroservice.Repositories
             return GetById(concept.Entity.Id);
         }
 
-        public List<string> GetAllTitles()
+        public List<string> GetAllTitles(string language)
         {
-            return RunStoredFunction("get_all_concept_titles", _sqlResultToListOfConceptTitlesFunc);
+            var sqlParameters = new List<NpgsqlParameter>();
+            sqlParameters.Add(new NpgsqlParameter("languagecode", NpgsqlDbType.Varchar)
+            {
+                Value = language
+            });
+            return RunStoredFunction("get_all_concept_titles", _sqlResultToListOfConceptTitlesFunc, sqlParameters);
         }
     }
 }

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Repositories;
 
@@ -28,7 +30,7 @@ namespace ConceptsMicroservice.Services
                     Data = _categoryRepository.GetAll()
                 };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }

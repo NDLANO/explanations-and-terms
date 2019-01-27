@@ -33,6 +33,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IMapper Mapper;
         private readonly string allowedUserEmail = "somebody@somedomain";
 
+        private readonly string languageCode = "nb";
         private Status _status;
 
         public ConceptServiceTest()
@@ -371,9 +372,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         [Fact]
         public void GetAllConceptsTitles_Returns_A_Response_With_A_List_Of_Strings()
         {
-            A.CallTo(() => ConceptRepository.GetAllTitles()).Returns(new List<string>());
+            A.CallTo(() => ConceptRepository.GetAllTitles(languageCode)).Returns(new List<string>());
 
-            var response = Service.GetAllConceptTitles();
+            var response = Service.GetAllConceptTitles(languageCode);
 
             Assert.IsType<List<string>>(response.Data);
         }
@@ -381,9 +382,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         [Fact]
         public void GetAllConceptsTitles_Returns_Null_If_An_Error_Occured()
         {
-            A.CallTo(() => ConceptRepository.GetAllTitles()).Throws<Exception>();
+            A.CallTo(() => ConceptRepository.GetAllTitles(languageCode)).Throws<Exception>();
 
-            var results = Service.GetAllConceptTitles();
+            var results = Service.GetAllConceptTitles(languageCode);
 
             Assert.Null(results);
         }

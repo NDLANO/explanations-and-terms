@@ -26,12 +26,13 @@ namespace ConceptsMicroservice.Repositories
 
         public List<MetaData> GetByRangeOfIds(IEnumerable<int> ids)
         {
-            return ids == null ? new List<MetaData>() : _context.MetaData.Where(x => ids.Contains(x.Id)).ToList();
+            return ids == null ? new List<MetaData>() : _context.MetaData.Include(x => x.Language).Where(x => ids.Contains(x.Id)).ToList();
         }
 
         public List<MetaData> GetAll()
         {
             return _context.MetaData
+                .Include(x => x.Language)
                 .Include(x => x.Category)
                 .Include(x => x.Status)
                 .ToList();
@@ -40,6 +41,7 @@ namespace ConceptsMicroservice.Repositories
         public MetaData GetById(int id)
         {
             return _context.MetaData
+                .Include(x => x.Language)
                 .Include(x => x.Category)
                 .Include(x => x.Status)
                 .FirstOrDefault(x => x.Id == id);
@@ -64,7 +66,7 @@ namespace ConceptsMicroservice.Repositories
                 query = query.Where(x => x.Name.ToLower().Contains(searchArgument.Name.ToLower()));
             }
 
-            return query.ToList();
+            return query.Include(x => x.Language).ToList();
         }
     }
 }

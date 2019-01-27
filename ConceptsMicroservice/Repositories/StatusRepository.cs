@@ -8,8 +8,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Context;
-using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConceptsMicroservice.Repositories
 {
@@ -23,17 +23,23 @@ namespace ConceptsMicroservice.Repositories
 
         public List<Status> GetAll()
         {
-            return _context.Status.ToList();
+            return _context.Status
+                .Include(x => x.Language)
+                .ToList();
         }
 
         public Status GetById(int id)
         {
-            return _context.Status.FirstOrDefault(x => x.Id == id);
+            return _context.Status
+                .Include(x => x.Language)
+                .FirstOrDefault(x => x.Id == id);
         }
 
         public Status GetByName(string name)
         {
-            return _context.Status.FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
+            return _context.Status
+                .Include(x => x.Language)
+                .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
         }
     }
 }

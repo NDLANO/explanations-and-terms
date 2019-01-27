@@ -56,8 +56,11 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("status_id")]
         [StatusIdExistsInDatabase]
         public int StatusId { get; set; }
-        
+        [Column("language_id")] public int LanguageId { get; set; }
+
+
         public virtual Status Status {get;set; }
+        public virtual Language Language { get; set; }
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
 
@@ -92,14 +95,17 @@ namespace ConceptsMicroservice.Models.Domain
             var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
             var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
             var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
+            var languageIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageId, attr => attr.Name));
+            var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
+            
 
             var concept = new Concept
             {
                 Id = reader.GetInt32(idColumn),
                 MetaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
-                MediaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
+                MediaIds = reader.GetFieldValue<int[]>(mediaIdsColumn).ToList(),
                 ExternalId = reader.GetInt32(externalIdColumn),
                 Title = reader.SafeGetString(titleColumn),
                 Content = reader.SafeGetString(contentColumn),
@@ -113,6 +119,7 @@ namespace ConceptsMicroservice.Models.Domain
                 DeletedBy = reader.SafeGetString(deletedByColumn),
                 Meta = GetJsonList<MetaData>(reader, metaObjectsColumn),
                 Media = GetJsonList<Media>(reader, mediaObjectsColumn),
+                LanguageId = reader.GetInt16(languageIdColumn),
             };
 
             return concept;
