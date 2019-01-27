@@ -81,6 +81,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 SourceAuthor = $"SourceAuthor_{Guid.NewGuid()}",
                 Content = $"Content_{Guid.NewGuid()}",
                 Meta = meta,
+                MediaIds = new List<int>(),
                 MetaIds = meta.Select(x => x.Id).ToList(),
                 Status = status
             };

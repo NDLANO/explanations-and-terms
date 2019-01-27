@@ -13,7 +13,6 @@ using System.Linq;
 using ConceptsMicroservice.Attributes;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Utilities;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2.HPack;
 using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models
@@ -59,13 +58,14 @@ namespace ConceptsMicroservice.Models
 
         public virtual Status Status {get;set; }
         [Column("language_id")] public int LanguageId { get; set; }
-        [Column("media_ids")]
+        [Column("media")]
         public List<int> MediaIds { get; set; }
 
         [NotMapped]
         public List<MetaData> Meta { get; set; }
         public List<Media> Media { get; set; }
-        
+        public virtual Language Language { get; set; }
+
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
             //Get column names
@@ -82,7 +82,7 @@ namespace ConceptsMicroservice.Models
             var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
             var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
             var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
-            var languageIdColumn = reader.GetOrdinal("language_id");
+            var languageIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageId, attr => attr.Name));
             var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
             var mediaObjectsColumn = reader.GetOrdinal("media_object");

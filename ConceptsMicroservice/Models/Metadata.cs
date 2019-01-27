@@ -33,9 +33,11 @@ namespace ConceptsMicroservice.Models
         public DateTime Created { get; set; }
         [Column("updated")]
         public DateTime Updated { get; set; }
-    
+        [Column("language_id")] public int LanguageId { get; set; }
 
 
+
+        public virtual Language Language { get; set; }
         public virtual MetaCategory Category { get; set; }
         public virtual Status Status { get; set; }
     }

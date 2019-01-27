@@ -114,6 +114,9 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             var concept = Mock.MockConcept(status);
             concept.MetaIds = new List<int> { meta.Id };
 
+            var language = Mock.Database.InsertLanguage();
+            concept.LanguageId = language.Id;
+
             ConceptRepository.Insert(concept);
 
             var c = ConceptRepository.Insert(concept);
@@ -132,6 +135,9 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
 
             var concept = Mock.MockConcept(status);
             concept.MetaIds = new List<int> { meta.Id };
+
+            var language = Mock.Database.InsertLanguage();
+            concept.LanguageId = language.Id;
 
             var insertedConceptId = ConceptRepository.Insert(concept).Id;
             var toBeCloned = ConceptRepository.GetById(insertedConceptId);
