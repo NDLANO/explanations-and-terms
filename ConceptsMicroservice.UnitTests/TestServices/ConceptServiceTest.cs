@@ -317,17 +317,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
         #region Update
 
-        [Fact]
-        public void UpdateConcept_Returns_Errors_When_Concept_Does_Not_Exist()
-        {
-            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(null);
-
-            var result = Service.UpdateConcept(Mock.MockConcept(_status));
-
-            Assert.True(result.HasErrors());
-            Assert.Null(result.Data);
-        }
-        
+ 
 
         [Fact]
         public void UpdateConcept_Returns_Errors_Repo_Throws_Exception()

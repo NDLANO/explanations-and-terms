@@ -16,7 +16,6 @@ using ConceptsMicroservice.Services;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1")]
-    [Route("concepts/category-api")]
     public class CategoryController : BaseController
     {
         private readonly ICategoryService _service;

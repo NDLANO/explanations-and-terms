@@ -217,40 +217,17 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             Assert.Equal(400, badRequest.StatusCode);
         }
         [Fact]
-        public void UpdateConcept_Returns_400_When_Service_Returns_Null()
+        public void UpdateConcept_Returns_404_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.UpdateConcept(A<Concept>._)).Returns(null);
             _concept.AuthorEmail = _allowedUserEmail;
             var result = _controller.UpdateConcept(_concept);
-            var badRequest = result.Result as BadRequestObjectResult;
+            var error = result.Result as StatusCodeResult;
 
-            Assert.Equal(400, badRequest.StatusCode);
+            Assert.Equal((int)HttpStatusCode.NotFound, error.StatusCode);
         }
-
-        [Fact]
-        public void UpdateConcept_Returns_400_If_Service_Returns_Errors()
-        {
-            A.CallTo(() => _service.UpdateConcept(A<Concept>._)).Returns(_errorResponse);
-            _concept.AuthorEmail = _allowedUserEmail;
-            var result = _controller.UpdateConcept(_concept);
-            var badRequest = result.Result as BadRequestObjectResult;
-
-            Assert.Equal(400, badRequest.StatusCode);
-        }
-
-
-        [Fact]
-        public void UpdateConcept_Returns_400_If_ViewModel_Contains_Errors()
-        {
-            A.CallTo(() => _service.UpdateConcept(A<Concept>._))
-                .Returns(_errorResponse);
-            _concept.AuthorEmail = _allowedUserEmail;
-            var result = _controller.UpdateConcept(_concept);
-            var badRequest = result.Result as BadRequestObjectResult;
-
-            Assert.NotNull(badRequest.Value);
-            Assert.Equal(400, badRequest.StatusCode);
-        }
+        
+        
 
         [Fact]
         public void UpdateConcept_Returns_200_On_Successful_Update()

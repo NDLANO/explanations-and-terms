@@ -16,7 +16,6 @@ using ConceptsMicroservice.Services;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1")]
-    [Route("concepts/status-api")]
     public class StatusController : BaseController
     {
         private readonly IStatusService _service;

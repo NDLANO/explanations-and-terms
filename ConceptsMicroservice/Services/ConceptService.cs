@@ -100,8 +100,7 @@ namespace ConceptsMicroservice.Services
             // Concept does not exist in the database, so cannot update it.
             if (oldConceptVersion == null)
             {
-                viewModel.Errors.TryAddModelError("errorMessage", "Object does not exists.");
-                return viewModel;
+                return null;
             }
             
 

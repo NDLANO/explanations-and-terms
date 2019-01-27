@@ -23,7 +23,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace ConceptsMicroservice.Controllers
 {
     [ApiVersion("1")]
-    [Route("concepts/concept-api")]
     public class ConceptController : BaseController
     {
         private readonly IConceptService _service;
@@ -127,6 +126,7 @@ namespace ConceptsMicroservice.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDTO))]
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ModelStateErrorResponse))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ModelStateErrorResponse))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpPut]
         [Authorize(Policy = "concept:admin")]
@@ -144,7 +144,10 @@ namespace ConceptsMicroservice.Controllers
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
             var viewModel = _service.UpdateConcept(concept);
-            if (viewModel?.Data == null)
+            if (viewModel == null)
+                return NotFound();
+
+            if (viewModel.Data == null)
                 return InternalServerError();
 
             return Ok(viewModel);

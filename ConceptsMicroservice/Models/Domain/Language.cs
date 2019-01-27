@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ConceptsMicroservice.Models
+namespace ConceptsMicroservice.Models.Domain
 {
     [Table("language", Schema = "public")]
     public class Language
