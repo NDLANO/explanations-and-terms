@@ -16,7 +16,13 @@ namespace ConceptsMicroservice.Profiles
         public MappingProfile()
         {
 
-            CreateMap<CreateOrUpdateConcept, Concept>()
+            CreateMap<CreateConceptDto, Concept>()
+                .ForMember(x => x.Media, opt => opt.Ignore())
+                .ForMember(x => x.MediaIds, opt => opt.Ignore())
+                .ForMember(x => x.Status, opt => opt.Ignore())
+                .ForMember(x => x.Meta, opt => opt.Ignore());
+
+            CreateMap<UpdateConceptDto, Concept>()
                 .ForMember(x => x.Media, opt => opt.Ignore())
                 .ForMember(x => x.MediaIds, opt => opt.Ignore())
                 .ForMember(x => x.Status, opt => opt.Ignore())

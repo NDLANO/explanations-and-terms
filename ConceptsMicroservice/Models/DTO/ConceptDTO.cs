@@ -11,7 +11,7 @@ using ConceptsMicroservice.Models.Domain;
 
 namespace ConceptsMicroservice.Models.DTO
 {
-    public class ConceptDTO
+    public class ConceptDto
     {
         public int Id { get; set; }
 

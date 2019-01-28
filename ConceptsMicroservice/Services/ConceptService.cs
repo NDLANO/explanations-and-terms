@@ -6,6 +6,7 @@
  *
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using ConceptsMicroservice.Models;
@@ -92,8 +93,9 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-        public Response UpdateConcept(Concept newConceptVersion)
+        public Response UpdateConcept(UpdateConceptDto dto)
         {
+            var newConceptVersion = _mapper.Map<Concept>(dto);
             var viewModel = new Response();
             var oldConceptVersion = _conceptRepository.GetById(newConceptVersion.Id);
 
@@ -108,36 +110,54 @@ namespace ConceptsMicroservice.Services
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
 
+            Concept concept;
             try
             {
-                viewModel.Data = _conceptRepository.Update(newConceptVersion);
+                _conceptRepository.Update(newConceptVersion);
+                concept = _conceptRepository.GetById(newConceptVersion.Id);
+                
+                // Updating media for concept
+                var toBeDeleted = concept.Media
+                    .Where(x => !dto.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
+                    .ToList();
+                var toBeInserted = dto.Media
+                    .Where(x => !concept.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
+                    .ToList();
+                _conceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(concept, toBeDeleted);
+                var media = _conceptMediaRepository.InsertMediaForConcept(concept, toBeInserted);
+
+                concept.Media = media.Select(x => x.Media).ToList();
             }
             catch (Exception)
             {
                 viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not update concept.");
+                return viewModel;
             }
-            
+
+
+            viewModel.Data = _mapper.Map<ConceptDto>(concept);
             return viewModel;
         }
 
-        public Response CreateConcept(CreateOrUpdateConcept newConcept)
+        public Response CreateConcept(CreateConceptDto newConcept)
         {
             var viewModel = new Response();
+            var concept = _mapper.Map<Concept>(newConcept);
+            var media = new List<ConceptMedia>();
 
             try
             {
-                var concept = _mapper.Map<Concept>(newConcept);
-
                 concept = _conceptRepository.Insert(concept);
-                var media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);
-
-                concept.Media = media.Select(x => x.Media).ToList();
-                viewModel.Data = _mapper.Map<ConceptDTO>(concept);
+                media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);
             }
             catch
             {
                 viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not delete insert concept.");
+                return viewModel;
             }
+
+            concept.Media = media.Select(x => x.Media).ToList();
+            viewModel.Data = _mapper.Map<ConceptDto>(concept);
 
             return viewModel;
         }
@@ -168,6 +188,7 @@ namespace ConceptsMicroservice.Services
             catch (Exception)
             {
                 viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not delete concept.");
+                return viewModel;
             }
 
             return viewModel;

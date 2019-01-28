@@ -124,14 +124,14 @@ namespace ConceptsMicroservice.Controllers
         /// </remarks>
         /// <param name="concept">The concept to be updated with values.</param>
         [ApiExplorerSettings(IgnoreApi = true)]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDTO))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDto))]
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ModelStateErrorResponse))]
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ModelStateErrorResponse))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpPut]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
-        public ActionResult<Response> UpdateConcept([Required][FromBody]Concept concept)
+        public ActionResult<Response> UpdateConcept([Required][FromBody]UpdateConceptDto concept)
         {
             if (concept == null)
             {
@@ -161,15 +161,15 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="concept" >The concept to be created.</param>
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDTO))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDto))]
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(ModelStateErrorResponse))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
 
-        public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]CreateOrUpdateConcept concept)
+        public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]CreateConceptDto concept)
         {
             if (concept == null)
             {

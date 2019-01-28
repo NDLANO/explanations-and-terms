@@ -19,6 +19,6 @@ namespace ConceptsMicroservice.UnitTests.Mock
         Status MockStatus(string name = null);
         MetaData MockMeta(Status s, MetaCategory c);
         Concept MockConcept(Status status, List<MetaData> m = null);
-        CreateOrUpdateConcept MockCreateOrUpdateConcept();
+        CreateConceptDto MockCreateOrUpdateConcept();
     }
 }

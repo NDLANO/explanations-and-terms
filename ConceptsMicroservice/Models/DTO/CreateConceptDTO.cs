@@ -12,9 +12,8 @@ using ConceptsMicroservice.Attributes;
 
 namespace ConceptsMicroservice.Models.DTO
 {
-    public class CreateOrUpdateConcept
+    public class CreateConceptDto
     {
-            public int Id { get; set; }
             public int ExternalId { get; set; }
             [Required]
             [NoDuplicateIntValues]
@@ -42,8 +41,8 @@ namespace ConceptsMicroservice.Models.DTO
             public DateTime Created { get; set; }
             public DateTime Updated { get; set; }
             public string DeletedBy { get; set; }
-            [StatusIdExistsInDatabase]
-            public int StatusId { get; set; }
+            public int LanguageId{ get; set; }
+            [StatusIdExistsInDatabase] public int StatusId { get; set; }
             /// <summary>
             /// List of media objects. I.E Image, audio, video
             /// </summary>

@@ -275,7 +275,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(conceptMediaList);
             var viewModel = Service.CreateConcept(mockMediaConcept);
 
-            var concept = viewModel.Data as ConceptDTO;
+            var concept = viewModel.Data as ConceptDto;
 
             Assert.Equal(concept.Media.Count, mockMediaConcept.Media.Count);
 
@@ -298,7 +298,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var viewModel = Service.CreateConcept(mockMediaConcept);
 
             Assert.NotNull(viewModel.Data);
-            Assert.IsType<ConceptDTO>(viewModel.Data);
+            Assert.IsType<ConceptDto>(viewModel.Data);
         }
 
         [Fact]

@@ -31,13 +31,17 @@ namespace ConceptsMicroservice.Repositories
                 .Where(x => x.ConceptId == concept.Id)
                 .ToList();
         }
-        public bool DeleteMediaForConcept(Concept concept, List<ConceptMedia> conceptMedia)
+        public bool DeleteConnectionBetweenConceptAndMedia(Concept concept, List<Media> mediaToBeDeleted)
         {
-            if (concept == null || conceptMedia == null)
+            if (concept == null || mediaToBeDeleted == null)
                 return false;
 
-            _context.ConceptMedia.RemoveRange(conceptMedia);
-            return _context.SaveChanges() == conceptMedia.Count;
+            var conceptMediaToBeDeleted = _context.ConceptMedia
+                .Include(x => x.Media)
+                .Where(x => x.ConceptId == concept.Id
+                            && mediaToBeDeleted.Contains(x.Media));
+            _context.ConceptMedia.RemoveRange(conceptMediaToBeDeleted);
+            return _context.SaveChanges() == mediaToBeDeleted.Count;
         }
         public List<ConceptMedia> InsertMediaForConcept(Concept concept, List<MediaWithMediaType> conceptMedia)
         {
@@ -59,22 +63,23 @@ namespace ConceptsMicroservice.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        private Media AddOrGetMediaWithExternalId(string externalId, int mediaType)
+        private Media MediaWithExternalIdOfTypeExists(string externalId, int mediaType)
         {
-            var media = _context.Media
+            return _context.Media
                 .Include(x => x.MediaType)
-                .FirstOrDefault(x => x.ExternalId == externalId);
-            if (media == null)
-            {
-                media = new Media
-                {
-                    ExternalId = externalId,
-                    MediaTypeId = mediaType,
-                    MediaType = _context.MediaTypes.Find(mediaType)
-                };
-                _context.Media.Add(media);
-            }
+                .FirstOrDefault(x => x.ExternalId == externalId && x.MediaTypeId == mediaType);
+        }
 
+        private Media CreateMedia(string externalId, int mediaType)
+        {
+
+            var media = new Media
+            {
+                ExternalId = externalId,
+                MediaTypeId = mediaType,
+                MediaType = _context.MediaTypes.Find(mediaType)
+            };
+            _context.Media.Add(media);
             return media;
         }
 
@@ -83,7 +88,9 @@ namespace ConceptsMicroservice.Repositories
             if (concept == null)
                 return null;
 
-            var media = AddOrGetMediaWithExternalId(externalId, mediaType);
+            var media = MediaWithExternalIdOfTypeExists(externalId, mediaType);
+            if (media == null)
+                media = CreateMedia(externalId, mediaType);
 
             var relation = new ConceptMedia
             {

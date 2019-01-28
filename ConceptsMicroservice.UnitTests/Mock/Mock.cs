@@ -88,9 +88,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
             };
         }
 
-        public CreateOrUpdateConcept MockCreateOrUpdateConcept()
+        public CreateConceptDto MockCreateOrUpdateConcept()
         {
-            return new CreateOrUpdateConcept()
+            return new CreateConceptDto()
             {
                 Source = $"Source_{Guid.NewGuid()}",
                 Title = $"Title_{Guid.NewGuid()}",

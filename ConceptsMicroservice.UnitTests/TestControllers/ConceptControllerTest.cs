@@ -31,7 +31,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         private readonly IConceptService _service;
         private readonly ConceptController _controller;
         private readonly Concept _concept;
-        private readonly CreateOrUpdateConcept _createConcept;
+        private readonly CreateConceptDto _createConcept;
         private Response _errorResponse;
         private readonly ConceptSearchQuery _searchQuery;
         private readonly Response _listResponse;
@@ -51,7 +51,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
            
             _service = A.Fake<IConceptService>();
             _controller = new ConceptController(_service, _tokenHelper);
-            _createConcept = new CreateOrUpdateConcept
+            _createConcept = new CreateConceptDto
             {
                 Title = "Title",
                 AuthorName = "AuthorName",
@@ -279,7 +279,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_500_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(null);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._)).Returns(null);
             var result = _controller.CreateConcept(_createConcept);
             var status = result.Result.Result as StatusCodeResult;
 
@@ -290,7 +290,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_200_On_Successful_Update()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._)).Returns(_singleResponse);
 
             var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
@@ -300,7 +300,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_A_Response_With_A_Concept_On_Successful_Update()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateOrUpdateConcept>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._)).Returns(_singleResponse);
 
             var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
