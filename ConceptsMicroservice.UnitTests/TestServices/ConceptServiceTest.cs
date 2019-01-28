@@ -8,11 +8,9 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
-using AutoMapper.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
-using ConceptsMicroservice.Profiles;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.UnitTests.Helpers;
@@ -316,45 +314,162 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         #endregion
 
         #region Update
-
- 
-
         [Fact]
-        public void UpdateConcept_Returns_Errors_Repo_Throws_Exception()
+        public void UpdateConcept_Returns_Null_Data_When_RepoUpdate_Throws_Exception()
         {
-            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
             A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Throws<Exception>();
 
-            var result = Service.UpdateConcept(Mock.MockConcept(_status));
+            var mockConcept = Mock.MockUpdateConceptDto();
 
-            Assert.True(result.HasErrors());
-            Assert.Null(result.Data);
-        }
+            var viewModel = Service.UpdateConcept(mockConcept);
 
-
-        [Fact]
-        public void UpdateConcept_Returns_No_Errors_On_Success()
-        {
-            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
-            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
-            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(Mock.MockConcept(_status));
-
-            var result = Service.UpdateConcept(Mock.MockConcept(_status));
-
-            Assert.False(result.HasErrors());
+            Assert.Null(viewModel.Data);
         }
 
         [Fact]
-        public void UpdateConcept_Returns_Concept_On_Success()
+        public void UpdateConcept_Returns_Null_When_ConceptId_Does_Not_Exist()
         {
+            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(null);
+
+            var mockConcept = Mock.MockUpdateConceptDto();
+
+            var viewModel = Service.UpdateConcept(mockConcept);
+
+            Assert.Null(viewModel);
+        }
+        
+        [Fact]
+        public void UpdateConcept_Returns_ConceptDto_On_Success()
+        {
+            var concept = Mock.MockConcept(_status);
+            concept.Media = new List<Media>();
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
-            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(Mock.MockConcept(_status));
+            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(concept);
+            A.CallTo(() => ConceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(A<Concept>._, A<List<Media>>._)).Returns(true);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
 
-            var result = Service.UpdateConcept(Mock.MockConcept(_status));
+            var result = Service.UpdateConcept(Mock.MockUpdateConceptDto());
 
             Assert.NotNull(result.Data);
-            Assert.IsType<Concept>(result.Data);
+            Assert.IsType<ConceptDto>(result.Data);
+        }
+
+        [Fact]
+        public void UpdateConcept_Calls_InsertMediaForConcept_On_Success()
+        {
+            var concept = Mock.MockConcept(_status);
+            concept.Media = new List<Media>();
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
+            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
+            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(concept);
+            A.CallTo(() => ConceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(A<Concept>._, A<List<Media>>._)).Returns(true);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
+
+            var result = Service.UpdateConcept(Mock.MockUpdateConceptDto());
+
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._))
+                .MustHaveHappened(1, Times.Exactly);
+        }
+
+        [Fact]
+        public void UpdateConcept_Returns_Inserted_Media_On_Success()
+        {
+            var oneMedia = new MediaWithMediaType
+            {
+                ExternalId = "1",
+                MediaTypeId = 1
+            };
+            var twoMedia = new MediaWithMediaType
+            {
+                ExternalId = "2",
+                MediaTypeId = 2
+            };
+            var mockConcept = Mock.MockConcept(_status);
+            mockConcept.Media = new List<Media>();
+            var mockMediaConcept = Mock.MockUpdateConceptDto();
+            mockMediaConcept.Media = new List<MediaWithMediaType>
+            {
+                oneMedia,
+                twoMedia
+            };
+
+            var conceptMediaList = new List<ConceptMedia>
+            {
+                new ConceptMedia
+                {
+                    Media = new Media
+                    {
+                        ExternalId = oneMedia.ExternalId,
+                        MediaType = new MediaType
+                        {
+                            Id = oneMedia.MediaTypeId
+                        }
+                    }
+                },
+                new ConceptMedia
+                {
+                    Media = new Media
+                    {
+                        ExternalId = twoMedia.ExternalId,
+                        MediaType = new MediaType
+                        {
+                            Id = twoMedia.MediaTypeId
+                        }
+                    }
+                }
+            };
+            
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
+            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(mockConcept);
+            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(mockConcept);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(conceptMediaList);
+
+            var viewModel = Service.UpdateConcept(mockMediaConcept);
+
+            var concept = viewModel.Data as ConceptDto;
+
+            Assert.Equal(concept.Media.Count, mockMediaConcept.Media.Count);
+
+            for (var i = 0; i < concept.Media.Count; i++)
+            {
+                Assert.Equal(concept.Media[i].ExternalId, mockMediaConcept.Media[i].ExternalId);
+                Assert.Equal(concept.Media[i].MediaType.Id, mockMediaConcept.Media[i].MediaTypeId);
+            }
+        }
+
+        [Fact]
+        public void UpdateConcept_Calls_DeleteConnectionBetweenConceptAndMedia_On_Success()
+        {
+            var concept = Mock.MockConcept(_status);
+            concept.Media = new List<Media>();
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
+            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
+            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(concept);
+            A.CallTo(() => ConceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(A<Concept>._, A<List<Media>>._)).Returns(true);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
+
+            var result = Service.UpdateConcept(Mock.MockUpdateConceptDto());
+
+            A.CallTo(() => ConceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(A<Concept>._, A<List<Media>>._))
+                .MustHaveHappened(1, Times.Exactly);
+        }
+
+
+        [Fact]
+        public void UpdateConcept_Returns_With_No_Errors_On_Success()
+        {
+            var concept = Mock.MockConcept(_status);
+            concept.Media = new List<Media>();
+            A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
+            A.CallTo(() => ConceptRepository.GetById(A<int>._)).Returns(Mock.MockConcept(_status));
+            A.CallTo(() => ConceptRepository.Update(A<Concept>._)).Returns(concept);
+            A.CallTo(() => ConceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(A<Concept>._, A<List<Media>>._)).Returns(true);
+            A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<Concept>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
+
+            var result = Service.UpdateConcept(Mock.MockUpdateConceptDto());
+
+            Assert.False(result.HasErrors());
         }
         #endregion
 

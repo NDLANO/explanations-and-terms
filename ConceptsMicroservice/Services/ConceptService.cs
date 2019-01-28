@@ -128,7 +128,7 @@ namespace ConceptsMicroservice.Services
 
                 concept.Media = media.Select(x => x.Media).ToList();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not update concept.");
                 return viewModel;
@@ -152,7 +152,6 @@ namespace ConceptsMicroservice.Services
             }
             catch
             {
-                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not delete insert concept.");
                 return viewModel;
             }
 

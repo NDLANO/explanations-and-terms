@@ -68,11 +68,15 @@ namespace ConceptsMicroservice.UnitTests.Mock
             };
         }
 
-        public Concept MockConcept(Status status, List<MetaData> m = null)
+        public Concept MockConcept(Status status, List<MetaData> m = null, List<Media> me = null)
         {
             var meta = new List<MetaData>();
             if (m != null)
                 meta = m;
+
+            var media = new List<Media>();
+            if (me != null)
+                media = me;
             return new Concept
             {
                 Source = $"Source_{Guid.NewGuid()}",
@@ -84,7 +88,25 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Meta = meta,
                 MediaIds = new List<int>(),
                 MetaIds = meta.Select(x => x.Id).ToList(),
-                Status = status
+                Status = status,
+                Media = media
+            };
+        }
+
+        public UpdateConceptDto MockUpdateConceptDto(List<int> meta = null, List<MediaWithMediaType> media = null)
+        {
+            var metaIds = meta ?? new List<int>();
+            var mediaIds = media ?? new List<MediaWithMediaType>();
+            return new UpdateConceptDto
+            {
+                Source = $"Source_{Guid.NewGuid()}",
+                Title = $"Title_{Guid.NewGuid()}",
+                AuthorName = $"AuthorName_{Guid.NewGuid()}",
+                AuthorEmail = $"AuthorEmail_{Guid.NewGuid()}",
+                SourceAuthor = $"SourceAuthor_{Guid.NewGuid()}",
+                Content = $"Content_{Guid.NewGuid()}",
+                MetaIds = metaIds,
+                Media = mediaIds
             };
         }
 
