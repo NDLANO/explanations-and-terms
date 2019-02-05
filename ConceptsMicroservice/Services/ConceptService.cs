@@ -57,7 +57,7 @@ namespace ConceptsMicroservice.Services
                     Data = _conceptRepository.GetById(id)
                 };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }
@@ -150,7 +150,7 @@ namespace ConceptsMicroservice.Services
                 concept = _conceptRepository.Insert(concept);
                 media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);
             }
-            catch
+            catch(Exception e)
             {
                 return viewModel;
             }

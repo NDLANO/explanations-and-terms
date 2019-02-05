@@ -64,19 +64,16 @@ namespace ConceptsMicroservice.Models.Domain
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
 
-        public static List<T> GetJsonList<T>(Npgsql.NpgsqlDataReader reader, int column)
+        public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
-            var member = new List<T>();
             try
             {
-                member = JsonConvert.DeserializeObject<List<T>>(reader.GetString(column));
+                return JsonConvert.DeserializeObject<T>(reader.GetString(column));
             }
             catch
             {
-                // ignored
+                return default(T);
             }
-
-            return member;
         }
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
@@ -99,7 +96,11 @@ namespace ConceptsMicroservice.Models.Domain
             var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
-            
+            var statusObjectColumn = reader.GetOrdinal("status_object");
+            var languageObjectColumn = reader.GetOrdinal("language_object");
+
+            var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
+            var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
 
             var concept = new Concept
             {
@@ -117,9 +118,11 @@ namespace ConceptsMicroservice.Models.Domain
                 Updated = reader.GetDateTime(updatedColumn),
                 StatusId = reader.GetInt32(statusIdColumn),
                 DeletedBy = reader.SafeGetString(deletedByColumn),
-                Meta = GetJsonList<MetaData>(reader, metaObjectsColumn),
-                Media = GetJsonList<Media>(reader, mediaObjectsColumn),
+                Meta = meta ?? new List<MetaData>(),
+                Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
+                Status = GetJson<Status>(reader, statusObjectColumn),
+                Language= GetJson<Language>(reader, languageObjectColumn)
             };
 
             return concept;

@@ -45,7 +45,7 @@ namespace ConceptsMicroservice.Services
                     Data = _categoryRepository.GetById(id)
                 };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }
