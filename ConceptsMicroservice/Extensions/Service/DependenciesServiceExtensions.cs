@@ -30,6 +30,7 @@ namespace ConceptsMicroservice.Extensions.Service
             services.AddScoped<IMetadataRepository, MetadataRepository>();
             services.AddScoped<IStatusRepository, StatusRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IMediaTypeRepository, MediaTypeRepository>();
             services.AddScoped<IConceptMediaRepository, ConceptMediaRepository>();
             return services;
         }
@@ -40,6 +41,7 @@ namespace ConceptsMicroservice.Extensions.Service
             services.AddScoped<IMetadataService, MetadataService>();
             services.AddScoped<IStatusService, StatusService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IMediaTypeService, MediaTypeService>();
 
             services.AddScoped<IConceptValidationService, ConceptValidationService>();
             return services;
