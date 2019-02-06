@@ -13,6 +13,7 @@ using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Search;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
@@ -149,13 +150,18 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts");
         }
 
-        public Concept Update(Concept updated)
+        public Concept Update(Concept updatedConcept)
         {
-           var concept = _context.Concepts.Update(updated);
-            concept.Entity.Updated = DateTime.Now;
+
+            if (_context.Entry(updatedConcept).State == EntityState.Detached)
+                _context.Concepts.Update(updatedConcept);
+            else
+                _context.Entry(updatedConcept).State = EntityState.Modified;
+
+            updatedConcept.Updated = DateTime.Now;
 
             _context.SaveChanges();
-            return concept.Entity;
+            return updatedConcept;
         }
 
         public Concept Insert(Concept inserted)

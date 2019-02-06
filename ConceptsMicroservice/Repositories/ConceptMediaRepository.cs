@@ -6,6 +6,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Context;
@@ -24,32 +25,29 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
-        public List<ConceptMedia> GetMediaForConcept(Concept concept)
+        public List<ConceptMedia> GetMediaForConcept(int conceptId)
         {
             return _context.ConceptMedia
                 .Include(x => x.Media)
-                .Where(x => x.ConceptId == concept.Id)
+                .Where(x => x.ConceptId == conceptId)
                 .ToList();
         }
-        public bool DeleteConnectionBetweenConceptAndMedia(Concept concept, List<Media> mediaToBeDeleted)
+        public bool DeleteConnectionBetweenConceptAndMedia(int conceptId, IEnumerable<int> mediaToBeDeleted)
         {
-            if (concept == null || mediaToBeDeleted == null)
+            if (mediaToBeDeleted == null)
                 return false;
-
             var conceptMediaToBeDeleted = _context.ConceptMedia
-                .Include(x => x.Media)
-                .Where(x => x.ConceptId == concept.Id
-                            && mediaToBeDeleted.Contains(x.Media));
+                .Where(x => x.ConceptId == conceptId && mediaToBeDeleted.Contains(x.MediaId));
             _context.ConceptMedia.RemoveRange(conceptMediaToBeDeleted);
-            return _context.SaveChanges() == mediaToBeDeleted.Count;
+            return _context.SaveChanges() == mediaToBeDeleted.Count();
         }
-        public List<ConceptMedia> InsertMediaForConcept(Concept concept, List<MediaWithMediaType> conceptMedia)
+        public List<ConceptMedia> InsertMediaForConcept(int conceptId, List<MediaWithMediaType> conceptMedia)
         {
-            if (concept == null || conceptMedia == null)
+            if (conceptMedia == null)
                 return new List<ConceptMedia>();
 
             return conceptMedia
-                .Select(x => Insert(concept, x.ExternalId, x.MediaTypeId))
+                .Select(x => Insert(conceptId, x.ExternalId, x.MediaTypeId))
                 .ToList();
         }
 
@@ -77,26 +75,27 @@ namespace ConceptsMicroservice.Repositories
             {
                 ExternalId = externalId,
                 MediaTypeId = mediaType,
-                MediaType = _context.MediaTypes.Find(mediaType)
+                MediaType = _context.MediaTypes.Find(mediaType),
+                Created = DateTime.Now,
+                Updated= DateTime.Now
             };
             _context.Media.Add(media);
             return media;
         }
 
-        public ConceptMedia Insert(Concept concept, string externalId, int mediaType)
+        public ConceptMedia Insert(int conceptId, string externalId, int mediaType)
         {
-            if (concept == null)
-                return null;
-
             var media = MediaWithExternalIdOfTypeExists(externalId, mediaType);
             if (media == null)
                 media = CreateMedia(externalId, mediaType);
 
             var relation = new ConceptMedia
             {
-                ConceptId = concept.Id,
+                ConceptId = conceptId,
                 MediaId = media.Id,
-                Media = media
+                Media = media,
+                Created = DateTime.Now,
+                Updated = DateTime.Now
             };
             _context.ConceptMedia.Add(relation);
             _context.SaveChanges();

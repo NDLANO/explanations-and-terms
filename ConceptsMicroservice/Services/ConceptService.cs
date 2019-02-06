@@ -104,29 +104,15 @@ namespace ConceptsMicroservice.Services
             {
                 return null;
             }
-            
 
             // Readonly fields
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
+            newConceptVersion.MediaIds = oldConceptVersion.MediaIds;
 
-            Concept concept;
             try
             {
                 _conceptRepository.Update(newConceptVersion);
-                concept = _conceptRepository.GetById(newConceptVersion.Id);
-                
-                // Updating media for concept
-                var toBeDeleted = concept.Media
-                    .Where(x => !dto.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
-                    .ToList();
-                var toBeInserted = dto.Media
-                    .Where(x => !concept.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
-                    .ToList();
-                _conceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(concept, toBeDeleted);
-                var media = _conceptMediaRepository.InsertMediaForConcept(concept, toBeInserted);
-
-                concept.Media = media.Select(x => x.Media).ToList();
             }
             catch (Exception e)
             {
@@ -134,8 +120,37 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
 
+            // Updating media for concept
+            var toBeDeleted = oldConceptVersion.Media
+                .Where(x => !dto.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
+                .Select(x => x.Id)
+                .ToList();
+            var toBeInserted = dto.Media
+                .Where(x => !oldConceptVersion.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
+                .ToList();
 
-            viewModel.Data = _mapper.Map<ConceptDto>(concept);
+            try
+            {
+                if (toBeDeleted.Count > 0)
+                    _conceptMediaRepository.DeleteConnectionBetweenConceptAndMedia(oldConceptVersion.Id, toBeDeleted);
+            }
+            catch (Exception e)
+            {
+                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not delete medias for concept.");
+                return viewModel;
+            }
+
+            try
+            {
+                _conceptMediaRepository.InsertMediaForConcept(oldConceptVersion.Id, toBeInserted);
+            }
+            catch (Exception e)
+            {
+                viewModel.Errors.TryAddModelError("errorMessage", "An database error has occured. Could not insert media on concept.");
+                return viewModel;
+            }
+
+            viewModel.Data = _mapper.Map<ConceptDto>(_conceptRepository.GetById(dto.Id));
             return viewModel;
         }
 
@@ -148,7 +163,7 @@ namespace ConceptsMicroservice.Services
             try
             {
                 concept = _conceptRepository.Insert(concept);
-                media = _conceptMediaRepository.InsertMediaForConcept(concept, newConcept.Media);
+                media = _conceptMediaRepository.InsertMediaForConcept(concept.Id, newConcept.Media);
             }
             catch(Exception e)
             {
