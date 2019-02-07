@@ -39,6 +39,7 @@ namespace ConceptsMicroservice.Models.DTO
             /// List of media objects. I.E Image, audio, video
             /// </summary>
             [MediaTypesMustExistInDatabase]
-            public List<MediaWithMediaType> Media { get; set; } = new List<MediaWithMediaType>();
+            [Required]
+            public List<MediaWithMediaType> Media { get; set; }
         }
 }

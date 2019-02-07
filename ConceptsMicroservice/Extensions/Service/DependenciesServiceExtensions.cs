@@ -9,7 +9,9 @@ using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Services.Validation;
 using ConceptsMicroservice.Utilities.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ConceptsMicroservice.Extensions.Service
 {
@@ -20,7 +22,7 @@ namespace ConceptsMicroservice.Extensions.Service
             services.AddServices();
             services.AddRepositories();
             services.AddHelpers();
-
+            services.AddSingletons();
             return services;
         }
 
@@ -50,6 +52,12 @@ namespace ConceptsMicroservice.Extensions.Service
         private static IServiceCollection AddHelpers(this IServiceCollection services)
         {
             services.AddScoped<ITokenHelper, TokenHelper>();
+            return services;
+        }
+
+        private static IServiceCollection AddSingletons(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             return services;
         }
     }

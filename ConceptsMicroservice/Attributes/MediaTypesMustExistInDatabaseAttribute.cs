@@ -9,6 +9,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Services.Validation;
 
 namespace ConceptsMicroservice.Attributes
@@ -21,7 +22,7 @@ namespace ConceptsMicroservice.Attributes
             if (service == null)
                 return new ValidationResult("Could not validate mediaTypes");
 
-            var notExistingIds = service.MetaIdsDoesNotExistInDatabase(value as List<int>);
+            var notExistingIds = service.MediaTypesNotExistInDatabase(value as List<MediaWithMediaType>);
             if (notExistingIds.Any())
             {
                 return new ValidationResult($"MediaTypes's [{string.Join(",", notExistingIds)}] is not a valid media type."); 
