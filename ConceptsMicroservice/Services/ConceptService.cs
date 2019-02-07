@@ -110,6 +110,8 @@ namespace ConceptsMicroservice.Services
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
             newConceptVersion.MediaIds = oldConceptVersion.MediaIds;
+            newConceptVersion.AuthorName = oldConceptVersion.AuthorName;
+            newConceptVersion.AuthorEmail = oldConceptVersion.AuthorEmail;
 
             try
             {
