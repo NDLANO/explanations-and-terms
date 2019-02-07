@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
-using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +23,13 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
-        public List<MetaData> GetByRangeOfIds(IEnumerable<int> ids)
+        public List<MetaData> GetByRangeOfIds(List<int> ids)
         {
-            return ids == null ? new List<MetaData>() : _context.MetaData.Include(x => x.Language).Where(x => ids.Contains(x.Id)).ToList();
+            return ids == null 
+                ? new List<MetaData>() 
+                : _context.MetaData
+                    .Include(x => x.Language)
+                    .Where(x => ids.Contains(x.Id)).ToList();
         }
 
         public List<MetaData> GetAll()

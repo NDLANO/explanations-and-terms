@@ -181,8 +181,8 @@ namespace ConceptsMicroservice.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
 
-            concept.AuthorEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
-            concept.AuthorName = await _tokenHelper.ReturnClaimFullName(HttpContext);
+            //concept.AuthorEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
+           // concept.AuthorName = await _tokenHelper.ReturnClaimFullName(HttpContext);
             var viewModel = _service.CreateConcept(concept);
             if (viewModel?.Data == null)
                 return InternalServerError();

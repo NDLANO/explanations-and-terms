@@ -20,6 +20,7 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("media_type_id")] public int MediaTypeId { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
+        [Column("source")] public string Source { get; set; }
 
         public virtual MediaType MediaType { get; set; }
     }

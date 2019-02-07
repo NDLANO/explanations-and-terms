@@ -9,42 +9,62 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
 
 namespace ConceptsMicroservice.Services.Validation
 {
     public class ConceptValidationService : IConceptValidationService
     {
+        private readonly IMediaTypeRepository _mediaTypeRepository;
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly ICategoryRepository _categoryRepository;
 
-        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category)
+        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category, IMediaTypeRepository mediaType)
         {
             _statusRepository = status;
             _metadataRepository = meta;
             _categoryRepository = category;
+            _mediaTypeRepository = mediaType;
         }
         public bool StatusIdIsValidId(int id)
         {
             return _statusRepository.GetById(id) != null;
         }
 
-        public List<int> MetaIdsDoesNotExistInDatabase(IEnumerable<int> ids)
+        public List<int> MetaIdsDoesNotExistInDatabase(List<int> ids)
         {
-            var notExistingIds = new List<int>();
-
+            var noExistingIds = new List<int>();
             if (ids == null)
-                return notExistingIds;
-            // TODO use GetByRangeIfMetaIds
+                return noExistingIds;
+            
             foreach (var id in ids)
             {
-                var meta = _metadataRepository.GetById(id);
-                if (meta == null)
-                    notExistingIds.Add(id);
+                if(_metadataRepository.GetById(id) == null)
+                    noExistingIds.Add(id);
             }
 
-            return notExistingIds;
+            return noExistingIds;
+        }
+
+        public List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> mediaTypes)
+        {
+            var noExistingIds = new List<int>();
+            if (mediaTypes == null)
+                return noExistingIds;
+
+            var allMediaTypes = _mediaTypeRepository
+                .GetAll()
+                .Select(x => x.Id)
+                .ToList();
+            foreach (var mediaType in mediaTypes)
+            {
+                if (!allMediaTypes.Contains(mediaType.MediaTypeId))
+                    noExistingIds.Add(mediaType.MediaTypeId);
+            }
+
+            return noExistingIds;
         }
 
         public List<string> GetMissingRequiredCategories(List<int> metaIds)

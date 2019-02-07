@@ -16,7 +16,7 @@ namespace ConceptsMicroservice.Repositories
     {
         MetaData GetById(int id);
         List<MetaData> GetAll();
-        List<MetaData> GetByRangeOfIds(IEnumerable<int> ids);
+        List<MetaData> GetByRangeOfIds(List<int> ids);
         List<MetaData> SearchForMetadata(MetaSearchQuery query);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services.Validation;
 using FakeItEasy;
@@ -13,13 +15,16 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMediaTypeRepository _mediaTypeRepository;
 
         public ConceptValidationServiceTest()
         {
             _statusRepository = A.Fake<IStatusRepository>();
             _metadataRepository = A.Fake<IMetadataRepository>();
             _categoryRepository = A.Fake<ICategoryRepository>();
-            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository);
+            _mediaTypeRepository = A.Fake<IMediaTypeRepository>();
+
+            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository, _mediaTypeRepository);
         }
         #region StatusIdIsValid
         [Fact]
@@ -67,6 +72,73 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             A.CallTo(() => _metadataRepository.GetById(4)).Returns(null);
 
             var notExistingIds = _validationService.MetaIdsDoesNotExistInDatabase(new List<int> {1, 2, 3, 4});
+            Assert.Single(notExistingIds);
+        }
+
+        #endregion
+
+        #region MediaTypeIdsDoesNotExistInDatabase
+        [Fact]
+        public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Empty()
+        {
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(new List<MediaWithMediaType>()));
+        }
+        [Fact]
+        public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Null()
+        {
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(null));
+        }
+        [Fact]
+        public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_All_Ids_Exist_DB()
+        {
+            var mediaWithMediaTypes = new List<MediaWithMediaType>
+            {
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 1
+                },
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 2
+                },
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 3
+                }
+            };
+            var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType {Id = x.MediaTypeId}).ToList();
+            A.CallTo(() => _mediaTypeRepository.GetAll()).Returns(mediaTypesFromDB);
+
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes));
+        }
+
+        [Fact]
+        public void MediaTypesDoesNotExistInDatabase_Returns_List_Of_Ids_When_Not_All_Exists_In_DB()
+        {
+            var mediaWithMediaTypes = new List<MediaWithMediaType>
+            {
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 1
+                },
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 2
+                },
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 3
+                },
+                new MediaWithMediaType
+                {
+                    MediaTypeId = 4
+                }
+            };
+            var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType { Id = x.MediaTypeId }).ToList();
+            mediaTypesFromDB.RemoveAt(mediaTypesFromDB.Count - 1);
+            A.CallTo(() => _mediaTypeRepository.GetAll()).Returns(mediaTypesFromDB);
+
+            var notExistingIds = _validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes);
             Assert.Single(notExistingIds);
         }
 

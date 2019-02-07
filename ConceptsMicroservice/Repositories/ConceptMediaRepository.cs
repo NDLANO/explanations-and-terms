@@ -47,7 +47,7 @@ namespace ConceptsMicroservice.Repositories
                 return new List<ConceptMedia>();
 
             return conceptMedia
-                .Select(x => Insert(conceptId, x.ExternalId, x.MediaTypeId))
+                .Select(x => Insert(conceptId, x))
                 .ToList();
         }
 
@@ -61,21 +61,24 @@ namespace ConceptsMicroservice.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        private Media MediaWithExternalIdOfTypeExists(string externalId, int mediaType)
+        private Media MediaWithExternalIdOfTypeExists(MediaWithMediaType mediaType)
         {
             return _context.Media
                 .Include(x => x.MediaType)
-                .FirstOrDefault(x => x.ExternalId == externalId && x.MediaTypeId == mediaType);
+                .FirstOrDefault(x => 
+                    x.ExternalId == mediaType.ExternalId 
+                    && x.MediaTypeId == mediaType.MediaTypeId
+                    && x.Source == mediaType.Source);
         }
 
-        private Media CreateMedia(string externalId, int mediaType)
+        private Media CreateMedia(MediaWithMediaType mediaType)
         {
-
             var media = new Media
             {
-                ExternalId = externalId,
-                MediaTypeId = mediaType,
-                MediaType = _context.MediaTypes.Find(mediaType),
+                ExternalId = mediaType.ExternalId,
+                MediaTypeId = mediaType.MediaTypeId,
+                Source = mediaType.Source,
+                MediaType = _context.MediaTypes.Find(mediaType.MediaTypeId),
                 Created = DateTime.Now,
                 Updated= DateTime.Now
             };
@@ -83,11 +86,11 @@ namespace ConceptsMicroservice.Repositories
             return media;
         }
 
-        public ConceptMedia Insert(int conceptId, string externalId, int mediaType)
+        public ConceptMedia Insert(int conceptId, MediaWithMediaType mediaType)
         {
-            var media = MediaWithExternalIdOfTypeExists(externalId, mediaType);
+            var media = MediaWithExternalIdOfTypeExists(mediaType);
             if (media == null)
-                media = CreateMedia(externalId, mediaType);
+                media = CreateMedia(mediaType);
 
             var relation = new ConceptMedia
             {

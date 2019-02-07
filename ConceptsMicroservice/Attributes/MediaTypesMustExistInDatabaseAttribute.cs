@@ -13,18 +13,18 @@ using ConceptsMicroservice.Services.Validation;
 
 namespace ConceptsMicroservice.Attributes
 {
-    public class MetaIdsMustExistInDatabaseAttribute :  ValidationAttribute
+    public class MediaTypesMustExistInDatabaseAttribute :  ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             var service = validationContext.GetService(typeof(IConceptValidationService)) as IConceptValidationService;
             if (service == null)
-                return new ValidationResult("Could not validate metaIds");
+                return new ValidationResult("Could not validate mediaTypes");
 
             var notExistingIds = service.MetaIdsDoesNotExistInDatabase(value as List<int>);
             if (notExistingIds.Any())
             {
-                return new ValidationResult($"Metaid's [{string.Join(",", notExistingIds)}] is not a valid metas."); 
+                return new ValidationResult($"MediaTypes's [{string.Join(",", notExistingIds)}] is not a valid media type."); 
             }
             return ValidationResult.Success;
         }

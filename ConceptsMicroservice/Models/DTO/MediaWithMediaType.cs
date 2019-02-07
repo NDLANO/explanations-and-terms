@@ -12,5 +12,6 @@ namespace ConceptsMicroservice.Models.DTO
     {
         public string ExternalId { get; set; }
         public int MediaTypeId { get; set; }
+        public string Source { get; set; }
     }
 }

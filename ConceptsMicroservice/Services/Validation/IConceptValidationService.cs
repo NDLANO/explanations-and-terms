@@ -7,14 +7,15 @@
  */
 
 using System.Collections.Generic;
+using ConceptsMicroservice.Models.DTO;
 
 namespace ConceptsMicroservice.Services.Validation
 {
     public interface IConceptValidationService
     {
-
         bool StatusIdIsValidId(int id);
-        List<int> MetaIdsDoesNotExistInDatabase(IEnumerable<int> ids);
+        List<int> MetaIdsDoesNotExistInDatabase(List<int> ids);
+        List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> ids);
         List<string> GetMissingRequiredCategories(List<int> metaIds);
     }
 }

@@ -27,14 +27,6 @@ namespace ConceptsMicroservice.Models.DTO
             /// </summary>
             [Required] public string SourceAuthor { get; set; }
             /// <summary>
-            /// The email of who created this concept.
-            /// </summary>
-            public string AuthorEmail { get; set; }
-            /// <summary>
-            /// The name of who created this concept.
-            /// </summary>
-            public string AuthorName { get; set; }
-            /// <summary>
             /// Where the content originated
             /// </summary>
             public string Source { get; set; }
@@ -46,6 +38,7 @@ namespace ConceptsMicroservice.Models.DTO
             /// <summary>
             /// List of media objects. I.E Image, audio, video
             /// </summary>
+            [MediaTypesMustExistInDatabase]
             public List<MediaWithMediaType> Media { get; set; } = new List<MediaWithMediaType>();
         }
 }

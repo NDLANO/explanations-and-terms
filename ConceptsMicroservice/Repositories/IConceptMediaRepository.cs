@@ -16,7 +16,7 @@ namespace ConceptsMicroservice.Repositories
     {
         bool Delete(ConceptMedia relation);
         List<ConceptMedia> GetMediaForConcept(int conceptId);
-        ConceptMedia Insert(int conceptId, string externalId, int mediaType);
+        ConceptMedia Insert(int conceptId, MediaWithMediaType mediaType);
         bool DeleteConnectionBetweenConceptAndMedia(int conceptId, IEnumerable<int> mediaToBeDeleted);
         List<ConceptMedia> InsertMediaForConcept(int conceptId, List<MediaWithMediaType> conceptMedia);
     }
