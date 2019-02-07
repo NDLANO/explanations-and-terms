@@ -53,26 +53,7 @@ namespace ConceptsMicroservice.Controllers
 
             return InternalServerError();
         }
-
-        /// <summary>
-        /// Finds all concept titles.
-        /// </summary>
-        /// <remarks>
-        /// Returns a list of concept titles.
-        /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<string>))]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
-        [HttpGet]
-        [Route("[action]")]
-        public ActionResult<Response> AllTitles(string language)
-        {
-            var concepts = _service.GetAllConceptTitles(language);
-            if (concepts != null)
-                return Ok(concepts);
-
-            return InternalServerError();
-        }
-
+        
         #region CRUD
 
         /// <summary>

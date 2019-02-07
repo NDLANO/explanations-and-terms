@@ -38,41 +38,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             }
         }
 
-        #endregion
-
-        private readonly string languageCode = "nb";
-
-        #region GetAllTitles
-        [Fact]
-        public void GetAllTitles_Returns_Empty_List_If_No_Concept_Exists()
-        {
-            var concepts = ConceptRepository.GetAllTitles(languageCode);
-
-            Assert.Empty(concepts);
-        }
-
-        [Fact]
-        public void GetAllTitles_Returns_A_List_With_Concept_Titles()
-        {
-            var status = Mock.MockStatus();
-            var meta = Mock.Database.InsertMeta(Mock.MockMeta(status, Mock.MockCategory()));
-            var insertedConcepts = new List<Concept>
-            {
-                Mock.Database.InsertConcept(Mock.MockConcept(status, new List<MetaData>{meta})),
-                Mock.Database.InsertConcept(Mock.MockConcept(status, new List<MetaData>{meta})),
-                Mock.Database.InsertConcept(Mock.MockConcept(status, new List<MetaData>{meta}))
-            };
-
-            var titles = ConceptRepository.GetAllTitles(languageCode);
-
-            Assert.NotEmpty(titles);
-            foreach (var concept in insertedConcepts)
-            {
-                Assert.Contains(titles, x => x.Equals(concept.Title));
-            }
-        }
-
-        #endregion
+        #endregion       
 
         #region GetById
         [Fact]

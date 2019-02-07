@@ -413,27 +413,5 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             Assert.False(result.HasErrors());
         }
         #endregion
-
-        #region GetAllTitles
-        [Fact]
-        public void GetAllConceptsTitles_Returns_A_Response_With_A_List_Of_Strings()
-        {
-            A.CallTo(() => ConceptRepository.GetAllTitles(languageCode)).Returns(new List<string>());
-
-            var response = Service.GetAllConceptTitles(languageCode);
-
-            Assert.IsType<List<string>>(response.Data);
-        }
-
-        [Fact]
-        public void GetAllConceptsTitles_Returns_Null_If_An_Error_Occured()
-        {
-            A.CallTo(() => ConceptRepository.GetAllTitles(languageCode)).Throws<Exception>();
-
-            var results = Service.GetAllConceptTitles(languageCode);
-
-            Assert.Null(results);
-        }
-        #endregion
     }
 }

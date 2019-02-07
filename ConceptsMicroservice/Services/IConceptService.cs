@@ -18,7 +18,6 @@ namespace ConceptsMicroservice.Services
         Response SearchForConcepts(ConceptSearchQuery query);
         Response GetConceptById(int id);
         Response GetAllConcepts();
-        Response GetAllConceptTitles(string language);
         Response UpdateConcept(UpdateConceptDto newConceptVersion);
         Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo);
         Response ArchiveConcept(int id, string usersEmail);

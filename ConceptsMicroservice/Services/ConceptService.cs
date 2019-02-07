@@ -79,21 +79,6 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-        public Response GetAllConceptTitles(string language)
-        {
-            try
-            {
-                return new Response
-                {
-                    Data = _conceptRepository.GetAllTitles(language)
-                };
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
-
         public Response UpdateConcept(UpdateConceptDto dto)
         {
             var newConceptVersion = _mapper.Map<Concept>(dto);
