@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Auth0.AuthenticationApi.Models;
 using ConceptsMicroservice.Controllers;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
@@ -28,6 +28,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
 {
     public class ConceptControllerTest
     {
+        private UserInfo _userInfo;
         private readonly IConceptService _service;
         private readonly ConceptController _controller;
         private readonly UpdateConceptDto _updateConcept;
@@ -47,14 +48,13 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         {
             _tokenHelper = A.Fake<ITokenHelper>();
             A.CallTo(() => _tokenHelper.ReturnScope(A<ClaimsPrincipal>._)).Returns(_allowedScope);
-            A.CallTo(() => _tokenHelper.ReturnClaimEmail(A<HttpContext>._)).Returns(_allowedUserEmail);
+            A.CallTo(() => _tokenHelper.GetUserInfo()).Returns(new UserInfo());
            
             _service = A.Fake<IConceptService>();
             _controller = new ConceptController(_service, _tokenHelper);
             _createConcept = new CreateConceptDto
             {
                 Title = "Title",
-                AuthorName = "AuthorName",
                 Content = "Content",
                 Created = DateTime.Now,
                 Updated = DateTime.Now,
@@ -62,7 +62,6 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             _updateConcept = new UpdateConceptDto
             {
                 Title = "Title",
-                AuthorName = "AuthorName",
                 Content = "Content",
                 Created = DateTime.Now,
                 Updated = DateTime.Now,
@@ -78,6 +77,11 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
 
             _listResponse = new Response {Data = new List<Concept>()};
             _singleResponse = new Response { Data = new Concept() };
+            _userInfo = new UserInfo
+            {
+                Email = _allowedUserEmail,
+                FullName = "Name"
+            };
         }
 
         #region GetById
@@ -187,7 +191,6 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void UpdateConcept_Returns_400_On_ModelState_Error()
         {
             _controller.ModelState.TryAddModelError("error", "error");
-            _updateConcept.AuthorEmail = _allowedUserEmail;
             var result = _controller.UpdateConcept(_updateConcept);
             var badRequest = result.Result as BadRequestObjectResult;
             
@@ -197,7 +200,6 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void UpdateConcept_Returns_404_When_Service_Returns_Null()
         {
             A.CallTo(() => _service.UpdateConcept(A<UpdateConceptDto>._)).Returns(null);
-            _updateConcept.AuthorEmail = _allowedUserEmail;
             var result = _controller.UpdateConcept(_updateConcept);
             var error = result.Result as StatusCodeResult;
 
@@ -210,7 +212,6 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void UpdateConcept_Returns_200_On_Successful_Update()
         {
             A.CallTo(() => _service.UpdateConcept(A<UpdateConceptDto>._)).Returns(_singleResponse);
-            _updateConcept.AuthorEmail = _allowedUserEmail;
             var result = _controller.UpdateConcept(_updateConcept);
             var ok = result.Result as OkObjectResult;
             
@@ -220,7 +221,6 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void UpdateConcept_Returns_A_Response_With_A_Concept_On_Successful_Update()
         {
             A.CallTo(() => _service.UpdateConcept(A<UpdateConceptDto>._)).Returns(_singleResponse);
-            _updateConcept.AuthorEmail = _allowedUserEmail;
             var result = _controller.UpdateConcept(_updateConcept);
             var ok = result.Result as OkObjectResult;
 
@@ -256,7 +256,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_500_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._)).Returns(null);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._, new UserInfo())).Returns(null);
             var result = _controller.CreateConcept(_createConcept);
             var status = result.Result.Result as StatusCodeResult;
 
@@ -267,7 +267,8 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_200_On_Successful_Update()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._)).Returns(_singleResponse);
+            A.CallTo(() => _tokenHelper.GetUserInfo()).Returns(_userInfo);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._, A<UserInfo>._)).Returns(_singleResponse);
 
             var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
@@ -277,7 +278,8 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void CreateConcept_Returns_A_Response_With_A_Concept_On_Successful_Update()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._)).Returns(_singleResponse);
+            A.CallTo(() => _tokenHelper.GetUserInfo()).Returns(_userInfo);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._, A<UserInfo>._)).Returns(_singleResponse);
 
             var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
@@ -292,11 +294,10 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void DeleteConcept_Returns_204_When_Deletion_Was_Successful()
         {
             A.CallTo(() => _service.ArchiveConcept(A<int>._, _allowedUserEmail)).Returns(new Response());
-            A.CallTo(() => _tokenHelper.ReturnToken(A<HttpContext>._)).Returns(_allowedToken);
+            A.CallTo(() => _tokenHelper.GetUserInfo()).Returns(new UserInfo());
 
             A.CallTo(() => _tokenHelper.ReturnScope(A<ClaimsPrincipal>._)).Returns(_allowedScope);
             Models.Response fakeResponse = new Response();
-            _updateConcept.AuthorEmail = _allowedUserEmail;
             fakeResponse.Data = _updateConcept;
             A.CallTo(() => _service.GetConceptById(A<int>._)).Returns(fakeResponse);
             var concept = fakeResponse.Data as Concept;
@@ -309,12 +310,10 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         public void DeleteConcept_Returns_400_When_Viewmodel_Has_Errors()
         {
             A.CallTo(() => _service.ArchiveConcept(A<int>._, _allowedUserEmail)).Returns(_errorResponse);
-
-            A.CallTo(() => _tokenHelper.ReturnToken(A<HttpContext>._)).Returns(_allowedToken);
+            A.CallTo(() => _tokenHelper.GetUserInfo()).Returns(_userInfo);
 
             A.CallTo(() => _tokenHelper.ReturnScope(A<ClaimsPrincipal>._)).Returns(_allowedScope);
             Models.Response fakeResponse = new Response();
-            _updateConcept.AuthorEmail = _allowedUserEmail;
             fakeResponse.Data = _updateConcept;
             A.CallTo(() => _service.GetConceptById(A<int>._)).Returns(fakeResponse);
             var concept = fakeResponse.Data as Concept;
@@ -330,11 +329,11 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         {
             A.CallTo(() => _service.ArchiveConcept(A<int>._, _allowedUserEmail)).Returns(null);
 
-            A.CallTo(() => _tokenHelper.ReturnToken(A<HttpContext>._)).Returns(_allowedToken);
+            A.CallTo(() => _tokenHelper.GetUserInfo()).Returns(_userInfo);
 
             A.CallTo(() => _tokenHelper.ReturnScope(A<ClaimsPrincipal>._)).Returns(_allowedScope);
             Models.Response fakeResponse = new Response();
-            _updateConcept.AuthorEmail = _allowedUserEmail;
+            
             fakeResponse.Data = _updateConcept;
             A.CallTo(() => _service.GetConceptById(A<int>._)).Returns(fakeResponse);
             var concept = fakeResponse.Data as Concept;
@@ -402,43 +401,6 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var ok = result.Result as OkObjectResult;
 
             Assert.IsType<List<Concept>>(((Response)ok.Value).Data);
-        }
-
-        #endregion
-        
-
-        #region GetAllTitles
-        [Fact]
-        public void AllTitles_Returns_500_If_Service_Returns_Null()
-        {
-            A.CallTo(() => _service.GetAllConceptTitles(languageCode)).Returns(null);
-
-            var result = _controller.AllTitles(languageCode);
-            var status = result.Result as StatusCodeResult;
-
-            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
-        }
-
-        [Fact]
-        public void AllTitles_Returns_200_If_Service_Is_Not_Null()
-        {
-            A.CallTo(() => _service.GetAllConceptTitles(languageCode)).Returns(new Response());
-
-            var result = _controller.AllTitles(languageCode);
-            var ok = result.Result as OkObjectResult;
-
-            Assert.Equal(200, ok.StatusCode);
-        }
-
-        [Fact]
-        public void AllTitles_Returns_A_List_Of_Strings()
-        {
-            A.CallTo(() => _service.GetAllConceptTitles(languageCode)).Returns(new Response{Data = new List<string>()});
-
-            var result = _controller.AllTitles(languageCode);
-            var ok = result.Result as OkObjectResult;
-
-            Assert.IsType<List<string>>(((Response)ok.Value).Data);
         }
 
         #endregion

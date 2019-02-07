@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Auth0.AuthenticationApi.Models;
 using AutoMapper;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
@@ -154,11 +155,17 @@ namespace ConceptsMicroservice.Services
             return viewModel;
         }
 
-        public Response CreateConcept(CreateConceptDto newConcept)
+        public Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo)
         {
             var viewModel = new Response();
             var concept = _mapper.Map<Concept>(newConcept);
             var media = new List<ConceptMedia>();
+
+            // Readonly fields
+            if (!string.IsNullOrEmpty(userInfo.Email))
+                concept.AuthorEmail = userInfo.Email;
+            if (!string.IsNullOrEmpty(userInfo.FullName))
+                concept.AuthorName = userInfo.FullName;
 
             try
             {

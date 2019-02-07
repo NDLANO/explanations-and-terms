@@ -6,8 +6,8 @@
  *
  */
 
+using Auth0.AuthenticationApi.Models;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 
@@ -20,7 +20,7 @@ namespace ConceptsMicroservice.Services
         Response GetAllConcepts();
         Response GetAllConceptTitles(string language);
         Response UpdateConcept(UpdateConceptDto newConceptVersion);
-        Response CreateConcept(CreateConceptDto newConcept);
+        Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo);
         Response ArchiveConcept(int id, string usersEmail);
     }
 }

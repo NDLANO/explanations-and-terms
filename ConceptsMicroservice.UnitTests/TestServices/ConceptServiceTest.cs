@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using Auth0.AuthenticationApi.Models;
 using AutoMapper;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
@@ -201,7 +202,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             var mockConcept = Mock.MockCreateOrUpdateConcept();
 
-            var viewModel = Service.CreateConcept(mockConcept);
+            var viewModel = Service.CreateConcept(mockConcept, new UserInfo());
             
             Assert.Null(viewModel.Data);
         }
@@ -215,7 +216,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
-            var viewModel = Service.CreateConcept(mockMediaConcept);
+            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
 
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._))
                 .MustHaveHappened(1, Times.Exactly);
@@ -271,7 +272,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(conceptMediaList);
-            var viewModel = Service.CreateConcept(mockMediaConcept);
+            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
 
             var concept = viewModel.Data as ConceptDto;
 
@@ -293,7 +294,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
-            var viewModel = Service.CreateConcept(mockMediaConcept);
+            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
 
             Assert.NotNull(viewModel.Data);
             Assert.IsType<ConceptDto>(viewModel.Data);
@@ -307,7 +308,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
 
-            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept());
+            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept(), new UserInfo());
 
             Assert.False(viewModel.HasErrors());
         }

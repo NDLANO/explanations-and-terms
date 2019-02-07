@@ -180,10 +180,9 @@ namespace ConceptsMicroservice.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
-
-            //concept.AuthorEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
-           // concept.AuthorName = await _tokenHelper.ReturnClaimFullName(HttpContext);
-            var viewModel = _service.CreateConcept(concept);
+            
+           var userInfo = await _tokenHelper.GetUserInfo();
+            var viewModel = _service.CreateConcept(concept, userInfo);
             if (viewModel?.Data == null)
                 return InternalServerError();
 
@@ -202,9 +201,9 @@ namespace ConceptsMicroservice.Controllers
         [Authorize(Policy = "concept:write")]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
-            var usersEmail = await _tokenHelper.ReturnClaimEmail(HttpContext);
+            var userInfo = await _tokenHelper.GetUserInfo();
             
-            var viewModel = _service.ArchiveConcept(id, usersEmail);
+            var viewModel = _service.ArchiveConcept(id, userInfo.Email);
             if (viewModel == null)
                 return NotFound();
 

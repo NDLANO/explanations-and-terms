@@ -101,8 +101,6 @@ namespace ConceptsMicroservice.UnitTests.Mock
             {
                 Source = $"Source_{Guid.NewGuid()}",
                 Title = $"Title_{Guid.NewGuid()}",
-                AuthorName = $"AuthorName_{Guid.NewGuid()}",
-                AuthorEmail = $"AuthorEmail_{Guid.NewGuid()}",
                 SourceAuthor = $"SourceAuthor_{Guid.NewGuid()}",
                 Content = $"Content_{Guid.NewGuid()}",
                 MetaIds = metaIds,
@@ -116,8 +114,6 @@ namespace ConceptsMicroservice.UnitTests.Mock
             {
                 Source = $"Source_{Guid.NewGuid()}",
                 Title = $"Title_{Guid.NewGuid()}",
-                AuthorName = $"AuthorName_{Guid.NewGuid()}",
-                AuthorEmail = $"AuthorEmail_{Guid.NewGuid()}",
                 SourceAuthor = $"SourceAuthor_{Guid.NewGuid()}",
                 Content = $"Content_{Guid.NewGuid()}",
                 Media = new List<MediaWithMediaType>(),
