@@ -12,7 +12,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
@@ -41,7 +40,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concepts.
         /// </remarks>
         /// <param name="query"></param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Concept>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
@@ -53,7 +52,7 @@ namespace ConceptsMicroservice.Controllers
 
             return InternalServerError();
         }
-        
+
         #region CRUD
 
         /// <summary>
@@ -62,7 +61,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of concepts.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Concept>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAll()
@@ -81,7 +80,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="id">Id of the concept that is to be fetched.</param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Concept>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = null)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = null)]
         [HttpGet("{id}")]
@@ -180,6 +179,7 @@ namespace ConceptsMicroservice.Controllers
         [HttpDelete("{id}")]
         [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
             var userInfo = await _tokenHelper.GetUserInfo();

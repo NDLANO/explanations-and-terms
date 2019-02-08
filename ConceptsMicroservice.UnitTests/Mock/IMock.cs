@@ -16,9 +16,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
     {
         IMockDatabase Database { get; set; }
         MetaCategory MockCategory(string name = null);
-        Status MockStatus(string name = null);
-        MetaData MockMeta(Status s, MetaCategory c);
-        Concept MockConcept(Status status, List<MetaData> m = null, List<Media> media = null);
+        StatusDto MockStatus(string name = null);
+        MetaData MockMeta(StatusDto s, MetaCategory c);
+        Concept MockConcept(StatusDto status, List<MetaData> m = null, List<Media> media = null);
         UpdateConceptDto MockUpdateConceptDto(List<int> meta = null, List<MediaWithMediaType> media = null);
         CreateConceptDto MockCreateOrUpdateConcept();
     }

@@ -33,7 +33,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         private readonly string allowedUserEmail = "somebody@somedomain";
 
         private readonly string languageCode = "nb";
-        private Status _status;
+        private StatusDto _status;
 
         public ConceptServiceTest()
         {
@@ -45,7 +45,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper);
             Mock = new Mock.Mock();
-            _status = new Status();
+            _status = new StatusDto();
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
         }
@@ -57,7 +57,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             var response = Service.GetAllConcepts();
 
-            Assert.IsType<List<Concept>>(response.Data);
+            Assert.IsType<List<ConceptDto>>(response.Data);
         }
         #endregion
 
@@ -95,7 +95,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var response = Service.GetConceptById(conceptId);
 
             Assert.NotNull(response.Data);
-            Assert.IsType<Concept>(response.Data);
+            Assert.IsType<ConceptDto>(response.Data);
         }
         #endregion
 
@@ -110,7 +110,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var response = Service.ArchiveConcept(0, allowedUserEmail);
 
             Assert.NotNull(response.Data);
-            Assert.IsType<Concept>(response.Data);
+            Assert.IsType<ConceptDto>(response.Data);
         }
         [Fact]
         public void ArchiveConcept_Returns_With_No_Errors_When_Archiving_Successful()
@@ -165,7 +165,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var results = Service.SearchForConcepts(null);
 
             A.CallTo(() => ConceptRepository.GetAll()).MustHaveHappenedOnceExactly();
-            Assert.IsType<List<Concept>>(results.Data);
+            Assert.IsType<List<ConceptDto>>(results.Data);
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptRepository.GetAll()).MustNotHaveHappened();
             A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).MustHaveHappenedOnceExactly();
 
-            Assert.IsType<List<Concept>>(results.Data);
+            Assert.IsType<List<ConceptDto>>(results.Data);
         }
 
 

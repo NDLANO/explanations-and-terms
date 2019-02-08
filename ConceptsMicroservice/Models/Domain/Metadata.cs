@@ -39,6 +39,6 @@ namespace ConceptsMicroservice.Models.Domain
 
         public virtual Language Language { get; set; }
         public virtual MetaCategory Category { get; set; }
-        public virtual Status Status { get; set; }
+        public virtual StatusDto Status { get; set; }
     }
 }

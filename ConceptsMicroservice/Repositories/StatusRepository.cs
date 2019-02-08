@@ -21,21 +21,21 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
-        public List<Status> GetAll()
+        public List<StatusDto> GetAll()
         {
             return _context.Status
                 .Include(x => x.Language)
                 .ToList();
         }
 
-        public Status GetById(int id)
+        public StatusDto GetById(int id)
         {
             return _context.Status
                 .Include(x => x.Language)
                 .FirstOrDefault(x => x.Id == id);
         }
 
-        public Status GetByName(string name)
+        public StatusDto GetByName(string name)
         {
             return _context.Status
                 .Include(x => x.Language)

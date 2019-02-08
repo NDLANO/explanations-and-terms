@@ -30,7 +30,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the status.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Status>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<StatusDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAllStatus()

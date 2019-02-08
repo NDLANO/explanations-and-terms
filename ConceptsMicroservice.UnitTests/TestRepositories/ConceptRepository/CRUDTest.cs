@@ -37,7 +37,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                 Assert.NotEmpty(concept.Meta);
             }
         }
-
+        
         #endregion       
 
         #region GetById
