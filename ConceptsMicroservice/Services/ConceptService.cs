@@ -38,9 +38,12 @@ namespace ConceptsMicroservice.Services
         {
             try
             {
+                var searchResult = query == null
+                    ? _conceptRepository.GetAll()
+                    : _conceptRepository.SearchForConcepts(query);
                 return new Response
                 {
-                    Data = query == null ? _conceptRepository.GetAll() : _conceptRepository.SearchForConcepts(query)
+                    Data = _mapper.Map<List<ConceptDto>>(searchResult)
                 };
             }
             catch
@@ -55,7 +58,7 @@ namespace ConceptsMicroservice.Services
             {
                 return new Response
                 {
-                    Data = _conceptRepository.GetById(id)
+                    Data = _mapper.Map<ConceptDto>(_conceptRepository.GetById(id))
                 };
             }
             catch(Exception e)
@@ -70,7 +73,7 @@ namespace ConceptsMicroservice.Services
             {
                 return new Response
                 {
-                    Data = _conceptRepository.GetAll()
+                    Data = _mapper.Map<List<ConceptDto>>(_conceptRepository.GetAll())
                 };
             }
             catch
@@ -78,21 +81,7 @@ namespace ConceptsMicroservice.Services
                 return null;
             }
         }
-
-        public Response GetAllConceptTitles(string language)
-        {
-            try
-            {
-                return new Response
-                {
-                    Data = _conceptRepository.GetAllTitles(language)
-                };
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
+        
 
         public Response UpdateConcept(UpdateConceptDto dto)
         {
@@ -193,10 +182,10 @@ namespace ConceptsMicroservice.Services
 
             
             var viewModel = new Response();
-            var inactiveStatus = _statusRepository.GetByName(Status.STATUS_ARCHVIED);
+            var inactiveStatus = _statusRepository.GetByName(StatusDto.STATUS_ARCHVIED);
             if (inactiveStatus == null)
             {
-                viewModel.Errors.TryAddModelError("errorMessage", $"Did not found \"{Status.STATUS_ARCHVIED}\" status");
+                viewModel.Errors.TryAddModelError("errorMessage", $"Did not found \"{StatusDto.STATUS_ARCHVIED}\" status");
                 return viewModel;
             }
 
@@ -206,7 +195,7 @@ namespace ConceptsMicroservice.Services
 
             try
             {
-                viewModel.Data = _conceptRepository.Update(updatedConcept);
+                viewModel.Data = _mapper.Map<ConceptDto>(_conceptRepository.Update(updatedConcept));
             }
             catch (Exception)
             {

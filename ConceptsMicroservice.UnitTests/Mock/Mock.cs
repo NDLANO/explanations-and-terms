@@ -37,19 +37,19 @@ namespace ConceptsMicroservice.UnitTests.Mock
             };
         }
 
-        public Status MockStatus(string n = null)
+        public StatusDto MockStatus(string n = null)
         {
             var name = $"Status_{Guid.NewGuid()}";
             if (!string.IsNullOrWhiteSpace(n))
                 name = n;
-            return new Status
+            return new StatusDto
             {
                 Name = name,
                 Description = "Description"
             };
         }
 
-        public MetaData MockMeta(Status s, MetaCategory c)
+        public MetaData MockMeta(StatusDto s, MetaCategory c)
         {
             var category = c;
             if (c == null)
@@ -68,7 +68,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
             };
         }
 
-        public Concept MockConcept(Status status, List<MetaData> m = null, List<Media> me = null)
+        public Concept MockConcept(StatusDto status, List<MetaData> m = null, List<Media> me = null)
         {
             var meta = new List<MetaData>();
             if (m != null)

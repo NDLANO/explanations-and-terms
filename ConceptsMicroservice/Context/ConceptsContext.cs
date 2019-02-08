@@ -18,7 +18,7 @@ namespace ConceptsMicroservice.Context
         public DbSet<MetaData> MetaData { get; set; }
         public DbSet<Concept> Concepts { get; set; }
         public DbSet<MetaCategory> Categories { get; set; }
-        public DbSet<Status> Status { get; set; }
+        public DbSet<StatusDto> Status { get; set; }
         public DbSet<Models.Domain.Media> Media { get; set; }
         public DbSet<MediaType> MediaTypes { get; set; }
         public DbSet<ConceptMedia> ConceptMedia { get; set; }

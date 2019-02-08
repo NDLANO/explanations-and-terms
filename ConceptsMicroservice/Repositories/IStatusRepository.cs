@@ -13,8 +13,8 @@ namespace ConceptsMicroservice.Repositories
 {
     public interface IStatusRepository
     {
-        List<Status> GetAll();
-        Status GetById(int id);
-        Status GetByName(string name);
+        List<StatusDto> GetAll();
+        StatusDto GetById(int id);
+        StatusDto GetByName(string name);
     }
 }
