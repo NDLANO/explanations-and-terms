@@ -21,7 +21,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         protected readonly IMetadataRepository MetaRepository;
         protected IMock Mock;
 
-        private readonly StatusDto _status;
+        private readonly Status _status;
         private readonly MetaCategory _category;
 
         public MetaDataRepositoryTest()

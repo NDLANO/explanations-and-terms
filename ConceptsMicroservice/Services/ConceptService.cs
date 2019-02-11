@@ -181,10 +181,10 @@ namespace ConceptsMicroservice.Services
 
             
             var viewModel = new Response();
-            var inactiveStatus = _statusRepository.GetByName(StatusDto.STATUS_ARCHVIED);
+            var inactiveStatus = _statusRepository.GetByName(Status.STATUS_ARCHVIED);
             if (inactiveStatus == null)
             {
-                viewModel.Errors.TryAddModelError("errorMessage", $"Did not found \"{StatusDto.STATUS_ARCHVIED}\" status");
+                viewModel.Errors.TryAddModelError("errorMessage", $"Did not found \"{Status.STATUS_ARCHVIED}\" status");
                 return viewModel;
             }
 

@@ -19,7 +19,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
         DatabaseConfig DatabaseConfig { get; set; }
         Language InsertLanguage(Language l = null);
         MetaCategory InsertCategory(MetaCategory mc);
-        StatusDto InsertStatus(StatusDto ms);
+        Status InsertStatus(Status ms);
         MetaData InsertMeta(MetaData m);
         Concept InsertConcept(Concept c);
         Concept CreateAndInsertAConcept();

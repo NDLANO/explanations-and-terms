@@ -45,7 +45,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
             return cat;
         }
 
-        public StatusDto InsertStatus(StatusDto ms)
+        public Status InsertStatus(Status ms)
         {
             if (ms.LanguageId == 0)
                 ms.LanguageId = InsertLanguage().Id;
@@ -113,7 +113,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Description = "Description"
             };
 
-            var status = new StatusDto
+            var status = new Status
             {
                 Name = "Name",
                 Description = "Description"
@@ -167,7 +167,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
             var conceptTableName = typeof(Concept).GetClassAttributeValue((TableAttribute table) => table.Name);
             var metaTableName = typeof(MetaData).GetClassAttributeValue((TableAttribute table) => table.Name);
             var categoryTableName = typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name);
-            var statusTableName = typeof(StatusDto).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var statusTableName = typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name);
 
             using (var conn = new NpgsqlConnection(DatabaseConfig.ConnectionString))
             {

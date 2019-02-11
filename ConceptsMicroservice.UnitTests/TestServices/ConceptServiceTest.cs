@@ -33,7 +33,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         private readonly string allowedUserEmail = "somebody@somedomain";
 
         private readonly string languageCode = "nb";
-        private StatusDto _status;
+        private Status _status;
 
         public ConceptServiceTest()
         {
@@ -45,7 +45,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper);
             Mock = new Mock.Mock();
-            _status = new StatusDto();
+            _status = new Status();
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
         }

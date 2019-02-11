@@ -19,7 +19,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         protected readonly IStatusRepository StatusRepository;
         protected IMock Mock;
         
-        private readonly StatusDto _status;
+        private readonly Status _status;
 
         public StatusRepositoryTest()
         {

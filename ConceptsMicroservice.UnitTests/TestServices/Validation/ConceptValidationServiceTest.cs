@@ -37,7 +37,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         [Fact]
         public void StatusIdIsValidId_Returns_True_When_Id_Does_Exist_In_The_DB()
         {
-            A.CallTo(() => _statusRepository.GetById(A<int>._)).Returns(new StatusDto());
+            A.CallTo(() => _statusRepository.GetById(A<int>._)).Returns(new Status());
 
             Assert.True(_validationService.StatusIdIsValidId(0));
         }

@@ -17,13 +17,13 @@ namespace ConceptsMicroservice.UnitTests.TestModels
         [Fact]
         public void Name_Should_Have_Attribute_Required()
         {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<StatusDto, RequiredAttribute>(nameof(StatusDto.Name)));
+            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Status, RequiredAttribute>(nameof(Status.Name)));
         }
         
         [Fact]
         public void Description_Should_Have_Attribute_Required()
         {
-            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<StatusDto, RequiredAttribute>(nameof(StatusDto.Description)));
+            Assert.True(AttributeHelper.AttributeIsPresentOnProperty<Status, RequiredAttribute>(nameof(Status.Description)));
         }
     }
 }

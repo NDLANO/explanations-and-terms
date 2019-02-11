@@ -37,8 +37,8 @@ namespace ConceptsMicroservice.Extensions.Service
                     {
                         Version = Version(description),
                         Title = "Explanations and terms API",
-                        Description = "Documentation for the Explanation and terms API from NDLA.",
-                        TermsOfService = "https://ndla.no/",
+                        Description = "The Concept-API provides explanations of various concepts, and are meant used in articles and other contexts where a deeper understanding of the concept would be beneficial.\n\nThe API provides endpoints for searching after concepts and fetching explanations. Meta - data are also searched and attached to the returned explanations. Typical examples of meta - data are language, subject, and license. A concept may have different explanations for different metadata, e.g. an explanation of a concept can vary with the subject.",
+                        TermsOfService = "https://om.ndla.no/tos/",
                         License = new License
                         {
                             Name = "GPL v3.0",
@@ -57,7 +57,13 @@ namespace ConceptsMicroservice.Extensions.Service
 
         public static IApplicationBuilder UseConceptSwaggerDocumentation(this IApplicationBuilder app, IApiVersionDescriptionProvider provider)
         {
-            app.UseSwagger();
+            app.UseSwagger(c =>
+            {
+                c.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
+                {
+                    swaggerDoc.BasePath = "/concepts";
+                });
+            });
             app.UseSwaggerUI(options =>
             {
                 foreach (var description in provider.ApiVersionDescriptions)

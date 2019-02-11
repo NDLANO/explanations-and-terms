@@ -59,7 +59,7 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("language_id")] public int LanguageId { get; set; }
 
 
-        public virtual StatusDto Status {get;set; }
+        public virtual Status Status {get;set; }
         public virtual Language Language { get; set; }
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
@@ -121,7 +121,7 @@ namespace ConceptsMicroservice.Models.Domain
                 Meta = meta ?? new List<MetaData>(),
                 Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
-                Status = GetJson<StatusDto>(reader, statusObjectColumn),
+                Status = GetJson<Status>(reader, statusObjectColumn),
                 Language= GetJson<Language>(reader, languageObjectColumn)
             };
 

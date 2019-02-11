@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("status", Schema = "public")]
-    public class StatusDto
+    public class Status
     {
         public static readonly string STATUS_ARCHVIED = "Archived";
 
