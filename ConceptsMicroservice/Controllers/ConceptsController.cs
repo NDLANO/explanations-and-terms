@@ -9,15 +9,18 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Rewrite.Internal.ApacheModRewrite;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -64,9 +67,9 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAll()
+        public ActionResult<Response> GetAll(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage)
         {
-            var concepts = _service.GetAllConcepts();
+            var concepts = _service.GetAllConcepts(ItemsPerPage,Pagenumber, Language, DefaultLanguage);
             if (concepts != null)
                 return Ok(concepts);
 

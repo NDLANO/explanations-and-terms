@@ -79,7 +79,6 @@ namespace ConceptsMicroservice.Repositories
                     }
 
                     command.Prepare();
-
                     return mapColumns(command.ExecuteReader());
                 }
             }
@@ -94,11 +93,11 @@ namespace ConceptsMicroservice.Repositories
         public List<Concept> SearchForConcepts(ConceptSearchQuery searchParam)
         {
             List<Concept> result = null;
-            if (searchParam == null || !searchParam.HasQuery())
-            {
-                result = GetAll();
-                return result;
-            }
+            //if (searchParam == null || !searchParam.HasQuery())
+            //{
+            //    result = GetAll();
+            //    return result;
+            //}
 
             var queryHasTitle = !string.IsNullOrWhiteSpace(searchParam.Title);
             var queryHasMetaIds = searchParam.MetaIds != null &&
@@ -140,9 +139,26 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 
-        public List<Concept> GetAll()
+        public List<Concept> GetAll(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage)
         {
-            return GetConceptsByStoredProcedure("get_concepts");
+            var sqlParameters = new List<NpgsqlParameter>();
+            sqlParameters.Add(new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer)
+            {
+                Value = ItemsPerPage
+            });
+            sqlParameters.Add(new NpgsqlParameter("page_number", NpgsqlDbType.Integer)
+            {
+                Value = Pagenumber
+            });
+            sqlParameters.Add(new NpgsqlParameter("language_param", NpgsqlDbType.Varchar)
+            {
+                Value = Language
+            });
+            sqlParameters.Add(new NpgsqlParameter("default_language_param", NpgsqlDbType.Varchar)
+            {
+                Value = DefaultLanguage
+            });
+            return GetConceptsByStoredProcedure("get_concepts", sqlParameters);
         }
 
         public Concept Update(Concept updatedConcept)

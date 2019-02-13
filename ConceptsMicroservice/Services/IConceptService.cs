@@ -17,7 +17,7 @@ namespace ConceptsMicroservice.Services
     {
         Response SearchForConcepts(ConceptSearchQuery query);
         Response GetConceptById(int id);
-        Response GetAllConcepts();
+        Response GetAllConcepts(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage);
         Response UpdateConcept(UpdateConceptDto newConceptVersion);
         Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo);
         Response ArchiveConcept(int id, string usersEmail);

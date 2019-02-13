@@ -15,7 +15,7 @@ namespace ConceptsMicroservice.Repositories
     {
         List<Concept> SearchForConcepts(ConceptSearchQuery query);
         Concept GetById(int id);
-        List<Concept> GetAll();
+        List<Concept> GetAll(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage);
         Concept Update(Concept updated);
         Concept Insert(Concept inserted);
     }

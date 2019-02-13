@@ -75,6 +75,13 @@ namespace ConceptsMicroservice.Models.Domain
                 return default(T);
             }
         }
+        [Column("number_of_total_pages")]
+        [NotMapped]
+        public int NumberOfPages { get; set; }
+
+        [Column("total_number_of_items")]
+        [NotMapped]
+        public int TotalItems { get; set; }
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
@@ -98,6 +105,8 @@ namespace ConceptsMicroservice.Models.Domain
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
+            var numberOfPages = reader.GetOrdinal("number_of_total_pages");
+            var totalItems = reader.GetOrdinal("total_number_of_items");
 
             var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
             var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
@@ -122,7 +131,9 @@ namespace ConceptsMicroservice.Models.Domain
                 Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
                 Status = GetJson<Status>(reader, statusObjectColumn),
-                Language= GetJson<Language>(reader, languageObjectColumn)
+                Language= GetJson<Language>(reader, languageObjectColumn),
+                NumberOfPages = reader.GetInt16(numberOfPages),
+                TotalItems =  reader.GetInt16(totalItems)
             };
 
             return concept;

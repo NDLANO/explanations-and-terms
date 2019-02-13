@@ -36,10 +36,11 @@ namespace ConceptsMicroservice.Services
 
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
+            //Nasser 13.02
             try
             {
                 var searchResult = query == null
-                    ? _conceptRepository.GetAll()
+                    ? null//_conceptRepository.GetAll()
                     : _conceptRepository.SearchForConcepts(query);
                 return new Response
                 {
@@ -67,16 +68,31 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-        public Response GetAllConcepts()
+        public Response GetAllConcepts(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage)
         {
             try
             {
+                var res = new ConceptResultDTO();
+                List<Concept> concepts = (_conceptRepository.GetAll(ItemsPerPage, Pagenumber, Language,
+                    DefaultLanguage));
+                res.Concepts = _mapper.Map<List<ConceptDto>>(concepts);
+                res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                res.page = Pagenumber;
+                //concept? ItemsPerPage = 10 & PageNumber = 4 & Language = en & DefaultLanguage = nb
+                if(Pagenumber < res.NumberOfPages)
+                {
+                    int nextPage = Pagenumber + 1;
+                    res.PathToNextPage = "concept?ItemsPerPage="+ItemsPerPage+"&PageNumber="+ nextPage + "&DefaultLanguage="+DefaultLanguage;
+                }
+                res.TotalItems = concepts.FirstOrDefault().TotalItems;
+
                 return new Response
                 {
-                    Data = _mapper.Map<List<ConceptDto>>(_conceptRepository.GetAll())
+                    Data = res
+                    //Data = _mapper.Map<List<ConceptDto>>(_conceptRepository.GetAll(ItemsPerPage,Pagenumber,Language,DefaultLanguage))
                 };
             }
-            catch
+            catch (Exception e)
             {
                 return null;
             }
