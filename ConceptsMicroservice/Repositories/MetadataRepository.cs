@@ -17,8 +17,8 @@ namespace ConceptsMicroservice.Repositories
 {
     public class MetadataRepository : IMetadataRepository
     {
-        private readonly ConceptsContext _context;
-        public MetadataRepository(ConceptsContext context)
+        private readonly Context.ConceptsContext _context;
+        public MetadataRepository(Context.ConceptsContext context)
         {
             _context = context;
         }

@@ -18,7 +18,6 @@ using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
 using FakeItEasy;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Xunit;
@@ -43,6 +42,11 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             "concept-test:write taxonomy-staging:write concept-staging:write taxonomy-test:write";
         private readonly string _allowedToken = "";
         private readonly string languageCode = "nb";
+        private readonly int itemsPrPage = 10;
+        private readonly int pageNumber = 2;
+        private readonly string language = "en";
+        private readonly string defaultLanguage = "nb";
+
 
         public ConceptControllerTest()
         {
@@ -139,9 +143,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_500_No_Concepts_Is_Found()
         {
-            A.CallTo(() => _service.GetAllConcepts()).Returns(null);
+            A.CallTo(() => _service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(null);
 
-            var result = _controller.GetAll();
+            var result = _controller.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
 
             var status = result.Result as StatusCodeResult;
             Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
@@ -150,9 +154,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_200_Concepts_Is_Found()
         {
-            A.CallTo(() => _service.GetAllConcepts()).Returns(_listResponse);
+            A.CallTo(() => _service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(_listResponse);
 
-            var result = _controller.GetAll();
+            var result = _controller.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
             var okResult = result.Result as OkObjectResult;
 
             Assert.Equal(200, okResult.StatusCode);
@@ -161,9 +165,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_A_List_Of_Concepts_If_There_Exists_Concepts()
         {
-            A.CallTo(() => _service.GetAllConcepts()).Returns(_listResponse);
+            A.CallTo(() => _service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(_listResponse);
 
-            var result = _controller.GetAll();
+            var result = _controller.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
             var okResult = result.Result as OkObjectResult;
 
             Assert.IsType<List<Concept>>((okResult.Value as Response).Data);

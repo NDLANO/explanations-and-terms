@@ -16,11 +16,16 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
     [Collection("Database tests")]
     public class CRUDTest : BaseTest
     {
+        private readonly int itemsPrPage = 10;
+        private readonly int pageNumber = 2;
+        private readonly string language = "en";
+        private readonly string defaultLanguage = "nb";
+
         #region GetAll
         [Fact]
         public void GetAll_Returns_Empty_List_If_No_Concept_Exists()
         {
-            var concepts = ConceptRepository.GetAll();
+            var concepts = ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
 
             Assert.Empty(concepts);
         }
@@ -29,7 +34,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         public void GetAll_Returns_Concepts_With_Metadata()
         {
             Mock.Database.CreateAndInsertAConcept();
-            var concepts = ConceptRepository.GetAll();
+            var concepts = ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
 
             Assert.NotEmpty(concepts);
             foreach (var concept in concepts)
@@ -72,7 +77,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         [Fact]
         public void Insert_Inserts_Concept()
         {
-            Assert.Empty(ConceptRepository.GetAll());
+            Assert.Empty(ConceptRepository.GetAll(itemsPrPage, pageNumber, this.language, defaultLanguage));
 
             var category = Mock.Database.InsertCategory(Mock.MockCategory());
             var status = Mock.Database.InsertStatus(Mock.MockStatus());
@@ -94,7 +99,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         [Fact]
         public void Insert_Existing_Concept_Creates_A_New_Concept()
         {
-            Assert.Empty(ConceptRepository.GetAll());
+            Assert.Empty(ConceptRepository.GetAll(itemsPrPage, pageNumber, this.language, defaultLanguage));
 
             var category = Mock.Database.InsertCategory(Mock.MockCategory());
             var status = Mock.Database.InsertStatus(Mock.MockStatus());

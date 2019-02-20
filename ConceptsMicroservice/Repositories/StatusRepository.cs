@@ -15,8 +15,8 @@ namespace ConceptsMicroservice.Repositories
 {
     public class StatusRepository : IStatusRepository
     {
-        private readonly ConceptsContext _context;
-        public StatusRepository(ConceptsContext context)
+        private readonly Context.ConceptsContext _context;
+        public StatusRepository(Context.ConceptsContext context)
         {
             _context = context;
         }

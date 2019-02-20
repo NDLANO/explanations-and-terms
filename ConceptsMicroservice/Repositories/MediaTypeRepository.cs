@@ -15,9 +15,9 @@ namespace ConceptsMicroservice.Repositories
 {
     public class MediaTypeRepository : IMediaTypeRepository
     {
-        private readonly ConceptsContext _context;
+        private readonly Context.ConceptsContext _context;
 
-        public MediaTypeRepository(ConceptsContext context)
+        public MediaTypeRepository(Context.ConceptsContext context)
         {
             _context = context;
         }

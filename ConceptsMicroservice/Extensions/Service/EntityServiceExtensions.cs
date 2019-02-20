@@ -22,7 +22,7 @@ namespace ConceptsMicroservice.Extensions.Service
             config.GetSection(ConfigSections.Database).Bind(databaseConfig);
 
             services.AddEntityFrameworkNpgsql();
-            services.AddDbContext<ConceptsContext>(opt => opt.UseNpgsql(databaseConfig.ConnectionString));
+            services.AddDbContext<Context.ConceptsContext>(opt => opt.UseNpgsql(databaseConfig.ConnectionString));
 
             return services;
         }

@@ -22,13 +22,13 @@ namespace ConceptsMicroservice.Repositories
 {
     public class ConceptRepository : IConceptRepository
     {
-        private readonly ConceptsContext _context;
+        private readonly Context.ConceptsContext _context;
         private readonly DatabaseConfig _databaseConfig;
 
         private readonly Func<NpgsqlDataReader, List<Concept>> _sqlResultToListOfConceptsFunc;
         private readonly Func<NpgsqlDataReader, List<string>> _sqlResultToListOfConceptTitlesFunc;
 
-        public ConceptRepository(ConceptsContext context, IOptions<DatabaseConfig> config)
+        public ConceptRepository(Context.ConceptsContext context, IOptions<DatabaseConfig> config)
         {
             _context = context;
             _databaseConfig = config.Value;

@@ -98,7 +98,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_200_Categories_Is_Found()
         {
-            A.CallTo(() => _service.GetAllCategories()).Returns(_listResponse);
+            //A.CallTo(() => _service.GetAllCategories()).Returns(_listResponse);
 
             var result = _controller.GetAllCategories();
             var okResult = result.Result as OkObjectResult;

@@ -63,6 +63,7 @@ namespace ConceptsMicroservice.Models.Domain
         public virtual Language Language { get; set; }
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
+        [Column("language_variation")] public int  LanguageVariation { get; set; }
 
         public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
@@ -75,6 +76,8 @@ namespace ConceptsMicroservice.Models.Domain
                 return default(T);
             }
         }
+
+       
         [Column("number_of_total_pages")]
         [NotMapped]
         public int NumberOfPages { get; set; }
@@ -106,10 +109,14 @@ namespace ConceptsMicroservice.Models.Domain
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
             var numberOfPages = reader.GetOrdinal("number_of_total_pages");
-            var totalItems = reader.GetOrdinal("total_number_of_items");
+            var totalCount = reader.GetOrdinal("total_number_of_items");
+            var languageVariation = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageVariation,attr => attr.Name));
 
             var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
             var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
+            var status = GetJson<Status>(reader, statusObjectColumn);
+            var language = GetJson<Language>(reader, languageObjectColumn);
+
 
             var concept = new Concept
             {
@@ -130,10 +137,11 @@ namespace ConceptsMicroservice.Models.Domain
                 Meta = meta ?? new List<MetaData>(),
                 Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
-                Status = GetJson<Status>(reader, statusObjectColumn),
-                Language= GetJson<Language>(reader, languageObjectColumn),
+                Status = status ?? new Status(),
+                Language = language ?? new Language(),
                 NumberOfPages = reader.GetInt16(numberOfPages),
-                TotalItems =  reader.GetInt16(totalItems)
+                TotalItems = reader.GetInt16(totalCount),
+                LanguageVariation = reader.GetInt32(languageVariation)
             };
 
             return concept;

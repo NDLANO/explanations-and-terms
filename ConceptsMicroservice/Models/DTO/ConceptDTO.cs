@@ -41,5 +41,6 @@ namespace ConceptsMicroservice.Models.DTO
         public List<MetaData> Meta { get; set; }
         public List<Media> Media { get; set; }
         public Language Language { get; set; }
+        public int LanguageVariation { get; set; }
     }
 }

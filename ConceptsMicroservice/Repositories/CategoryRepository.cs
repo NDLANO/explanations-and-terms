@@ -15,8 +15,8 @@ namespace ConceptsMicroservice.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
-        private readonly ConceptsContext _context;
-        public CategoryRepository(ConceptsContext context)
+        private readonly Context.ConceptsContext _context;
+        public CategoryRepository(Context.ConceptsContext context)
         {
             _context = context;
         }

@@ -78,18 +78,18 @@ namespace ConceptsMicroservice.Services
                 res.Concepts = _mapper.Map<List<ConceptDto>>(concepts);
                 res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
                 res.page = Pagenumber;
-                //concept? ItemsPerPage = 10 & PageNumber = 4 & Language = en & DefaultLanguage = nb
-                if(Pagenumber < res.NumberOfPages)
+                if (Pagenumber < res.NumberOfPages)
                 {
                     int nextPage = Pagenumber + 1;
-                    res.PathToNextPage = "concept?ItemsPerPage="+ItemsPerPage+"&PageNumber="+ nextPage + "&DefaultLanguage="+DefaultLanguage;
+                    res.PathToNextPage = "concept?ItemsPerPage=" + ItemsPerPage + "&PageNumber=" + nextPage +
+                                         "&Language=" + Language + "&DefaultLanguage=" + DefaultLanguage;
                 }
                 res.TotalItems = concepts.FirstOrDefault().TotalItems;
+                res.pageSize = ItemsPerPage;
 
                 return new Response
                 {
                     Data = res
-                    //Data = _mapper.Map<List<ConceptDto>>(_conceptRepository.GetAll(ItemsPerPage,Pagenumber,Language,DefaultLanguage))
                 };
             }
             catch (Exception e)
