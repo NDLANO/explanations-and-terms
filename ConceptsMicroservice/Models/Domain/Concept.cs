@@ -23,7 +23,7 @@ namespace ConceptsMicroservice.Models.Domain
     {
         [Key] [Column("id")] public int Id { get; set; }
 
-        [Column("external_id")] public int ExternalId { get; set; }
+        [Column("external_id")] public string ExternalId { get; set; }
 
         [Column("meta")]
         [Required]
@@ -91,7 +91,7 @@ namespace ConceptsMicroservice.Models.Domain
             //Get column names
             var idColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.Id, attr => attr.Name));
             var metaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MetaIds, attr => attr.Name));
-            var externalIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.ExternalId, attr => attr.Name));
+            var externalIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.ExternalId, attr => attr.Name));
             var titleColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Title, attr => attr.Name));
             var contentColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Content, attr => attr.Name));
             var authorNameColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorName, attr => attr.Name));
@@ -123,7 +123,7 @@ namespace ConceptsMicroservice.Models.Domain
                 Id = reader.GetInt32(idColumn),
                 MetaIds = reader.GetFieldValue<int[]>(metaIdsColumn).ToList(),
                 MediaIds = reader.GetFieldValue<int[]>(mediaIdsColumn).ToList(),
-                ExternalId = reader.GetInt32(externalIdColumn),
+                ExternalId = reader.SafeGetString(externalIdColumn),
                 Title = reader.SafeGetString(titleColumn),
                 Content = reader.SafeGetString(contentColumn),
                 AuthorName = reader.SafeGetString(authorNameColumn),
