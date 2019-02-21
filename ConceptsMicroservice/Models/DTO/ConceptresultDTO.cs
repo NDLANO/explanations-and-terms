@@ -16,6 +16,6 @@ namespace ConceptsMicroservice.Models.DTO
         public int PageSize { get; set; }
         public int NumberOfPages { get; set; }
         public string Next { get; set; }
-        public List<ConceptDto> Concepts { get; set; }
+        public List<ConceptDto> Results { get; set; }
     }
 }

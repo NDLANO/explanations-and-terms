@@ -76,7 +76,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
             //var fakeMock = A.Fake<IMock>();
             //var fakeDB = A.Fake<IMockDatabase>();
 
-            //fakeDB.Context.Concepts = A.Fake<DbContextOptionsBuilder<Context.DbContext>>();
+            //fakeDB.Context.Results = A.Fake<DbContextOptionsBuilder<Context.DbContext>>();
 
             //var fakeAllCategories = A.Fake<List<MetaCategory>>();
             //var fakeCategoryRepositories = A.Fake<CategoryRepository>();

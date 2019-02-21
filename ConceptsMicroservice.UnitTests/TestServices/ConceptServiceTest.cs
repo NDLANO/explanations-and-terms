@@ -18,6 +18,8 @@ using ConceptsMicroservice.Services;
 using ConceptsMicroservice.UnitTests.Helpers;
 using ConceptsMicroservice.UnitTests.Mock;
 using FakeItEasy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestServices
@@ -31,28 +33,27 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IConceptMediaRepository ConceptMediaRepository;
         protected readonly IStatusRepository StatusRepository;
         protected readonly IMapper Mapper;
+        protected BaseListQuery BaseListQuery;
+        private readonly IUrlHelper UrlHelper;
         private readonly string allowedUserEmail = "somebody@somedomain";
-
-        private readonly string languageCode = "nb";
+        
         private Status _status;
-
-        private readonly int itemsPrPage = 10;
-        private readonly int pageNumber = 2;
-        private readonly string language = "en";
-        private readonly string defaultLanguage = "nb";
+        
 
         public ConceptServiceTest()
         {
             ConceptMediaRepository = A.Fake<IConceptMediaRepository>();
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
-            
-            Mapper = AutoMapper.Mapper.Instance;
+            UrlHelper = A.Fake<IUrlHelper>();
 
-            Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper);
+            Mapper = AutoMapper.Mapper.Instance;
+            var languageConfig = Options.Create(ConfigHelper.GetLanguageConfiguration());
+
+            Service = new ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper, UrlHelper, languageConfig);
             Mock = new Mock.Mock();
             _status = new Status();
-
+            BaseListQuery = BaseListQuery.DefaultValues("nb");
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
         }
         #region GetAll
@@ -67,7 +68,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             //Assert.IsType<List<ConceptDto>>(response.Data);
             var listOfConcepts = A.Fake<Response>();
             var service = A.Fake<IConceptService>();
-            A.CallTo(() => service.GetAllConcepts(A<int>._, A<int>._, A<string>._, A<string>._)).Returns(listOfConcepts);
+            A.CallTo(() => service.GetAllConcepts(A<BaseListQuery>._)).Returns(listOfConcepts);
         }
         #endregion
 
@@ -169,13 +170,13 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         #region Search
 
         [Fact]
-        public void SearchForConcepts_Fetches_All_Concepts_If_No_Query_Is_Specified()
+        public void SearchForConcepts_Fetches_No_Concepts_If_No_Query_Is_Specified()
         {
-            A.CallTo(() => ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(new List<Concept>());
+            A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).Returns(new List<Concept>());
             var results = Service.SearchForConcepts(null);
 
-            A.CallTo(() => ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage)).MustHaveHappenedOnceExactly();
-            Assert.IsType<List<ConceptDto>>(results.Data);
+            A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).MustHaveHappenedOnceExactly();
+            Assert.IsType<ConceptResultDTO>(results.Data);
         }
 
         [Fact]
@@ -184,10 +185,10 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Returns(new List<Concept>());
             var results = Service.SearchForConcepts(new ConceptSearchQuery());
 
-            A.CallTo(() => ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage)).MustNotHaveHappened();
+            A.CallTo(() => ConceptRepository.GetAll(BaseListQuery)).MustNotHaveHappened();
             A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).MustHaveHappenedOnceExactly();
 
-            Assert.IsType<List<ConceptDto>>(results.Data);
+            Assert.IsType<ConceptResultDTO>(results.Data);
         }
 
 

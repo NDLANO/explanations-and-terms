@@ -6,6 +6,7 @@
  *
  */
 using System.Collections.Generic;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Search;
 using Xunit;
 
@@ -15,11 +16,6 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
     [Collection("Database tests")]
     public class SearchTest : BaseTest
     {
-        private readonly int itemsPrPage = 10;
-        private readonly int pageNumber = 2;
-        private readonly string language = "en";
-        private readonly string defaultLanguage = "nb";
-
         [Fact]
         public void Search_Returns_All_Concepts_If_Query_Is_Null()
         {
@@ -68,7 +64,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             c2.Title = $"Should match {query.Title}";
             Mock.Database.InsertConcept(c2);
 
-            Assert.Equal(2, ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage).Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -99,7 +95,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                 MetaIds = new List<int> {meta1.Id }
             };
 
-            Assert.Equal(2, ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage).Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -119,7 +115,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             var query = new ConceptSearchQuery();
 
 
-            Assert.Single(ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage));
+            Assert.Single(ConceptRepository.GetAll(BaseListQuery));
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -142,7 +138,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             };
 
 
-            Assert.Single(ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage));
+            Assert.Single(ConceptRepository.GetAll(BaseListQuery));
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -177,7 +173,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                 MetaIds = new List<int> { meta1.Id}
             };
 
-            Assert.Equal(2, ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage).Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -219,7 +215,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                }
             };
 
-            Assert.Equal(2, ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage).Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 

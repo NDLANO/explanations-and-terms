@@ -25,7 +25,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         [Fact]
         public void GetAll_Returns_Empty_List_If_No_Concept_Exists()
         {
-            var concepts = ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
+            var concepts = ConceptRepository.GetAll(BaseListQuery);
 
             Assert.Empty(concepts);
         }
@@ -34,7 +34,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         public void GetAll_Returns_Concepts_With_Metadata()
         {
             Mock.Database.CreateAndInsertAConcept();
-            var concepts = ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
+            var concepts = ConceptRepository.GetAll(BaseListQuery);
 
             Assert.NotEmpty(concepts);
             foreach (var concept in concepts)
@@ -77,7 +77,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         [Fact]
         public void Insert_Inserts_Concept()
         {
-            Assert.Empty(ConceptRepository.GetAll(itemsPrPage, pageNumber, this.language, defaultLanguage));
+            Assert.Empty(ConceptRepository.GetAll(BaseListQuery));
 
             var category = Mock.Database.InsertCategory(Mock.MockCategory());
             var status = Mock.Database.InsertStatus(Mock.MockStatus());
@@ -99,7 +99,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         [Fact]
         public void Insert_Existing_Concept_Creates_A_New_Concept()
         {
-            Assert.Empty(ConceptRepository.GetAll(itemsPrPage, pageNumber, this.language, defaultLanguage));
+            Assert.Empty(ConceptRepository.GetAll(BaseListQuery));
 
             var category = Mock.Database.InsertCategory(Mock.MockCategory());
             var status = Mock.Database.InsertStatus(Mock.MockStatus());

@@ -45,7 +45,11 @@ namespace ConceptsMicroservice.Services
             if (query == null)
                 return new Response
                 {
-                    Data = null
+                    Data = new ConceptResultDTO
+                    {
+                        PageSize = 10,
+                        Page = 1
+                    }
                 };
             
             query.SetDefaultValuesIfNotInitilized(_languageConfig);
@@ -58,7 +62,7 @@ namespace ConceptsMicroservice.Services
                 {
                     PageSize = query.PageSize,
                     Page = query.Page,
-                    Concepts = _mapper.Map<List<ConceptDto>>(concepts)
+                    Results = _mapper.Map<List<ConceptDto>>(concepts)
                 };
 
                 if (concepts.FirstOrDefault() != null)
@@ -114,7 +118,7 @@ namespace ConceptsMicroservice.Services
                 {
                     PageSize = query.PageSize,
                     Page = query.Page,
-                    Concepts = _mapper.Map<List<ConceptDto>>(concepts)
+                    Results = _mapper.Map<List<ConceptDto>>(concepts)
                 };
 
                 if (concepts.FirstOrDefault() != null)

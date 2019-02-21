@@ -40,13 +40,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         private readonly string _allowedUserEmail = "somebody@somedomain";
         private readonly string _allowedScope =
             "concept-test:write taxonomy-staging:write concept-staging:write taxonomy-test:write";
-        private readonly string _allowedToken = "";
-        private readonly string languageCode = "nb";
-        private readonly int itemsPrPage = 10;
-        private readonly int pageNumber = 2;
         private readonly string language = "en";
-        private readonly string defaultLanguage = "nb";
 
+        private BaseListQuery _listQuery;
 
         public ConceptControllerTest()
         {
@@ -86,6 +82,8 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
                 Email = _allowedUserEmail,
                 FullName = "Name"
             };
+
+            _listQuery = BaseListQuery.DefaultValues(language);
         }
 
         #region GetById
@@ -143,9 +141,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_500_No_Concepts_Is_Found()
         {
-            A.CallTo(() => _service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(null);
+            A.CallTo(() => _service.GetAllConcepts(_listQuery)).Returns(null);
 
-            var result = _controller.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
+            var result = _controller.GetAll(_listQuery);
 
             var status = result.Result as StatusCodeResult;
             Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
@@ -154,9 +152,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_200_Concepts_Is_Found()
         {
-            A.CallTo(() => _service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(_listResponse);
+            A.CallTo(() => _service.GetAllConcepts(_listQuery)).Returns(_listResponse);
 
-            var result = _controller.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
+            var result = _controller.GetAll(_listQuery);
             var okResult = result.Result as OkObjectResult;
 
             Assert.Equal(200, okResult.StatusCode);
@@ -165,9 +163,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_A_List_Of_Concepts_If_There_Exists_Concepts()
         {
-            A.CallTo(() => _service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(_listResponse);
+            A.CallTo(() => _service.GetAllConcepts(_listQuery)).Returns(_listResponse);
 
-            var result = _controller.GetAll(itemsPrPage, pageNumber, language, defaultLanguage);
+            var result = _controller.GetAll(_listQuery);
             var okResult = result.Result as OkObjectResult;
 
             Assert.IsType<List<Concept>>((okResult.Value as Response).Data);

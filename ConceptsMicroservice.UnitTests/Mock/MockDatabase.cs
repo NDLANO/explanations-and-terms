@@ -26,7 +26,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public MockDatabase()
         {
-            DatabaseConfig = ConfigHelper.GetApplicationConfiguration();
+            DatabaseConfig = ConfigHelper.GetDatabaseConfiguration();
             var options = new DbContextOptionsBuilder<ConceptsContext>()
                 .UseNpgsql(DatabaseConfig.ConnectionString)
                 .Options;
