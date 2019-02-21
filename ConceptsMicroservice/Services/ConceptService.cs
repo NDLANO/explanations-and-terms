@@ -53,7 +53,7 @@ namespace ConceptsMicroservice.Services
                     Data = _mapper.Map<List<ConceptDto>>(searchResult)
                 };
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return null;
             }
