@@ -47,7 +47,7 @@ namespace ConceptsMicroservice.Services
                     Data = _mapper.Map<List<ConceptDto>>(searchResult)
                 };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }
@@ -68,24 +68,23 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-        public Response GetAllConcepts(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage)
+        public Response GetAllConcepts(BaseListQuery query)
         {
             try
             {
                 var res = new ConceptResultDTO();
-                List<Concept> concepts = (_conceptRepository.GetAll(ItemsPerPage, Pagenumber, Language,
-                    DefaultLanguage));
+                var concepts = _conceptRepository.GetAll(query.PageSize, query.Page, query.Language,"");
                 res.Concepts = _mapper.Map<List<ConceptDto>>(concepts);
                 res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
-                res.page = Pagenumber;
-                if (Pagenumber < res.NumberOfPages)
+                res.Page = query.Page;
+                if (query.Page < res.NumberOfPages)
                 {
-                    int nextPage = Pagenumber + 1;
-                    res.PathToNextPage = "concept?ItemsPerPage=" + ItemsPerPage + "&PageNumber=" + nextPage +
-                                         "&Language=" + Language + "&DefaultLanguage=" + DefaultLanguage;
+                    var nextPage = query.Page + 1;
+                    res.Next = "concept?ItemsPerPage=" + query.PageSize + "&PageNumber=" + nextPage +
+                                         "&Language=" + query.Language + "&DefaultLanguage=" + "";
                 }
                 res.TotalItems = concepts.FirstOrDefault().TotalItems;
-                res.pageSize = ItemsPerPage;
+                res.PageSize = query.PageSize;
 
                 return new Response
                 {

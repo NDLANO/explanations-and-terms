@@ -63,7 +63,7 @@ namespace ConceptsMicroservice.Models.Domain
         public virtual Language Language { get; set; }
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
-        [Column("language_variation")] public int  LanguageVariation { get; set; }
+        [Column("language_variation")] public string  LanguageVariation { get; set; }
 
         public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
@@ -108,9 +108,7 @@ namespace ConceptsMicroservice.Models.Domain
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
-            var numberOfPages = reader.GetOrdinal("number_of_total_pages");
-            var totalCount = reader.GetOrdinal("total_number_of_items");
-            var languageVariation = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageVariation,attr => attr.Name));
+            var languageVariation = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.LanguageVariation,attr => attr.Name));
 
             var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
             var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
@@ -139,10 +137,22 @@ namespace ConceptsMicroservice.Models.Domain
                 LanguageId = reader.GetInt16(languageIdColumn),
                 Status = status ?? new Status(),
                 Language = language ?? new Language(),
-                NumberOfPages = reader.GetInt16(numberOfPages),
-                TotalItems = reader.GetInt16(totalCount),
-                LanguageVariation = reader.GetInt32(languageVariation)
+                LanguageVariation = reader.SafeGetString(languageVariation)
             };
+
+
+            try
+            {
+                var numberOfPages = reader.GetOrdinal("number_of_total_pages");
+                concept.NumberOfPages = reader.GetInt16(numberOfPages);
+            }
+            catch { }
+            try
+            {
+                var totalCount = reader.GetOrdinal("total_number_of_items");
+                concept.TotalItems = reader.GetInt16(totalCount);
+            }
+            catch { }
 
             return concept;
         }

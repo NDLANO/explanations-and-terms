@@ -28,12 +28,12 @@ namespace ConceptsMicroservice.Models.Domain
         /// <summary>
         /// Is id possible to have more then one meta of this category.
         /// </summary>
-        [Column("canHaveMultiple")] public bool CanHaveMultiple { get; set; }
+        [Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
         /// <summary>
         /// Is it required to have at least one meta of this category.
         /// </summary>
-        [Column("isRequired")] public bool IsRequired { get; set; }
-        [Column("languageId")] public int LanguageId { get; set; }
+        [Column("is_required")] public bool IsRequired { get; set; }
+        [Column("language_id")] public int LanguageId { get; set; }
 
         public virtual Language Language { get; set; }
     }

@@ -12,7 +12,7 @@ using NpgsqlTypes;
 
 namespace ConceptsMicroservice.Models.Search
 {
-    public class ConceptSearchQuery
+    public class ConceptSearchQuery : BaseListQuery
     {
         /// <summary>
         /// The concept title (will match start of titles).

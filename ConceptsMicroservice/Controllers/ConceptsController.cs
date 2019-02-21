@@ -67,9 +67,9 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAll(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage)
+        public ActionResult<Response> GetAll(BaseListQuery query)
         {
-            var concepts = _service.GetAllConcepts(ItemsPerPage,Pagenumber, Language, DefaultLanguage);
+            var concepts = _service.GetAllConcepts(query);
             if (concepts != null)
                 return Ok(concepts);
 
