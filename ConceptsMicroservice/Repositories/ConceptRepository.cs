@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using ConceptsMicroservice.Context;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Search;
@@ -24,15 +25,16 @@ namespace ConceptsMicroservice.Repositories
     {
         private readonly Context.ConceptsContext _context;
         private readonly DatabaseConfig _databaseConfig;
+        private readonly LanguageConfig _languageConfig;
 
         private readonly Func<NpgsqlDataReader, List<Concept>> _sqlResultToListOfConceptsFunc;
         private readonly Func<NpgsqlDataReader, List<string>> _sqlResultToListOfConceptTitlesFunc;
 
-        public ConceptRepository(Context.ConceptsContext context, IOptions<DatabaseConfig> config)
+        public ConceptRepository(Context.ConceptsContext context, IOptions<DatabaseConfig> config, IOptions<LanguageConfig> language)
         {
             _context = context;
             _databaseConfig = config.Value;
-
+            _languageConfig = language.Value;
             _sqlResultToListOfConceptsFunc = reader =>
             {
                 var concepts = new List<Concept>();
@@ -139,25 +141,18 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 
-        public List<Concept> GetAll(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage)
+        public List<Concept> GetAll(BaseListQuery query)
         {
-            var sqlParameters = new List<NpgsqlParameter>();
-            sqlParameters.Add(new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer)
+            var sqlParameters = new List<NpgsqlParameter>
             {
-                Value = ItemsPerPage
-            });
-            sqlParameters.Add(new NpgsqlParameter("page_number", NpgsqlDbType.Integer)
-            {
-                Value = Pagenumber
-            });
-            sqlParameters.Add(new NpgsqlParameter("language_param", NpgsqlDbType.Varchar)
-            {
-                Value = Language
-            });
-            sqlParameters.Add(new NpgsqlParameter("default_language_param", NpgsqlDbType.Varchar)
-            {
-                Value = DefaultLanguage
-            });
+                new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer) {Value = query.PageSize},
+                new NpgsqlParameter("page_number", NpgsqlDbType.Integer) {Value = query.Page},
+                new NpgsqlParameter("language_param", NpgsqlDbType.Varchar) {Value = query.Language},
+                new NpgsqlParameter("default_language_param", NpgsqlDbType.Varchar)
+                {
+                    Value = _languageConfig.Default
+                }
+            };
             return GetConceptsByStoredProcedure("get_concepts", sqlParameters);
         }
 

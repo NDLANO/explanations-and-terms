@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -51,7 +53,14 @@ namespace ConceptsMicroservice
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
-            
+
+            // For IURlHelper
+            services
+                .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
+                .AddScoped(x => x
+                    .GetRequiredService<IUrlHelperFactory>()
+                    .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
+
             services.AddConceptsSwaggerDocumentation();
         }
         

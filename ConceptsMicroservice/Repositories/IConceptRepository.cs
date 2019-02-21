@@ -6,6 +6,7 @@
  *
  */
 using System.Collections.Generic;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 
@@ -15,7 +16,7 @@ namespace ConceptsMicroservice.Repositories
     {
         List<Concept> SearchForConcepts(ConceptSearchQuery query);
         Concept GetById(int id);
-        List<Concept> GetAll(int ItemsPerPage, int Pagenumber, string Language, string DefaultLanguage);
+        List<Concept> GetAll(BaseListQuery query);
         Concept Update(Concept updated);
         Concept Insert(Concept inserted);
     }

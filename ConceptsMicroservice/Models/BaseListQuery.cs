@@ -20,5 +20,15 @@ namespace ConceptsMicroservice.Models
         /// The number of search hits to display for each page
         /// </summary>
         [FromQuery] public int PageSize { get; set; }
+
+        public static BaseListQuery DefaultValues(string language)
+        {
+            return new BaseListQuery
+            {
+                Page = 1,
+                PageSize = 10,
+                Language = language
+            };
+        }
     }
 }

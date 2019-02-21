@@ -21,6 +21,7 @@ namespace ConceptsMicroservice.Extensions.Service
         {
             services.Configure<Auth0Config>(config.GetSection(ConfigSections.Auth0));
             services.Configure<DatabaseConfig>(config.GetSection(ConfigSections.Database));
+            services.Configure<LanguageConfig>(config.GetSection(ConfigSections.Language));
 
             return services;
         }

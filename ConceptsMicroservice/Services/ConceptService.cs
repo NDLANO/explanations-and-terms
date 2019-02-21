@@ -11,10 +11,13 @@ using System.Linq;
 using Auth0.AuthenticationApi.Models;
 using AutoMapper;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
@@ -23,15 +26,18 @@ namespace ConceptsMicroservice.Services
         private readonly IConceptRepository _conceptRepository;
         private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
-
+        private readonly IUrlHelper _urlHelper;
+        private readonly LanguageConfig _languageConfig;
         private readonly IMapper _mapper;
 
-        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper)
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper, IUrlHelper urlHelper, IOptions<LanguageConfig> languageConfig)
         {
             _conceptRepository = concept;
             _statusRepository = status;
             _conceptMediaRepository = media;
             _mapper = mapper;
+            _urlHelper = urlHelper;
+            _languageConfig = languageConfig.Value;
         }
 
         public Response SearchForConcepts(ConceptSearchQuery query)
@@ -70,21 +76,34 @@ namespace ConceptsMicroservice.Services
 
         public Response GetAllConcepts(BaseListQuery query)
         {
+            if (query == null)
+                query = BaseListQuery.DefaultValues(_languageConfig.Default);
+
+            if (!_languageConfig.Supported.Contains(query.Language))
+                query.Language = _languageConfig.Default;
+
             try
             {
-                var res = new ConceptResultDTO();
-                var concepts = _conceptRepository.GetAll(query.PageSize, query.Page, query.Language,"");
-                res.Concepts = _mapper.Map<List<ConceptDto>>(concepts);
-                res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
-                res.Page = query.Page;
+                var concepts = _conceptRepository.GetAll(query);
+
+                var res = new ConceptResultDTO
+                {
+                    PageSize = query.PageSize,
+                    Page = query.Page,
+                    Concepts = _mapper.Map<List<ConceptDto>>(concepts)
+                };
+
+                if (concepts.FirstOrDefault() != null)
+                {
+                    res.TotalItems = concepts.FirstOrDefault().TotalItems;
+                    res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                }
+
                 if (query.Page < res.NumberOfPages)
                 {
-                    var nextPage = query.Page + 1;
-                    res.Next = "concept?ItemsPerPage=" + query.PageSize + "&PageNumber=" + nextPage +
-                                         "&Language=" + query.Language + "&DefaultLanguage=" + "";
+                    query.Page += 1;
+                    res.Next = _urlHelper.Action("GetAll", "Concept", query);
                 }
-                res.TotalItems = concepts.FirstOrDefault().TotalItems;
-                res.PageSize = query.PageSize;
 
                 return new Response
                 {

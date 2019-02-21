@@ -11,5 +11,6 @@ namespace ConceptsMicroservice.Utilities
     {
         public static readonly string Auth0 = "Auth0";
         public static readonly string Database = "Database";
+        public static readonly string Language = "Language";
     }
 }
