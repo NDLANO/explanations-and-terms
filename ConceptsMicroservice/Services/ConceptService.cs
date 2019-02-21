@@ -39,18 +39,43 @@ namespace ConceptsMicroservice.Services
             _urlHelper = urlHelper;
             _languageConfig = languageConfig.Value;
         }
-
+        
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
-            //Nasser 13.02
-            try
-            {
-                var searchResult = query == null
-                    ? null//_conceptRepository.GetAll()
-                    : _conceptRepository.SearchForConcepts(query);
+            if (query == null)
                 return new Response
                 {
-                    Data = _mapper.Map<List<ConceptDto>>(searchResult)
+                    Data = null
+                };
+            
+            query.SetDefaultValuesIfNotInitilized(_languageConfig);
+
+            try
+            {
+                var concepts = _conceptRepository.SearchForConcepts(query);
+
+                var res = new ConceptResultDTO
+                {
+                    PageSize = query.PageSize,
+                    Page = query.Page,
+                    Concepts = _mapper.Map<List<ConceptDto>>(concepts)
+                };
+
+                if (concepts.FirstOrDefault() != null)
+                {
+                    res.TotalItems = concepts.FirstOrDefault().TotalItems;
+                    res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                }
+
+                if (query.Page < res.NumberOfPages)
+                {
+                    query.Page += 1;
+                    res.Next = _urlHelper.Action("Search", "Concept", query);
+                }
+
+                return new Response
+                {
+                    Data = res
                 };
             }
             catch (Exception e)

@@ -34,7 +34,12 @@ namespace ConceptsMicroservice.Models.Search
 
         public List<Npgsql.NpgsqlParameter> GetSqlParameters()
         {
-            var sqlParameters = new List<NpgsqlParameter>();
+            var sqlParameters = new List<NpgsqlParameter>
+            {
+                new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer) {Value = PageSize},
+                new NpgsqlParameter("page_number", NpgsqlDbType.Integer) {Value = Page}
+            };
+
             if (!string.IsNullOrWhiteSpace(Title))
             {
                 sqlParameters.Add(new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar)

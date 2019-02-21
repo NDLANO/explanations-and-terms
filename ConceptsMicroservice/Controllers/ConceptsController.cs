@@ -9,18 +9,15 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 using ConceptsMicroservice.Utilities.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Rewrite.Internal.ApacheModRewrite;
 
 namespace ConceptsMicroservice.Controllers
 {
@@ -43,7 +40,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concepts.
         /// </remarks>
         /// <param name="query"></param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptResultDTO))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
@@ -64,7 +61,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of concepts.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptResultDTO))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAll(BaseListQuery query)
@@ -83,7 +80,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="id">Id of the concept that is to be fetched.</param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = null)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = null)]
         [HttpGet("{id}")]

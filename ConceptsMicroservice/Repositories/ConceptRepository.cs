@@ -94,41 +94,37 @@ namespace ConceptsMicroservice.Repositories
 
         public List<Concept> SearchForConcepts(ConceptSearchQuery searchParam)
         {
-            List<Concept> result = null;
-            //if (searchParam == null || !searchParam.HasQuery())
-            //{
-            //    result = GetAll();
-            //    return result;
-            //}
 
             var queryHasTitle = !string.IsNullOrWhiteSpace(searchParam.Title);
             var queryHasMetaIds = searchParam.MetaIds != null &&
                                   searchParam.MetaIds.Count > 0;
-            
+
+            var sqlParameters = searchParam.GetSqlParameters();
+
             if (queryHasTitle && !queryHasMetaIds)
             {
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", searchParam.GetSqlParameters());
-                return result;
+                return GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
             }
 
             if (!queryHasTitle && queryHasMetaIds)
             {
-                return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", searchParam.GetSqlParameters());
+                return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", sqlParameters);
             }
-            result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", searchParam.GetSqlParameters());
+            if (!queryHasMetaIds)
+                return new List<Concept>();
+
+            var result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", sqlParameters);
             if (result == null || result.Count == 0)
             {
-                var sqlParameters = new List<NpgsqlParameter>();
-                sqlParameters.Add(new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar)
+                sqlParameters = new List<NpgsqlParameter>
                 {
-                    Value = searchParam.Title
-                });
+                    new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar) {Value = searchParam.Title}
+                };
                 result = GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
 
             }
 
             return result;
-            
         }
 
         public Concept GetById(int id)
