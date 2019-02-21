@@ -104,8 +104,7 @@ namespace ConceptsMicroservice.Services
             if (query == null)
                 query = BaseListQuery.DefaultValues(_languageConfig.Default);
 
-            if (!_languageConfig.Supported.Contains(query.Language))
-                query.Language = _languageConfig.Default;
+            query.SetDefaultValuesIfNotInitilized(_languageConfig);
 
             try
             {
