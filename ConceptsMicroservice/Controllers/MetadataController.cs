@@ -10,6 +10,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Services;
 
@@ -29,12 +30,12 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the metadata.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<MetaData>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MetaDataPagingDTO))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAll()
+        public ActionResult<Response> GetAll([FromQuery] BaseListQuery query)
         {
-            var meta = _service.GetAll();
+            var meta = _service.GetAll(query);
             if (meta != null)
                 return Ok(meta);
 

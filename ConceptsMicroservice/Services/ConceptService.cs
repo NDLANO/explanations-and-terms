@@ -21,23 +21,17 @@ using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
-    public class ConceptService : IConceptService
+    public class ConceptService : BaseService, IConceptService
     {
         private readonly IConceptRepository _conceptRepository;
         private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
-        private readonly IUrlHelper _urlHelper;
-        private readonly LanguageConfig _languageConfig;
-        private readonly IMapper _mapper;
 
-        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper, IUrlHelper urlHelper, IOptions<LanguageConfig> languageConfig)
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper, IUrlHelper urlHelper, IOptions<LanguageConfig> languageConfig) : base(mapper, urlHelper, languageConfig)
         {
             _conceptRepository = concept;
             _statusRepository = status;
             _conceptMediaRepository = media;
-            _mapper = mapper;
-            _urlHelper = urlHelper;
-            _languageConfig = languageConfig.Value;
         }
         
         public Response SearchForConcepts(ConceptSearchQuery query)
@@ -45,24 +39,24 @@ namespace ConceptsMicroservice.Services
             if (query == null)
                 return new Response
                 {
-                    Data = new ConceptResultDTO
+                    Data = new ConceptPagingDTO
                     {
                         PageSize = 10,
                         Page = 1
                     }
                 };
             
-            query.SetDefaultValuesIfNotInitilized(_languageConfig);
+            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
 
             try
             {
                 var concepts = _conceptRepository.SearchForConcepts(query);
 
-                var res = new ConceptResultDTO
+                var res = new ConceptPagingDTO
                 {
                     PageSize = query.PageSize,
                     Page = query.Page,
-                    Results = _mapper.Map<List<ConceptDto>>(concepts)
+                    Results = Mapper.Map<List<ConceptDto>>(concepts)
                 };
 
                 if (concepts.FirstOrDefault() != null)
@@ -74,7 +68,7 @@ namespace ConceptsMicroservice.Services
                 if (query.Page < res.NumberOfPages)
                 {
                     query.Page += 1;
-                    res.Next = _urlHelper.Action("Search", "Concept", query);
+                    res.Next = UrlHelper.Action("Search", "Concept", query);
                 }
 
                 return new Response
@@ -94,7 +88,7 @@ namespace ConceptsMicroservice.Services
             {
                 return new Response
                 {
-                    Data = _mapper.Map<ConceptDto>(_conceptRepository.GetById(id))
+                    Data = Mapper.Map<ConceptDto>(_conceptRepository.GetById(id))
                 };
             }
             catch(Exception e)
@@ -106,19 +100,19 @@ namespace ConceptsMicroservice.Services
         public Response GetAllConcepts(BaseListQuery query)
         {
             if (query == null)
-                query = BaseListQuery.DefaultValues(_languageConfig.Default);
+                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
 
-            query.SetDefaultValuesIfNotInitilized(_languageConfig);
+            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
 
             try
             {
                 var concepts = _conceptRepository.GetAll(query);
 
-                var res = new ConceptResultDTO
+                var res = new ConceptPagingDTO
                 {
                     PageSize = query.PageSize,
                     Page = query.Page,
-                    Results = _mapper.Map<List<ConceptDto>>(concepts)
+                    Results = Mapper.Map<List<ConceptDto>>(concepts)
                 };
 
                 if (concepts.FirstOrDefault() != null)
@@ -130,7 +124,7 @@ namespace ConceptsMicroservice.Services
                 if (query.Page < res.NumberOfPages)
                 {
                     query.Page += 1;
-                    res.Next = _urlHelper.Action("GetAll", "Concept", query);
+                    res.Next = UrlHelper.Action("GetAll", "Concept", query);
                 }
 
                 return new Response
@@ -146,7 +140,7 @@ namespace ConceptsMicroservice.Services
 
         public Response UpdateConcept(UpdateConceptDto dto)
         {
-            var newConceptVersion = _mapper.Map<Concept>(dto);
+            var newConceptVersion = Mapper.Map<Concept>(dto);
             var viewModel = new Response();
             var oldConceptVersion = _conceptRepository.GetById(newConceptVersion.Id);
 
@@ -203,14 +197,14 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
 
-            viewModel.Data = _mapper.Map<ConceptDto>(_conceptRepository.GetById(dto.Id));
+            viewModel.Data = Mapper.Map<ConceptDto>(_conceptRepository.GetById(dto.Id));
             return viewModel;
         }
 
         public Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo)
         {
             var viewModel = new Response();
-            var concept = _mapper.Map<Concept>(newConcept);
+            var concept = Mapper.Map<Concept>(newConcept);
             var media = new List<ConceptMedia>();
 
             // Readonly fields
@@ -230,7 +224,7 @@ namespace ConceptsMicroservice.Services
             }
 
             concept.Media = media.Select(x => x.Media).ToList();
-            viewModel.Data = _mapper.Map<ConceptDto>(concept);
+            viewModel.Data = Mapper.Map<ConceptDto>(concept);
 
             return viewModel;
         }
@@ -256,7 +250,7 @@ namespace ConceptsMicroservice.Services
 
             try
             {
-                viewModel.Data = _mapper.Map<ConceptDto>(_conceptRepository.Update(updatedConcept));
+                viewModel.Data = Mapper.Map<ConceptDto>(_conceptRepository.Update(updatedConcept));
             }
             catch (Exception)
             {

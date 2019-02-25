@@ -176,7 +176,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             var results = Service.SearchForConcepts(null);
 
             A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).MustHaveHappenedOnceExactly();
-            Assert.IsType<ConceptResultDTO>(results.Data);
+            Assert.IsType<ConceptPagingDTO>(results.Data);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptRepository.GetAll(BaseListQuery)).MustNotHaveHappened();
             A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).MustHaveHappenedOnceExactly();
 
-            Assert.IsType<ConceptResultDTO>(results.Data);
+            Assert.IsType<ConceptPagingDTO>(results.Data);
         }
 
 

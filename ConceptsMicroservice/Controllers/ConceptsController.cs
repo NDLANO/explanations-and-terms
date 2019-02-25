@@ -40,7 +40,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concepts.
         /// </remarks>
         /// <param name="query"></param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptResultDTO))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptPagingDTO))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
@@ -61,7 +61,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of concepts.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptResultDTO))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptPagingDTO))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAll(BaseListQuery query)

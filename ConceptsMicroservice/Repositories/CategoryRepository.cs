@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ConceptsMicroservice.Context;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,11 +23,30 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
-        public List<MetaCategory> GetAll()
+        public List<MetaCategory> GetAll(BaseListQuery query)
         {
-            return _context.Categories
+            var allCategories = _context.Categories
                 .Include(x => x.Language)
+                .Where(x => x.Language.Abbreviation.Equals(query.Language));
+
+            var totalItems = allCategories.Count();
+            var totalPages = Convert.ToInt32(Math.Ceiling(totalItems * 1.0 / query.PageSize));
+
+            if (query.Page > totalPages)
+                query.Page = 1;
+
+            var categories = allCategories
+                .Skip(query.PageSize * (query.Page - 1))
+                .Take(query.PageSize)
                 .ToList();
+            categories.ForEach(x =>
+            {
+                x.TotalItems = totalItems;
+                x.NumberOfPages = totalPages;
+            });
+
+
+            return categories;
         }
 
         public MetaCategory GetById(int id)

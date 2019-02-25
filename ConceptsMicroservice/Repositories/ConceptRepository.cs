@@ -28,7 +28,6 @@ namespace ConceptsMicroservice.Repositories
         private readonly LanguageConfig _languageConfig;
 
         private readonly Func<NpgsqlDataReader, List<Concept>> _sqlResultToListOfConceptsFunc;
-        private readonly Func<NpgsqlDataReader, List<string>> _sqlResultToListOfConceptTitlesFunc;
 
         public ConceptRepository(Context.ConceptsContext context, IOptions<DatabaseConfig> config, IOptions<LanguageConfig> language)
         {
@@ -46,19 +45,6 @@ namespace ConceptsMicroservice.Repositories
                 }
 
                 return concepts;
-            };
-
-            _sqlResultToListOfConceptTitlesFunc = reader =>
-            {
-                var titles = new List<string>();
-                if (reader == null)
-                    return titles;
-                while (reader.Read())
-                {
-                    titles.Add(reader.GetString(0));
-                }
-
-                return titles;
             };
         }
         #region Search helpers
@@ -110,18 +96,18 @@ namespace ConceptsMicroservice.Repositories
             {
                 return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", sqlParameters);
             }
-            if (!queryHasMetaIds)
-                return new List<Concept>();
+            if (!queryHasMetaIds && !queryHasTitle)
+                return GetConceptsByStoredProcedure("get_concepts", sqlParameters);
 
+            // Has metaIds and title
             var result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", sqlParameters);
+
+            // Did not find any results with metaIds. Tries with title only
             if (result == null || result.Count == 0)
             {
-                sqlParameters = new List<NpgsqlParameter>
-                {
-                    new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar) {Value = searchParam.Title}
-                };
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
-
+                sqlParameters.ForEach(x => x.Collection = null);
+                sqlParameters.RemoveAll(x => x.ParameterName == "list_of_meta_id");
+                return GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
             }
 
             return result;
@@ -129,11 +115,10 @@ namespace ConceptsMicroservice.Repositories
 
         public Concept GetById(int id)
         {
-            var sqlParameters = new List<NpgsqlParameter>();
-            sqlParameters.Add(new NpgsqlParameter("concept_id", NpgsqlDbType.Integer)
+            var sqlParameters = new List<NpgsqlParameter>
             {
-                Value = id
-            });
+                new NpgsqlParameter("concept_id", NpgsqlDbType.Integer) {Value = id}
+            };
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 

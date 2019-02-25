@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ConceptsMicroservice.Models.Search
 {
-    public class MetaSearchQuery
+    public class MetaSearchQuery : BaseListQuery
     {
         /// <summary>
         /// The name of the metadata itself.

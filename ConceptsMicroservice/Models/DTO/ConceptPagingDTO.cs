@@ -9,13 +9,8 @@ using System.Collections.Generic;
 
 namespace ConceptsMicroservice.Models.DTO
 {
-    public class ConceptResultDTO
+    public class ConceptPagingDTO : PagingDTO
     {
-        public int TotalItems { get; set; }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int NumberOfPages { get; set; }
-        public string Next { get; set; }
         public List<ConceptDto> Results { get; set; }
     }
 }

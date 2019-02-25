@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("concepts", Schema = "public")]
-    public class Concept
+    public class Concept : Paging
     {
         [Key] [Column("id")] public int Id { get; set; }
 
@@ -65,27 +65,6 @@ namespace ConceptsMicroservice.Models.Domain
         [NotMapped] public List<Media> Media { get; set; }
         [Column("language_variation")] public string  LanguageVariation { get; set; }
 
-        public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
-        {
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(reader.GetString(column));
-            }
-            catch
-            {
-                return default(T);
-            }
-        }
-
-       
-        [Column("number_of_total_pages")]
-        [NotMapped]
-        public int NumberOfPages { get; set; }
-
-        [Column("total_number_of_items")]
-        [NotMapped]
-        public int TotalItems { get; set; }
-
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
             //Get column names
@@ -110,10 +89,10 @@ namespace ConceptsMicroservice.Models.Domain
             var languageObjectColumn = reader.GetOrdinal("language_object");
             var languageVariation = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.LanguageVariation,attr => attr.Name));
 
-            var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
-            var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
-            var status = GetJson<Status>(reader, statusObjectColumn);
-            var language = GetJson<Language>(reader, languageObjectColumn);
+            var meta = JsonHelper.GetJson<List<MetaData>>(reader, metaObjectsColumn);
+            var media = JsonHelper.GetJson<List<Media>>(reader, mediaObjectsColumn);
+            var status = JsonHelper.GetJson<Status>(reader, statusObjectColumn);
+            var language = JsonHelper.GetJson<Language>(reader, languageObjectColumn);
 
 
             var concept = new Concept

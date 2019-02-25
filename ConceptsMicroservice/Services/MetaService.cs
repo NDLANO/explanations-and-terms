@@ -5,31 +5,41 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using AutoMapper;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
-    public class MetadataService : IMetadataService
+    public class MetadataService : BaseService, IMetadataService
     {
         private readonly IMetadataRepository _metadataRepository;
-        public MetadataService(IMetadataRepository metadataRepository)
+        public MetadataService(IMetadataRepository metadataRepository, IOptions<LanguageConfig> languageConfig, IMapper mapper, IUrlHelper urlHelper) : base (mapper, urlHelper, languageConfig)
         {
             _metadataRepository = metadataRepository;
         }
 
         public Response SearchForMetadata(MetaSearchQuery query)
         {
+            if (query == null)
+                query = BaseListQuery.DefaultValues(LanguageConfig.Default) as MetaSearchQuery;
+
+            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
             try
             {
-                var response = new Response();
-                if (query == null || query.HasNoQuery())
-                    response.Data = _metadataRepository.GetAll();
-                else
-                    response.Data = _metadataRepository.SearchForMetadata(query);
+                var results = _metadataRepository.SearchForMetadata(query);
+                var dto = new MetaDataPagingDTO(results, query, UrlHelper.Action("Search", "Metadata", query));
 
-                return response;
+                return new Response
+                {
+                    Data = dto
+                };
             }
             catch
             {
@@ -53,14 +63,20 @@ namespace ConceptsMicroservice.Services
             
         }
 
-        public Response GetAll()
+        public Response GetAll(BaseListQuery query)
         {
+            if (query == null)
+                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
+
+            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
             try
             {
+                var results = _metadataRepository.GetAll(query);
+
                 return new Response
                 {
-                    Data = _metadataRepository.GetAll()
-                };
+                    Data = new MetaDataPagingDTO(results, query, UrlHelper.Action("GetAll", "Metadata", query))
+            };
             }
             catch
             {

@@ -7,27 +7,41 @@
  */
 
 using System;
+using System.Collections.Generic;
+using AutoMapper;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
-    public class CategoryService : ICategoryService
+    public class CategoryService : BaseService, ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper, IUrlHelper urlHelper, IOptions<LanguageConfig> languageConfig) : base(mapper, urlHelper, languageConfig)
         {
             _categoryRepository = categoryRepository;
         }
 
-        public Response GetAllCategories()
+        public Response GetAllCategories(BaseListQuery query)
         {
+            if (query == null)
+                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
+            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
+
             try
             {
+                var categories = _categoryRepository.GetAll(query);
+                var results = Mapper.Map<List<MetaCategory>>(categories);
+
                 return new Response
                 {
-                    Data = _categoryRepository.GetAll()
+                    Data = new MetaCategoryPagingDTO(results, query, UrlHelper.Action("Search", "Concept", query))
                 };
             }
             catch(Exception e)

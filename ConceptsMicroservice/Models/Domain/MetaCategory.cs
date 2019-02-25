@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("meta_categories", Schema = "public")]
-    public class MetaCategory
+    public class MetaCategory : Paging
     {
         [Key]
         [Column("id")]
