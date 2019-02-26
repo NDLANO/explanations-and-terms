@@ -27,7 +27,7 @@ namespace ConceptsMicroservice.Repositories
         {
             var allCategories = _context.Categories
                 .Include(x => x.Language)
-                .Include(x => x.CategoryType)
+                .Include(x => x.TypeGroup)
                 .Where(x => x.Language.Abbreviation.Equals(query.Language));
 
             var totalItems = allCategories.Count();
@@ -54,7 +54,7 @@ namespace ConceptsMicroservice.Repositories
         {
             return _context.Categories
                 .Include(x => x.Language)
-                .Include(x => x.CategoryType)
+                .Include(x => x.TypeGroup)
                 .FirstOrDefault(x => x.Id == id);
         }
 

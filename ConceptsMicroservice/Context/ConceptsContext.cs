@@ -22,6 +22,6 @@ namespace ConceptsMicroservice.Context
         public DbSet<MediaType> MediaTypes { get; set; }
         public DbSet<ConceptMedia> ConceptMedia { get; set; }
         public DbSet<Language> Languages { get; set; }
-        public DbSet<MetaCategoryType> MetaCategoryTypes { get; set; }
+        public DbSet<TypeGroup> TypeGroups { get; set; }
     }
 }

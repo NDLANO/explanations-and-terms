@@ -40,7 +40,7 @@ namespace ConceptsMicroservice.Repositories
                 : _context.MetaData
                     .Include(x => x.Language)
                     .Include(x => x.Category)
-                    .ThenInclude(x => x.CategoryType)
+                    .ThenInclude(x => x.TypeGroup)
                     .Where(x => ids.Contains(x.Id)).ToList();
         }
         
@@ -50,7 +50,7 @@ namespace ConceptsMicroservice.Repositories
             var allMetaData = _context.MetaData
                 .Include(x => x.Language)
                 .Include(x => x.Category)
-                .ThenInclude(x => x.CategoryType)
+                .ThenInclude(x => x.TypeGroup)
                 .Include(x => x.Status)
                 .Where(x => x.Language.Abbreviation.Equals(query.Language));
 
@@ -77,7 +77,7 @@ namespace ConceptsMicroservice.Repositories
             return _context.MetaData
                 .Include(x => x.Language)
                 .Include(x => x.Category)
-                .ThenInclude(x => x.CategoryType)
+                .ThenInclude(x => x.TypeGroup)
                 .Include(x => x.Status)
                 .FirstOrDefault(x => x.Id == id);
         }

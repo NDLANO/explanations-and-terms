@@ -39,7 +39,7 @@ namespace ConceptsMicroservice.Models.DTO
         public string DeletedBy { get; set; }
         public StatusDTO Status { get; set; }
         public List<MetaDataDTO> Meta { get; set; }
-        public List<Media> Media { get; set; }
+        public List<MediaDTO> Media { get; set; }
         public Language Language { get; set; }
         public string LanguageVariation { get; set; }
         public Guid GroupId { get; set; }

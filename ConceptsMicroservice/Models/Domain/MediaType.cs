@@ -21,5 +21,8 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
+        [Column("type_group_id")] public int TypeGroupId { get; set; }
+
+        public virtual TypeGroup TypeGroup { get; set; }
     }
 }

@@ -5,22 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-using System;
-using ConceptsMicroservice.Models.Domain;
 
-namespace ConceptsMicroservice.Models.DTO
+using System;
+
+namespace ConceptsMicroservice.Models.Domain
 {
-    public class MetaCategoryDTO
+    
+    public class MediaDTO
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string ExternalId { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
-        public bool CanHaveMultiple { get; set; }
-        public bool IsRequired { get; set; }
-
+        public string Source { get; set; }
         public Language Language { get; set; }
-        public TypeGroupDTO TypeGroup{ get; set; }
+        public MediaTypeDTO MediaType { get; set; }
     }
 }

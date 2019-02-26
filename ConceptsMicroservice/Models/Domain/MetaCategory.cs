@@ -34,9 +34,9 @@ namespace ConceptsMicroservice.Models.Domain
         /// </summary>
         [Column("is_required")] public bool IsRequired { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
-        [Column("category_type_id")] public int CategoryTypeId { get; set; }
+        [Column("type_group_id")] public int TypeGroupId { get; set; }
 
         public virtual Language Language { get; set; }
-        public virtual MetaCategoryType CategoryType{ get; set; }
+        public virtual TypeGroup TypeGroup{ get; set; }
     }
 }
