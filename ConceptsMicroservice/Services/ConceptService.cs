@@ -42,26 +42,15 @@ namespace ConceptsMicroservice.Services
         
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
-            if (query == null)
-                return new Response
-                {
-                    Data = new ConceptResultDTO
-                    {
-                        PageSize = 10,
-                        Page = 1
-                    }
-                };
-            
-            query.SetDefaultValuesIfNotInitilized(_languageConfig);
-
             try
             {
-                var concepts = _conceptRepository.SearchForConcepts(query);
+                List<Concept> concepts;
+                concepts = ((query == null) || (!query.HasQuery()))  ? _conceptRepository.GetAll(BaseListQuery.DefaultValues(_languageConfig.Default)) : _conceptRepository.SearchForConcepts(query);
 
                 var res = new ConceptResultDTO
                 {
-                    PageSize = query.PageSize,
-                    Page = query.Page,
+                    PageSize = ((query == null) || (!query.HasQuery())) ? BaseListQuery.DefaultPageSize : query.PageSize, //query.PageSize,
+                    Page = ((query == null) || (!query.HasQuery())) ? BaseListQuery.DefaultPage : query.Page,//query.Page,
                     Results = _mapper.Map<List<ConceptDto>>(concepts)
                 };
 
@@ -70,11 +59,13 @@ namespace ConceptsMicroservice.Services
                     res.TotalItems = concepts.FirstOrDefault().TotalItems;
                     res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
                 }
-
-                if (query.Page < res.NumberOfPages)
-                {
-                    query.Page += 1;
-                    res.Next = _urlHelper.Action("Search", "Concept", query);
+                if(query != null && (query.HasQuery()))
+                { 
+                    if (query.Page < res.NumberOfPages)
+                    {
+                        query.Page += 1;
+                        res.Next = _urlHelper.Action("Search", "Concept", query);
+                    }
                 }
 
                 return new Response

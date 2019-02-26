@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models.Configuration;
@@ -73,7 +74,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
         }
         public Concept InsertConcept(Concept c)
         {
-            if (c.LanguageId == 0)
+            //Nasser 26.02.2019, it seems that the languageId is equal to 1
+            //if (c.LanguageId == 0)
                 c.LanguageId = InsertLanguage().Id;
 
 
@@ -88,25 +90,27 @@ namespace ConceptsMicroservice.UnitTests.Mock
             if (l == null)
                 l = new Language
                 {
-                    Name = $"Bokmål {Guid.NewGuid()}",
+                    Name = "Bokmål",
                     Description = "Description",
                     Abbreviation = "nb"
                 };
-
-            var lang = Context.Languages.Add(l).Entity;
-            Context.SaveChanges();
-            return lang;
+            var existLanguage = Context.Languages.FirstOrDefault(lan => lan.Name == "Bokmål");
+            if (existLanguage == null)
+            {
+                var lang = Context.Languages.Add(l).Entity;
+                Context.SaveChanges();
+                return lang;
+            }
+            else
+            {
+                return existLanguage;
+            }
         }
 
         public Concept CreateAndInsertAConcept()
         {
-            var language = new Language
-            {
-                Name = $"Bokmål {Guid.NewGuid()}",
-                Description = "Description",
-                Abbreviation = "nb"
-            };
-
+            Language language = null;
+            
             var category = new MetaCategory
             {
                 Name = "Name",
@@ -136,6 +140,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Content = "Content",
                 Source = "Source",
                 Title = "Title",
+                ExternalId = "ExternalID",
+                GroupId = "GroupID",
+                LanguageVariation = "LanguageVariation",
                 MediaIds = new List<int>()
             };
 
@@ -168,6 +175,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
             var metaTableName = typeof(MetaData).GetClassAttributeValue((TableAttribute table) => table.Name);
             var categoryTableName = typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name);
             var statusTableName = typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var mediatypeTableName = typeof(MediaType).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var languageTableName = typeof(Language).GetClassAttributeValue((TableAttribute table) => table.Name);
 
             using (var conn = new NpgsqlConnection(DatabaseConfig.ConnectionString))
             {
@@ -185,6 +194,14 @@ namespace ConceptsMicroservice.UnitTests.Mock
                     cmd.ExecuteNonQuery();
                 }
                 using (var cmd = new NpgsqlCommand($"DELETE FROM {statusTableName}", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                using (var cmd = new NpgsqlCommand($"DELETE FROM {mediatypeTableName}", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                using (var cmd = new NpgsqlCommand($"DELETE FROM {languageTableName}", conn))
                 {
                     cmd.ExecuteNonQuery();
                 }

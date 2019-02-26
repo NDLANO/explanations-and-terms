@@ -14,6 +14,7 @@ using System.Linq;
 using ConceptsMicroservice.Attributes;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models.Domain
@@ -64,7 +65,7 @@ namespace ConceptsMicroservice.Models.Domain
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
         [Column("language_variation")] public string  LanguageVariation { get; set; }
-
+        [Column("group_id")] public string GroupId { get; set; }
         public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
             try
@@ -109,7 +110,10 @@ namespace ConceptsMicroservice.Models.Domain
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
             var languageVariation = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.LanguageVariation,attr => attr.Name));
-
+            var groupId =
+                reader.GetOrdinal(
+                    AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(
+                        prop => prop.GroupId, attr => attr.Name));
             var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
             var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
             var status = GetJson<Status>(reader, statusObjectColumn);
@@ -137,7 +141,8 @@ namespace ConceptsMicroservice.Models.Domain
                 LanguageId = reader.GetInt16(languageIdColumn),
                 Status = status ?? new Status(),
                 Language = language ?? new Language(),
-                LanguageVariation = reader.SafeGetString(languageVariation)
+                LanguageVariation = reader.SafeGetString(languageVariation),
+                GroupId = reader.SafeGetString(groupId)
             };
 
 

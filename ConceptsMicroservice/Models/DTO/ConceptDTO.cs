@@ -42,5 +42,6 @@ namespace ConceptsMicroservice.Models.DTO
         public List<Media> Media { get; set; }
         public Language Language { get; set; }
         public string LanguageVariation { get; set; }
+        public string GroupId { get; set; }
     }
 }

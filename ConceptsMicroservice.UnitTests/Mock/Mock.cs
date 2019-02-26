@@ -89,7 +89,11 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 MediaIds = new List<int>(),
                 MetaIds = meta.Select(x => x.Id).ToList(),
                 Status = status,
-                Media = media
+                Media = media,
+                LanguageId = 1,
+                LanguageVariation = $"LanguageVariation_{Guid.NewGuid()}",
+                ExternalId = $"ExternalId_{Guid.NewGuid()}",
+                GroupId = $"GroupId_{Guid.NewGuid()}"
             };
         }
 

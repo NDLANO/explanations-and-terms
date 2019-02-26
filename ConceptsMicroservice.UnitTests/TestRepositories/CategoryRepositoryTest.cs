@@ -29,10 +29,9 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
 
         public CategoryRepositoryTest()
         {
-            //Nasser 14.02.2019
             Mock = new Mock.Mock();
             CategoryRepository = new Repositories.CategoryRepository(Mock.Database.Context);
-            //_category = Mock.MockCategory();
+            _category = Mock.MockCategory();
         }
 
         public void Dispose()
@@ -66,24 +65,11 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         [Fact]
         public void GetAll_Fetches_A_List_Of_Categories()
         {
-            //Nasser 14.02.2019
             Assert.Empty(CategoryRepository.GetAll());
 
             Mock.Database.InsertCategory(_category);
 
             Assert.NotEmpty(CategoryRepository.GetAll());
-
-            //var fakeMock = A.Fake<IMock>();
-            //var fakeDB = A.Fake<IMockDatabase>();
-
-            //fakeDB.Context.Results = A.Fake<DbContextOptionsBuilder<Context.DbContext>>();
-
-            //var fakeAllCategories = A.Fake<List<MetaCategory>>();
-            //var fakeCategoryRepositories = A.Fake<CategoryRepository>();
-            //ICategoryRepository cat = new CategoryRepository(fakeMock.Database.Context);
-            //var fakeCategoryRepository = new fakeCategoryRepositories(fakeMock.Database.Context);// A.Fake<ICategoryRepository>();
-            //fakeCategoryRepository.
-            //A.CallTo(() => fakeCategoryRepositories.GetAll()).Returns(fakeAllCategories);
         }
 
         [Fact]

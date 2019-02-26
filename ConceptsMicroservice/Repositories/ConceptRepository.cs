@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Configuration;
@@ -95,12 +94,14 @@ namespace ConceptsMicroservice.Repositories
         public List<Concept> SearchForConcepts(ConceptSearchQuery searchParam)
         {
 
+            if (searchParam == null)
+            {
+                return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
+            }
             var queryHasTitle = !string.IsNullOrWhiteSpace(searchParam.Title);
             var queryHasMetaIds = searchParam.MetaIds != null &&
                                   searchParam.MetaIds.Count > 0;
-
             var sqlParameters = searchParam.GetSqlParameters();
-
             if (queryHasTitle && !queryHasMetaIds)
             {
                 return GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
@@ -110,20 +111,19 @@ namespace ConceptsMicroservice.Repositories
             {
                 return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", sqlParameters);
             }
-            if (!queryHasMetaIds)
-                return new List<Concept>();
+            if (!queryHasMetaIds && !queryHasTitle)
+                return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
 
+            // Has metaIds and title
             var result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", sqlParameters);
+
+            // Did not find any results with metaIds. Tries with title only
             if (result == null || result.Count == 0)
             {
-                sqlParameters = new List<NpgsqlParameter>
-                {
-                    new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar) {Value = searchParam.Title}
-                };
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
-
+                sqlParameters.ForEach(x => x.Collection = null);
+                sqlParameters.RemoveAll(x => x.ParameterName == "list_of_meta_id");
+                return GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
             }
-
             return result;
         }
 
