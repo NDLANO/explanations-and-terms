@@ -7,6 +7,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
@@ -35,7 +37,18 @@ namespace ConceptsMicroservice.Services
             try
             {
                 var results = _metadataRepository.SearchForMetadata(query);
-                var dto = new MetaDataPagingDTO(results, query, UrlHelper.Action("Search", "Metadata", query));
+
+                var totalItems = 0;
+                var numberOfPages = 0;
+
+                try
+                {
+                    totalItems = results.FirstOrDefault().TotalItems;
+                    numberOfPages = results.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
+                var dto = new PagingDTO<MetaDataDTO>(Mapper.Map<List<MetaDataDTO>>(results), query, UrlHelper.Action("Search", "Metadata", query), numberOfPages, totalItems);
 
                 return new Response
                 {
@@ -73,10 +86,20 @@ namespace ConceptsMicroservice.Services
             try
             {
                 var results = _metadataRepository.GetAll(query);
+                var totalItems = 0;
+                var numberOfPages = 0;
+                try
+                {
+                    totalItems = results.FirstOrDefault().TotalItems;
+                    numberOfPages = results.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
+                var resultAsDto = Mapper.Map<List<MetaDataDTO>>(results);
 
                 return new Response
                 {
-                    Data = new MetaDataPagingDTO(results, query, UrlHelper.Action("GetAll", "Metadata", query))
+                    Data = new PagingDTO<MetaDataDTO>(resultAsDto, query, UrlHelper.Action("GetAll", "Metadata", query), numberOfPages, totalItems)
             };
             }
             catch(Exception e)

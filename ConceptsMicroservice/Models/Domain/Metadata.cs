@@ -8,8 +8,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ConceptsMicroservice.Extensions;
-using ConceptsMicroservice.Utilities;
 
 namespace ConceptsMicroservice.Models.Domain
 {

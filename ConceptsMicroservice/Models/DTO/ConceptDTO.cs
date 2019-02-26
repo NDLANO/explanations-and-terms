@@ -37,8 +37,8 @@ namespace ConceptsMicroservice.Models.DTO
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public string DeletedBy { get; set; }
-        public Status Status { get; set; }
-        public List<MetaData> Meta { get; set; }
+        public StatusDTO Status { get; set; }
+        public List<MetaDataDTO> Meta { get; set; }
         public List<Media> Media { get; set; }
         public Language Language { get; set; }
         public string LanguageVariation { get; set; }

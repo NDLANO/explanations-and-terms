@@ -6,9 +6,11 @@
  *
  */
 
+using System.Collections.Generic;
+
 namespace ConceptsMicroservice.Models.DTO
 {
-    public class PagingDTO
+    public class PagingDTO<T>
     {
         public int TotalItems { get; set; } = 0;
         public int Page { get; set; } = 1;
@@ -16,14 +18,16 @@ namespace ConceptsMicroservice.Models.DTO
         public int NumberOfPages { get; set; } = 1;
         public string Next { get; set; }
 
+        public List<T> Results { get; set; }
         public PagingDTO() { }
 
-        public PagingDTO(BaseListQuery query, string next, int pages = 1, int totalItems = 0)
+        public PagingDTO(List<T> results, BaseListQuery query, string next, int pages = 1, int totalItems = 0)
         {
             PageSize = query.PageSize;
             Page = query.Page;
             TotalItems = totalItems;
             NumberOfPages = pages;
+            Results = results;
 
             if (Page < NumberOfPages)
             {

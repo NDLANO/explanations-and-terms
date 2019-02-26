@@ -31,7 +31,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the categories.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MetaCategoryPagingDTO))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagingDTO<MetaCategoryDTO>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAllCategories([FromQuery] BaseListQuery query)

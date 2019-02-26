@@ -30,7 +30,7 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the metadata.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MetaDataPagingDTO))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagingDTO<MetaDataDTO>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         public ActionResult<Response> GetAll([FromQuery] BaseListQuery query)

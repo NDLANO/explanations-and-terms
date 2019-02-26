@@ -37,39 +37,29 @@ namespace ConceptsMicroservice.Services
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
             if (query == null)
-                return new Response
-                {
-                    Data = new ConceptPagingDTO
-                    {
-                        PageSize = 10,
-                        Page = 1
-                    }
-                };
+                return GetAllConcepts(BaseListQuery.DefaultValues(LanguageConfig.Default));
             
             query.SetDefaultValuesIfNotInitilized(LanguageConfig);
 
             try
             {
                 var concepts = _conceptRepository.SearchForConcepts(query);
+                var totalItems = 0;
+                var numberOfPages = 0;
 
-                var res = new ConceptPagingDTO
+                try
                 {
-                    PageSize = query.PageSize,
-                    Page = query.Page,
-                    Results = Mapper.Map<List<ConceptDto>>(concepts)
-                };
-
-                if (concepts.FirstOrDefault() != null)
-                {
-                    res.TotalItems = concepts.FirstOrDefault().TotalItems;
-                    res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                    totalItems = concepts.FirstOrDefault().TotalItems;
+                    numberOfPages = concepts.FirstOrDefault().NumberOfPages;
                 }
+                catch { }
 
-                if (query.Page < res.NumberOfPages)
-                {
-                    query.Page += 1;
-                    res.Next = UrlHelper.Action("Search", "Concept", query);
-                }
+                var res = new PagingDTO<ConceptDto>(
+                    Mapper.Map<List<ConceptDto>>(concepts),
+                    query,
+                    UrlHelper.Action("Search", "Concept", query), 
+                    numberOfPages,
+                    totalItems);
 
                 return new Response
                 {
@@ -104,28 +94,26 @@ namespace ConceptsMicroservice.Services
 
             query.SetDefaultValuesIfNotInitilized(LanguageConfig);
 
+
             try
             {
                 var concepts = _conceptRepository.GetAll(query);
+                var totalItems = 0;
+                var numberOfPages = 0;
 
-                var res = new ConceptPagingDTO
+                try
                 {
-                    PageSize = query.PageSize,
-                    Page = query.Page,
-                    Results = Mapper.Map<List<ConceptDto>>(concepts)
-                };
-
-                if (concepts.FirstOrDefault() != null)
-                {
-                    res.TotalItems = concepts.FirstOrDefault().TotalItems;
-                    res.NumberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                    totalItems = concepts.FirstOrDefault().TotalItems;
+                    numberOfPages = concepts.FirstOrDefault().NumberOfPages;
                 }
+                catch { }
 
-                if (query.Page < res.NumberOfPages)
-                {
-                    query.Page += 1;
-                    res.Next = UrlHelper.Action("GetAll", "Concept", query);
-                }
+                var res = new PagingDTO<ConceptDto>(
+                    Mapper.Map<List<ConceptDto>>(concepts),
+                    query,
+                    UrlHelper.Action("GetAll", "Concept", query),
+                    numberOfPages,
+                    totalItems);
 
                 return new Response
                 {

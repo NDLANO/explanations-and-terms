@@ -6,6 +6,8 @@
  *
  */
 
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
@@ -34,9 +36,25 @@ namespace ConceptsMicroservice.Services
             try
             {
                 var status = _statusRepository.GetAll(query);
+
+                var totalItems = 0;
+                var numberOfPages = 0;
+
+                try
+                {
+                    totalItems = status.FirstOrDefault().TotalItems;
+                    numberOfPages = status.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
                 return new Response
                 {
-                    Data = new StatusPagingDTO(status, query, UrlHelper.Action("GetAllStatus", "Status", query))
+                    Data = new PagingDTO<StatusDTO>(
+                        Mapper.Map<List<StatusDTO>>(status), 
+                        query, 
+                        UrlHelper.Action("GetAllStatus", "Status", query),
+                        numberOfPages,
+                        totalItems)
                 };
             }
             catch
