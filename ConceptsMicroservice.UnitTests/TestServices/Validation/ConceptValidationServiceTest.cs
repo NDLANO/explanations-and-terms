@@ -17,13 +17,15 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMediaTypeRepository _mediaTypeRepository;
 
+        private readonly string _defaultLanguage;
+
         public ConceptValidationServiceTest()
         {
             _statusRepository = A.Fake<IStatusRepository>();
             _metadataRepository = A.Fake<IMetadataRepository>();
             _categoryRepository = A.Fake<ICategoryRepository>();
             _mediaTypeRepository = A.Fake<IMediaTypeRepository>();
-
+            _defaultLanguage = "nb";
             _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository, _mediaTypeRepository);
         }
         #region StatusIdIsValid
@@ -151,8 +153,8 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
             var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
             var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
-            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null));
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null, _defaultLanguage));
         }
 
         [Fact]
@@ -161,9 +163,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
             var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
             var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>()));
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>(), _defaultLanguage));
         }
 
         [Fact]
@@ -175,9 +177,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentMeta = new MetaData {Category = presentCategory, Id = 1};
 
             A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData>{ presentMeta });
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}));
+            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}, _defaultLanguage));
         }
 
         [Fact]
@@ -188,9 +190,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentMeta = new MetaData { Category = presentCategory, Id = 1 };
 
             A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData> { presentMeta });
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }));
+            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }, _defaultLanguage));
         }
         #endregion
         

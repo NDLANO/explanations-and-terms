@@ -157,6 +157,8 @@ namespace ConceptsMicroservice.Repositories
             var concept = _context.Concepts.Add(inserted);
             concept.Entity.Created = DateTime.Now;
             concept.Entity.Updated = concept.Entity.Created;
+            concept.Entity.GroupId = Guid.NewGuid();
+            concept.Entity.LanguageVariation = Guid.NewGuid();
             _context.SaveChanges();
             return GetById(concept.Entity.Id);
         }

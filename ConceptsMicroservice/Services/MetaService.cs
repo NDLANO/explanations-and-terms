@@ -6,6 +6,7 @@
  *
  */
 
+using System;
 using AutoMapper;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
@@ -78,7 +79,7 @@ namespace ConceptsMicroservice.Services
                     Data = new MetaDataPagingDTO(results, query, UrlHelper.Action("GetAll", "Metadata", query))
             };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }

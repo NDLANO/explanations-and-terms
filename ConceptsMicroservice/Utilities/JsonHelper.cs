@@ -15,6 +15,7 @@ namespace ConceptsMicroservice.Utilities
         {
             try
             {
+                var d = reader.GetString(column);
                 return JsonConvert.DeserializeObject<T>(reader.GetString(column));
             }
             catch

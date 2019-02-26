@@ -9,8 +9,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services.Validation
 {
@@ -67,14 +69,14 @@ namespace ConceptsMicroservice.Services.Validation
             return noExistingIds;
         }
 
-        public List<string> GetMissingRequiredCategories(List<int> metaIds)
+        public List<string> GetMissingRequiredCategories(List<int> metaIds, string language)
         {
             var missingCategories = new List<string>();
 
             if (metaIds == null)
                 metaIds = new List<int>();
 
-            var requiredCategories = _categoryRepository.GetRequiredCategories();
+            var requiredCategories = _categoryRepository.GetRequiredCategories(language);
 
             var metas = _metadataRepository.GetByRangeOfIds(metaIds);
 

@@ -41,7 +41,7 @@ namespace ConceptsMicroservice.Services
 
                 return new Response
                 {
-                    Data = new MetaCategoryPagingDTO(results, query, UrlHelper.Action("Search", "Concept", query))
+                    Data = new MetaCategoryPagingDTO(results, query, UrlHelper.Action("GetAllCategories", "Category", query))
                 };
             }
             catch(Exception e)

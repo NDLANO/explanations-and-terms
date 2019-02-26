@@ -156,6 +156,7 @@ namespace ConceptsMicroservice.Services
             newConceptVersion.MediaIds = oldConceptVersion.MediaIds;
             newConceptVersion.AuthorName = oldConceptVersion.AuthorName;
             newConceptVersion.AuthorEmail = oldConceptVersion.AuthorEmail;
+            newConceptVersion.GroupId = oldConceptVersion.GroupId;
 
             try
             {

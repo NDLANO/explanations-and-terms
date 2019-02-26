@@ -16,6 +16,6 @@ namespace ConceptsMicroservice.Repositories
     {
         List<MetaCategory> GetAll(BaseListQuery query);
         MetaCategory GetById(int id);
-        List<MetaCategory> GetRequiredCategories();
+        List<MetaCategory> GetRequiredCategories(string language);
     }
 }

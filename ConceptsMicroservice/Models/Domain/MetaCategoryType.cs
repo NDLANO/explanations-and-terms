@@ -11,8 +11,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConceptsMicroservice.Models.Domain
 {
-    [Table("meta_categories", Schema = "public")]
-    public class MetaCategory : Paging
+    [Table("category_type", Schema = "public")]
+    public class MetaCategoryType : Paging
     {
         [Key]
         [Column("id")]
@@ -25,18 +25,5 @@ namespace ConceptsMicroservice.Models.Domain
         public string Description { get; set; }
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
-        /// <summary>
-        /// Is id possible to have more then one meta of this category.
-        /// </summary>
-        [Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
-        /// <summary>
-        /// Is it required to have at least one meta of this category.
-        /// </summary>
-        [Column("is_required")] public bool IsRequired { get; set; }
-        [Column("language_id")] public int LanguageId { get; set; }
-        [Column("category_type_id")] public int CategoryTypeId { get; set; }
-
-        public virtual Language Language { get; set; }
-        public virtual MetaCategoryType CategoryType{ get; set; }
     }
 }

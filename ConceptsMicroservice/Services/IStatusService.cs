@@ -11,6 +11,6 @@ namespace ConceptsMicroservice.Services
 {
     public interface IStatusService
     {
-        Response GetAllStatus();
+        Response GetAllStatus(BaseListQuery query);
     }
 }

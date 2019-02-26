@@ -16,6 +16,6 @@ namespace ConceptsMicroservice.Services.Validation
         bool StatusIdIsValidId(int id);
         List<int> MetaIdsDoesNotExistInDatabase(List<int> ids);
         List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> ids);
-        List<string> GetMissingRequiredCategories(List<int> metaIds);
+        List<string> GetMissingRequiredCategories(List<int> metaIds, string language);
     }
 }

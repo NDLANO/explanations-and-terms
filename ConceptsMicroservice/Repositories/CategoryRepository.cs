@@ -27,6 +27,7 @@ namespace ConceptsMicroservice.Repositories
         {
             var allCategories = _context.Categories
                 .Include(x => x.Language)
+                .Include(x => x.CategoryType)
                 .Where(x => x.Language.Abbreviation.Equals(query.Language));
 
             var totalItems = allCategories.Count();
@@ -53,14 +54,15 @@ namespace ConceptsMicroservice.Repositories
         {
             return _context.Categories
                 .Include(x => x.Language)
+                .Include(x => x.CategoryType)
                 .FirstOrDefault(x => x.Id == id);
         }
 
-        public List<MetaCategory> GetRequiredCategories()
+        public List<MetaCategory> GetRequiredCategories(string language)
         {
             return _context.Categories
                 .Include(x => x.Language)
-                .Where(x => x.IsRequired).ToList();
+                .Where(x => x.IsRequired && x.Language.Abbreviation.Equals(language)).ToList();
         }
     }
 }
