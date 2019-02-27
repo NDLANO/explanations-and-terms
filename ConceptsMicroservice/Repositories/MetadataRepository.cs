@@ -52,7 +52,7 @@ namespace ConceptsMicroservice.Repositories
                 .Include(x => x.Category)
                 .ThenInclude(x => x.TypeGroup)
                 .Include(x => x.Status)
-                .Where(x => x.Language.Abbreviation.Equals(query.Language));
+                .Where(x => x.Language.Abbreviation.Equals(query.Language) || x.Language.Abbreviation.Equals(_languageConfig.Default));
 
             var totalItems = allMetaData.Count();
             var totalPages = Convert.ToInt32(Math.Ceiling(totalItems * 1.0 / query.PageSize));

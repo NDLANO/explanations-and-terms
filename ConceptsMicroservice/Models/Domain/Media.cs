@@ -21,8 +21,7 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("created")] public DateTime Created { get; set; }
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("source")] public string Source { get; set; }
-        [Column("language_id")] public int LanguageId { get; set; }
-
+        
         public virtual MediaType MediaType { get; set; }
     }
 }

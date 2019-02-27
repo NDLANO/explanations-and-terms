@@ -18,7 +18,6 @@ namespace ConceptsMicroservice.Models.Domain
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public string Source { get; set; }
-        public Language Language { get; set; }
         public MediaTypeDTO MediaType { get; set; }
     }
 }
