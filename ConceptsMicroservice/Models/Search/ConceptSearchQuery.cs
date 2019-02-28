@@ -36,8 +36,8 @@ namespace ConceptsMicroservice.Models.Search
         {
             var sqlParameters = new List<NpgsqlParameter>
             {
-                new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer) {Value = PageSize},
-                new NpgsqlParameter("page_number", NpgsqlDbType.Integer) {Value = Page}
+                new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer) {Value = PageSize > 0 ? PageSize : BaseListQuery.DefaultPageSize},
+                new NpgsqlParameter("page_number", NpgsqlDbType.Integer) {Value = Page > 0 ? Page : BaseListQuery.DefaultPage}
             };
 
             if (!string.IsNullOrWhiteSpace(Title))

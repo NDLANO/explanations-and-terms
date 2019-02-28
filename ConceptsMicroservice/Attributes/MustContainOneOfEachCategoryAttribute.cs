@@ -20,20 +20,23 @@ namespace ConceptsMicroservice.Attributes
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var languageConfig =
-                (validationContext.GetService(typeof(IOptions<LanguageConfig>)) as IOptions<LanguageConfig>).Value;
-            var httpContext = validationContext.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+            if (!(validationContext.GetService(typeof(IOptions<LanguageConfig>)) is IOptions<LanguageConfig> languageService))
+                return new ValidationResult("Could not validate language");
+
+            var languageConfig = languageService.Value;
+
+            if (!(validationContext.GetService(typeof(IHttpContextAccessor)) is IHttpContextAccessor httpContext))
+                return new ValidationResult("Could not validate language with request params");
+
             var language = languageConfig.Default;
 
-            if (httpContext != null 
-                && !string.IsNullOrEmpty(httpContext.HttpContext.Request.Query["language"]) 
+            if (!string.IsNullOrEmpty(httpContext.HttpContext.Request.Query["language"]) 
                 && languageConfig.Supported.Contains(httpContext.HttpContext.Request.Query["language"]))
             {
                 language = httpContext.HttpContext.Request.Query["language"];
             }
 
-            var service = validationContext.GetService(typeof(IConceptValidationService)) as IConceptValidationService;
-            if (service == null)
+            if (!(validationContext.GetService(typeof(IConceptValidationService)) is IConceptValidationService service))
                 return new ValidationResult("Could not validate metaid's");
 
             var missingCategories = service.GetMissingRequiredCategories(value as List<int>, language);

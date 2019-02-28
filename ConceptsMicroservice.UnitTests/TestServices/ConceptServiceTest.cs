@@ -170,13 +170,13 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         #region Search
 
         [Fact]
-        public void SearchForConcepts_Fetches_No_Concepts_If_No_Query_Is_Specified()
+        public void SearchForConcepts_Fetches_Concepts_If_No_Query_Is_Specified()
         {
             A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).Returns(new List<Concept>());
             var results = Service.SearchForConcepts(null);
-
+            
             A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).MustHaveHappenedOnceExactly();
-            Assert.IsType<ConceptPagingDTO>(results.Data);
+            Assert.IsType<PagingDTO<ConceptDto>>(results.Data);
         }
 
         [Fact]
@@ -185,17 +185,20 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Returns(new List<Concept>());
             var results = Service.SearchForConcepts(new ConceptSearchQuery());
 
-            A.CallTo(() => ConceptRepository.GetAll(BaseListQuery)).MustNotHaveHappened();
-            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => ConceptRepository.GetAll(BaseListQuery)).Returns(new List<Concept>());
+            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Returns(new List<Concept>());
 
-            Assert.IsType<ConceptPagingDTO>(results.Data);
+            Assert.IsType<PagingDTO<ConceptDto>>(results.Data);
         }
 
 
         [Fact]
         public void SearchForConcepts_Returns_Null_If_An_Error_Occured()
         {
-            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Throws<Exception>();
+
+            A.CallTo(() => ConceptRepository.GetAll(A<ConceptSearchQuery>._)).Throws<Exception>().Once();
+            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Throws<Exception>().Once();
+
 
             var results = Service.SearchForConcepts(new ConceptSearchQuery());
 

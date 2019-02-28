@@ -43,7 +43,7 @@ namespace ConceptsMicroservice.Services
 
             try
             {
-                var concepts = _conceptRepository.SearchForConcepts(query);
+                var concepts = _conceptRepository.SearchForConcepts(query); //concepts = ((query == null) || (!query.HasQuery()))  ? _conceptRepository.GetAll(BaseListQuery.DefaultValues(_languageConfig.Default)) : _conceptRepository.SearchForConcepts(query);
                 var totalItems = 0;
                 var numberOfPages = 0;
 
@@ -60,6 +60,7 @@ namespace ConceptsMicroservice.Services
                     UrlHelper.Action("Search", "Concept", query), 
                     numberOfPages,
                     totalItems);
+                
 
                 return new Response
                 {

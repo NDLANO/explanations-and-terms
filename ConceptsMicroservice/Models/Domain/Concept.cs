@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models.Domain
 {
-    [Table("concepts", Schema = "public")]
+    [Table("concepts", Schema = "public")]  
     public class Concept : Paging
     {
         [Key] [Column("id")] public int Id { get; set; }
@@ -64,6 +64,17 @@ namespace ConceptsMicroservice.Models.Domain
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
         [Column("language_variation")] public Guid LanguageVariation { get; set; }
+        public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(reader.GetString(column));
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
 
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
@@ -84,11 +95,11 @@ namespace ConceptsMicroservice.Models.Domain
             var languageIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageId, attr => attr.Name));
             var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
             var groupIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.GroupId, attr => attr.Name));
+            var languageVariationColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.LanguageVariation, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
-            var languageVariation = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.LanguageVariation,attr => attr.Name));
 
             var meta = JsonHelper.GetJson<List<MetaData>>(reader, metaObjectsColumn);
             var media = JsonHelper.GetJson<List<Media>>(reader, mediaObjectsColumn);
@@ -116,7 +127,7 @@ namespace ConceptsMicroservice.Models.Domain
                 Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
                 Status = status ?? new Status(),
-                Language = language ?? new Language(),
+                Language = language ?? new Language()
             };
 
             try
@@ -127,7 +138,7 @@ namespace ConceptsMicroservice.Models.Domain
 
             try
             {
-                concept.GroupId = Guid.Parse(reader.SafeGetString(languageVariation));
+                concept.GroupId = Guid.Parse(reader.SafeGetString(languageVariationColumn));
             }
             catch { }
 

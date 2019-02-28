@@ -31,7 +31,7 @@ namespace ConceptsMicroservice.Services
         public Response SearchForMetadata(MetaSearchQuery query)
         {
             if (query == null)
-                query = BaseListQuery.DefaultValues(LanguageConfig.Default) as MetaSearchQuery;
+                query = MetaSearchQuery.DefaultValues(LanguageConfig.Default);
 
             query.SetDefaultValuesIfNotInitilized(LanguageConfig);
             try
@@ -48,14 +48,16 @@ namespace ConceptsMicroservice.Services
                 }
                 catch { }
 
-                var dto = new PagingDTO<MetaDataDTO>(Mapper.Map<List<MetaDataDTO>>(results), query, UrlHelper.Action("Search", "Metadata", query), numberOfPages, totalItems);
+                var n = UrlHelper.Action("Search", "Metadata", query);
+                var l = Mapper.Map<List<MetaDataDTO>>(results);
+                var dto = new PagingDTO<MetaDataDTO>(l, query, n, numberOfPages, totalItems);
 
                 return new Response
                 {
                     Data = dto
                 };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }

@@ -90,7 +90,7 @@ namespace ConceptsMicroservice.Repositories
                 .Include(x => x.Language)
                 .AsQueryable();
 
-            if (searchArgument == null)
+            if (searchArgument == null || searchArgument.HasNoQuery())
                 return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
 
             var searchArgsHasName = !string.IsNullOrWhiteSpace(searchArgument.Name);
@@ -112,8 +112,10 @@ namespace ConceptsMicroservice.Repositories
             if (searchArgument.Page > totalPages)
                 searchArgument.Page = 1;
 
+            var offset = searchArgument.PageSize * (searchArgument.Page - 1);
+
             var meta = query
-                .Skip(searchArgument.PageSize * (searchArgument.Page - 1))
+                .Skip(offset)
                 .Take(searchArgument.PageSize)
                 .ToList();
             meta.ForEach(x =>
