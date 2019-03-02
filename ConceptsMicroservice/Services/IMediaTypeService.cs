@@ -11,6 +11,6 @@ namespace ConceptsMicroservice.Services
 {
     public interface IMediaTypeService
     {
-        Response GetAllMediaTypes();
+        Response GetAllMediaTypes(BaseListQuery query);
     }
 }

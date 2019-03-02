@@ -33,9 +33,9 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<MediaType>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAllMediaTypes()
+        public ActionResult<Response> GetAllMediaTypes([FromQuery]BaseListQuery query)
         {
-            var status = _service.GetAllMediaTypes();
+            var status = _service.GetAllMediaTypes(query);
             if (status != null)
                 return Ok(status);
 

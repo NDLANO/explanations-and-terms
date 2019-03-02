@@ -40,31 +40,46 @@ namespace ConceptsMicroservice.Services.Validation
             var noExistingIds = new List<int>();
             if (ids == null)
                 return noExistingIds;
-            
+
             foreach (var id in ids)
             {
-                if(_metadataRepository.GetById(id) == null)
+                if (_metadataRepository.GetById(id) == null)
                     noExistingIds.Add(id);
             }
 
             return noExistingIds;
         }
 
-        public List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> mediaTypes)
+        public List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> mediaTypes, string language)
         {
             var noExistingIds = new List<int>();
             if (mediaTypes == null)
                 return noExistingIds;
 
-            var allMediaTypes = _mediaTypeRepository
-                .GetAll()
-                .Select(x => x.Id)
-                .ToList();
-            foreach (var mediaType in mediaTypes)
+            var allMediaTypes = _mediaTypeRepository.GetAll(BaseListQuery.DefaultValues(language));
+            var pages = 1;
+
+            try
             {
-                if (!allMediaTypes.Contains(mediaType.MediaTypeId))
-                    noExistingIds.Add(mediaType.MediaTypeId);
+                pages = allMediaTypes.FirstOrDefault().NumberOfPages;
             }
+            catch { }
+
+            for (var page = 0; page < pages; page++)
+            {
+                var query = BaseListQuery.DefaultValues(language);
+                query.Page = page + 1;
+                var medias = _mediaTypeRepository
+                    .GetAll(query)
+                    .Select(x => x.Id)
+                    .ToList();
+                foreach (var mediaType in mediaTypes)
+                {
+                    if (!medias.Contains(mediaType.MediaTypeId))
+                        noExistingIds.Add(mediaType.MediaTypeId);
+                }
+            }
+
 
             return noExistingIds;
         }

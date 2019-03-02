@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
@@ -83,12 +84,12 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         [Fact]
         public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Empty()
         {
-            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(new List<MediaWithMediaType>()));
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(new List<MediaWithMediaType>(), "nb"));
         }
         [Fact]
         public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Null()
         {
-            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(null));
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(null, "nb"));
         }
         [Fact]
         public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_All_Ids_Exist_DB()
@@ -109,9 +110,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
                 }
             };
             var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType {Id = x.MediaTypeId}).ToList();
-            A.CallTo(() => _mediaTypeRepository.GetAll()).Returns(mediaTypesFromDB);
+            A.CallTo(() => _mediaTypeRepository.GetAll(BaseListQuery.DefaultValues("nb"))).Returns(mediaTypesFromDB);
 
-            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes));
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes, "nb"));
         }
 
         [Fact]
@@ -138,9 +139,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             };
             var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType { Id = x.MediaTypeId }).ToList();
             mediaTypesFromDB.RemoveAt(mediaTypesFromDB.Count - 1);
-            A.CallTo(() => _mediaTypeRepository.GetAll()).Returns(mediaTypesFromDB);
+            A.CallTo(() => _mediaTypeRepository.GetAll(BaseListQuery.DefaultValues("nb"))).Returns(mediaTypesFromDB);
 
-            var notExistingIds = _validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes);
+            var notExistingIds = _validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes, "nb");
             Assert.Single(notExistingIds);
         }
 

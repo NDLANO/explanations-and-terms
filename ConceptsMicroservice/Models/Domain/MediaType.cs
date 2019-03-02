@@ -13,7 +13,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("media_type", Schema = "public")]
-    public class MediaType
+    public class MediaType : Paging
     {
         [Key] [Column("id")] public int Id { get; set; }
         [Column("title")] public string Title { get; set; }
@@ -22,7 +22,8 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("updated")] public DateTime Updated { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
         [Column("type_group_id")] public int TypeGroupId { get; set; }
-        
+
+        public virtual Language Language { get; set; }
         public virtual TypeGroup TypeGroup { get; set; }
     }
 }

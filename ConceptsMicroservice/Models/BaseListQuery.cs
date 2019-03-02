@@ -6,11 +6,9 @@
  *
  */
 
-using System;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-using System.Linq;
+using System.Web;
 using ConceptsMicroservice.Models.Configuration;
 
 namespace ConceptsMicroservice.Models
@@ -27,7 +25,7 @@ namespace ConceptsMicroservice.Models
         /// <summary>
         /// The page number of the search hits to display
         /// </summary>
-        [Range(1, Int32.MaxValue, ErrorMessage = "Minimum page is 1")]
+        [Range(1, int.MaxValue, ErrorMessage = "Minimum page is 1")]
         [FromQuery] public int Page
         {
             get => _page;
@@ -47,7 +45,7 @@ namespace ConceptsMicroservice.Models
             get => _pageSize;
             set
             {
-                if (value < MaxPageSize && value > 1)
+                if (value <= MaxPageSize && value > 1)
                     _pageSize = value;
                 else
                     _pageSize = DefaultPageSize;
