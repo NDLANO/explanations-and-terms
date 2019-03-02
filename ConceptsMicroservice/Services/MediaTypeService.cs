@@ -24,17 +24,13 @@ namespace ConceptsMicroservice.Services
     {
         private readonly IMediaTypeRepository _mediaTypeRepository;
 
-        public MediaTypeService(IMediaTypeRepository media, IOptions<LanguageConfig> languageConfig, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper, languageConfig)
+        public MediaTypeService(IMediaTypeRepository media, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _mediaTypeRepository = media;
         }
 
         public Response GetAllMediaTypes(BaseListQuery query)
         {
-            if (query == null)
-                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
-
             try
             {
                 var categories = _mediaTypeRepository.GetAll(query);

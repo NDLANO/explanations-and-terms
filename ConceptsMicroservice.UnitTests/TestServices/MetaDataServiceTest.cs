@@ -38,7 +38,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             MetaRepository = A.Fake<IMetadataRepository>();
             UrlHelper = A.Fake<IUrlHelper>();
             Mapper = A.Fake<IMapper>();
-            Service = new MetadataService(MetaRepository, new OptionsWrapper<LanguageConfig>(LanguageConfig), Mapper, UrlHelper);
+            Service = new MetadataService(MetaRepository, Mapper, UrlHelper);
             Mock = new Mock.Mock();
             
         }
@@ -53,15 +53,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => MetaRepository.SearchForMetadata(A<MetaSearchQuery>._)).MustHaveHappenedOnceExactly();
         }
 
-        [Fact]
-        public void SearchForMetadata_Returns_List_Of_MetaData_When_Query_Is_Null()
-        {
-            A.CallTo(() => Mapper.Map<List<MetaDataDTO>>(A<List<MetaData>>._)).Returns(new List<MetaDataDTO>());
-            A.CallTo(() => MetaRepository.SearchForMetadata(A<MetaSearchQuery>._)).Returns(new List<MetaData>());
-            var result = Service.SearchForMetadata(null);
 
-            Assert.IsType<PagingDTO<MetaDataDTO>>(result.Data);
-        }
 
         [Fact]
         public void SearchForMetadata_Calls_Repo_GetAll_When_Query_Is_Empty()

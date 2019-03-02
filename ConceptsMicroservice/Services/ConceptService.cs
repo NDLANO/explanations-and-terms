@@ -27,7 +27,7 @@ namespace ConceptsMicroservice.Services
         private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
 
-        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper, IUrlHelper urlHelper, IOptions<LanguageConfig> languageConfig) : base(mapper, urlHelper, languageConfig)
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _conceptRepository = concept;
             _statusRepository = status;
@@ -36,14 +36,9 @@ namespace ConceptsMicroservice.Services
         
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
-            if (query == null)
-                return GetAllConcepts(BaseListQuery.DefaultValues(LanguageConfig.Default));
-            
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
-
             try
             {
-                var concepts = _conceptRepository.SearchForConcepts(query); //concepts = ((query == null) || (!query.HasQuery()))  ? _conceptRepository.GetAll(BaseListQuery.DefaultValues(_languageConfig.Default)) : _conceptRepository.SearchForConcepts(query);
+                var concepts = _conceptRepository.SearchForConcepts(query); 
                 var totalItems = 0;
                 var numberOfPages = 0;
 
@@ -90,12 +85,6 @@ namespace ConceptsMicroservice.Services
 
         public Response GetAllConcepts(BaseListQuery query)
         {
-            if (query == null)
-                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
-
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
-
-
             try
             {
                 var concepts = _conceptRepository.GetAll(query);

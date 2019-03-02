@@ -1,11 +1,21 @@
-﻿using System.Collections.Generic;
+﻿/**
+ * Copyright (c) 2018-present, NDLA.
+ *
+ * This source code is licensed under the GPLv3 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services.Validation;
+using ConceptsMicroservice.UnitTests.Helpers;
 using FakeItEasy;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestServices.Validation
@@ -27,7 +37,8 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             _categoryRepository = A.Fake<ICategoryRepository>();
             _mediaTypeRepository = A.Fake<IMediaTypeRepository>();
             _defaultLanguage = "nb";
-            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository, _mediaTypeRepository);
+            var languageConfig = new OptionsWrapper<LanguageConfig>(ConfigHelper.GetLanguageConfiguration());
+            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository, _mediaTypeRepository, languageConfig);
         }
         #region StatusIdIsValid
         [Fact]
@@ -110,7 +121,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
                 }
             };
             var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType {Id = x.MediaTypeId}).ToList();
-            A.CallTo(() => _mediaTypeRepository.GetAll(BaseListQuery.DefaultValues("nb"))).Returns(mediaTypesFromDB);
+            A.CallTo(() => _mediaTypeRepository.GetAll(A<BaseListQuery>._)).Returns(mediaTypesFromDB);
 
             Assert.Empty(_validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes, "nb"));
         }
@@ -139,7 +150,8 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             };
             var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType { Id = x.MediaTypeId }).ToList();
             mediaTypesFromDB.RemoveAt(mediaTypesFromDB.Count - 1);
-            A.CallTo(() => _mediaTypeRepository.GetAll(BaseListQuery.DefaultValues("nb"))).Returns(mediaTypesFromDB);
+            mediaTypesFromDB.ForEach(x => x.NumberOfPages = 1);
+            A.CallTo(() => _mediaTypeRepository.GetAll(A< BaseListQuery>._)).Returns(mediaTypesFromDB);
 
             var notExistingIds = _validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes, "nb");
             Assert.Single(notExistingIds);

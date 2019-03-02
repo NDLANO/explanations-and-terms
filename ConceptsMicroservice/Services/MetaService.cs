@@ -23,17 +23,13 @@ namespace ConceptsMicroservice.Services
     public class MetadataService : BaseService, IMetadataService
     {
         private readonly IMetadataRepository _metadataRepository;
-        public MetadataService(IMetadataRepository metadataRepository, IOptions<LanguageConfig> languageConfig, IMapper mapper, IUrlHelper urlHelper) : base (mapper, urlHelper, languageConfig)
+        public MetadataService(IMetadataRepository metadataRepository, IMapper mapper, IUrlHelper urlHelper) : base (mapper, urlHelper)
         {
             _metadataRepository = metadataRepository;
         }
 
         public Response SearchForMetadata(MetaSearchQuery query)
         {
-            if (query == null)
-                query = MetaSearchQuery.DefaultValues(LanguageConfig.Default);
-
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
             try
             {
                 var results = _metadataRepository.SearchForMetadata(query);
@@ -81,10 +77,6 @@ namespace ConceptsMicroservice.Services
 
         public Response GetAll(BaseListQuery query)
         {
-            if (query == null)
-                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
-
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
             try
             {
                 var results = _metadataRepository.GetAll(query);

@@ -11,11 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
@@ -23,17 +21,13 @@ namespace ConceptsMicroservice.Services
     {
         private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper, IUrlHelper urlHelper, IOptions<LanguageConfig> languageConfig) : base(mapper, urlHelper, languageConfig)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _categoryRepository = categoryRepository;
         }
 
         public Response GetAllCategories(BaseListQuery query)
         {
-            if (query == null)
-                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
-
             try
             {
                 var categories = _categoryRepository.GetAll(query);

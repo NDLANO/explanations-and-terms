@@ -8,8 +8,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Web;
-using ConceptsMicroservice.Models.Configuration;
+using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models
 {
@@ -26,6 +25,7 @@ namespace ConceptsMicroservice.Models
         /// The page number of the search hits to display
         /// </summary>
         [Range(1, int.MaxValue, ErrorMessage = "Minimum page is 1")]
+        [JsonProperty("page")]
         [FromQuery] public int Page
         {
             get => _page;
@@ -40,6 +40,7 @@ namespace ConceptsMicroservice.Models
         /// The number of search hits to display for each page
         /// </summary>
         [Range(1, 100, ErrorMessage = "PageSize must be between 1 and 100")]
+        [JsonProperty("pageSize")]
         [FromQuery] public int PageSize
         {
             get => _pageSize;
@@ -50,12 +51,6 @@ namespace ConceptsMicroservice.Models
                 else
                     _pageSize = DefaultPageSize;
             }
-        }
-
-        public void SetDefaultValuesIfNotInitilized(LanguageConfig config)
-        {
-            if (!config.Supported.Contains(Language))
-                Language = config.Default;
         }
 
         public static BaseListQuery DefaultValues(string language)

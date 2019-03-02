@@ -22,13 +22,15 @@ namespace ConceptsMicroservice.Services.Validation
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly ICategoryRepository _categoryRepository;
+        public LanguageConfig LanguageConfig { get; private set; }
 
-        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category, IMediaTypeRepository mediaType)
+        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category, IMediaTypeRepository mediaType, IOptions<LanguageConfig> language)
         {
             _statusRepository = status;
             _metadataRepository = meta;
             _categoryRepository = category;
             _mediaTypeRepository = mediaType;
+            LanguageConfig = language.Value;
         }
         public bool StatusIdIsValidId(int id)
         {

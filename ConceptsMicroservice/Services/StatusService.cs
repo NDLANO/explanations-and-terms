@@ -22,17 +22,13 @@ namespace ConceptsMicroservice.Services
     {
         private readonly IStatusRepository _statusRepository;
 
-        public StatusService(IStatusRepository status, IMapper mapper, IOptions<LanguageConfig> language, IUrlHelper urlHelper) : base(mapper, urlHelper, language)
+        public StatusService(IStatusRepository status, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _statusRepository = status;
         }
 
         public Response GetAllStatus(BaseListQuery query)
         {
-            if (query == null)
-                query = BaseListQuery.DefaultValues(LanguageConfig.Default);
-
-            query.SetDefaultValuesIfNotInitilized(LanguageConfig);
             try
             {
                 var status = _statusRepository.GetAll(query);

@@ -9,11 +9,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Services.Validation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Attributes
 {
@@ -21,22 +19,19 @@ namespace ConceptsMicroservice.Attributes
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+            
             var service = validationContext.GetService(typeof(IConceptValidationService)) as IConceptValidationService;
             if (service == null)
                 return new ValidationResult("Could not validate mediaTypes");
-
-            if (!(validationContext.GetService(typeof(IOptions<LanguageConfig>)) is IOptions<LanguageConfig> languageService))
-                return new ValidationResult("Could not validate language");
-
-            var languageConfig = languageService.Value;
+            
 
             if (!(validationContext.GetService(typeof(IHttpContextAccessor)) is IHttpContextAccessor httpContext))
                 return new ValidationResult("Could not validate language with request params");
 
-            var language = languageConfig.Default;
+            var language = service.LanguageConfig.Default;
 
             if (!string.IsNullOrEmpty(httpContext.HttpContext.Request.Query["language"])
-                && languageConfig.Supported.Contains(httpContext.HttpContext.Request.Query["language"]))
+                && service.LanguageConfig.Supported.Contains(httpContext.HttpContext.Request.Query["language"]))
             {
                 language = httpContext.HttpContext.Request.Query["language"];
             }

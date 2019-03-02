@@ -48,9 +48,8 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             UrlHelper = A.Fake<IUrlHelper>();
 
             Mapper = AutoMapper.Mapper.Instance;
-            var languageConfig = Options.Create(ConfigHelper.GetLanguageConfiguration());
 
-            Service = new ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper, UrlHelper, languageConfig);
+            Service = new ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper, UrlHelper);
             Mock = new Mock.Mock();
             _status = new Status();
             BaseListQuery = BaseListQuery.DefaultValues("nb");
@@ -168,16 +167,6 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         #endregion
 
         #region Search
-
-        [Fact]
-        public void SearchForConcepts_Fetches_Concepts_If_No_Query_Is_Specified()
-        {
-            A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).Returns(new List<Concept>());
-            var results = Service.SearchForConcepts(null);
-            
-            A.CallTo(() => ConceptRepository.GetAll(A<BaseListQuery>._)).MustHaveHappenedOnceExactly();
-            Assert.IsType<PagingDTO<ConceptDto>>(results.Data);
-        }
 
         [Fact]
         public void SearchForConcepts_Fetches_Concepts_When_Query_Is_Specified()
