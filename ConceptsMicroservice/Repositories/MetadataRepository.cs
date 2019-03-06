@@ -8,18 +8,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using ConceptsMicroservice.Context;
-using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
-using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Npgsql;
 
 namespace ConceptsMicroservice.Repositories
 {
@@ -33,26 +28,35 @@ namespace ConceptsMicroservice.Repositories
             _languageConfig = languageConfig.Value;
         }
 
+        private IQueryable<MetaData> TableWithAllNestedObjects()
+        {
+            return _context.MetaData
+                .Include(x => x.Language)
+                .Include(x => x.Status)
+                .Include(x => x.Category)
+                .ThenInclude(x => x.TypeGroup);
+        }
+
         public List<MetaData> GetByRangeOfIds(List<int> ids)
         {
             return ids == null 
                 ? new List<MetaData>() 
-                : _context.MetaData
-                    .Include(x => x.Language)
-                    .Include(x => x.Category)
-                    .ThenInclude(x => x.TypeGroup)
+                : TableWithAllNestedObjects()
                     .Where(x => ids.Contains(x.Id)).ToList();
         }
         
 
         public List<MetaData> GetAll(BaseListQuery query)
         {
-            var allMetaData = _context.MetaData
-                .Include(x => x.Language)
-                .Include(x => x.Category)
-                .ThenInclude(x => x.TypeGroup)
-                .Include(x => x.Status)
-                .Where(x => x.Language.Abbreviation.Equals(query.Language) || x.Language.Abbreviation.Equals(_languageConfig.Default));
+            var metadataWithQueriedLanguage = TableWithAllNestedObjects()
+                .Where(a => a.Language.Abbreviation.Equals(query.Language))
+                .ToList();
+            var allMetaData = TableWithAllNestedObjects()
+                .Where(x => !_context.MetaData
+                    .Include(a => a.Language)
+                    .Where(a => a.Language.Abbreviation.Equals(query.Language)).Any(y => y.LanguageVariation == x.LanguageVariation))
+                .Where(x => x.Language.Abbreviation.Equals(_languageConfig.Default))
+                .Union(metadataWithQueriedLanguage);
 
             var totalItems = allMetaData.Count();
             var totalPages = Convert.ToInt32(Math.Ceiling(totalItems * 1.0 / query.PageSize));
