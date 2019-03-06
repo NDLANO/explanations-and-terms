@@ -15,6 +15,7 @@ namespace ConceptsMicroservice.Models.DTO
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string LanguageVariation { get; set; }
         public string Abbreviation { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }

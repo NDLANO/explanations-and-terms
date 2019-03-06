@@ -8,6 +8,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models.Domain
 {
@@ -28,7 +29,7 @@ namespace ConceptsMicroservice.Models.Domain
         /// <summary>
         /// Is id possible to have more then one meta of this category.
         /// </summary>
-        [Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
+        [JsonProperty("can_have_multiple")][Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
         /// <summary>
         /// Is it required to have at least one meta of this category.
         /// </summary>

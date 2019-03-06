@@ -26,6 +26,8 @@ namespace ConceptsMicroservice.Models.Domain
         [Required]
         [Column("description")]
         public string Description { get; set; }
+        [Column("language_variation")]
+        public string LanguageVariation { get; set; }
         [Column("created")]
         public DateTime Created { get; set; }
         [Column("updated")]
