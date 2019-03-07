@@ -6,6 +6,7 @@
  *
  */
 
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +17,13 @@ namespace ConceptsMicroservice.Controllers
     [Produces("application/json")]
     public class BaseController : ControllerBase
     {
+        protected ObjectResult InternalServerError(Response response)
+        {
+            return new InternalServerErrorObjectResult(response);
+        }
         protected StatusCodeResult InternalServerError()
         {
-            return new InternalServerErrorObjectResult();
+            return new InternalServerErrorStatusResult();
         }
     }
 }

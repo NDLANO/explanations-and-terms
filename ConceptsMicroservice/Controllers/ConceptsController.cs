@@ -127,7 +127,7 @@ namespace ConceptsMicroservice.Controllers
                 return NotFound();
 
             if (viewModel.Data == null)
-                return InternalServerError();
+                return InternalServerError(viewModel);
 
             return Ok(viewModel);
 
@@ -162,8 +162,12 @@ namespace ConceptsMicroservice.Controllers
             
            var userInfo = await _tokenHelper.GetUserInfo();
             var viewModel = _service.CreateConcept(concept, userInfo);
-            if (viewModel?.Data == null)
+
+            if (viewModel == null)
                 return InternalServerError();
+
+            if (viewModel.Data == null)
+                return InternalServerError(viewModel);
 
             return Ok(viewModel);
         }

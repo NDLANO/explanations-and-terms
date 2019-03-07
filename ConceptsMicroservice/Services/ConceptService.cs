@@ -11,13 +11,11 @@ using System.Linq;
 using Auth0.AuthenticationApi.Models;
 using AutoMapper;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
@@ -26,12 +24,16 @@ namespace ConceptsMicroservice.Services
         private readonly IConceptRepository _conceptRepository;
         private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
+        private readonly IMetadataRepository _metaRepository;
+        private readonly ILanguageRepository _languageRepository;
 
-        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMetadataRepository meta, ILanguageRepository language, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _conceptRepository = concept;
             _statusRepository = status;
             _conceptMediaRepository = media;
+            _metaRepository = meta;
+            _languageRepository = language;
         }
         
         public Response SearchForConcepts(ConceptSearchQuery query)
@@ -128,7 +130,25 @@ namespace ConceptsMicroservice.Services
                 return null;
             }
 
+            // Fetch language id
+            var metas = _metaRepository.GetByRangeOfIds(dto.MetaIds);
+            var languageMeta = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+            if (languageMeta == null)
+            {
+                viewModel.Errors.TryAddModelError("metaIds", "Did not contain an id for language");
+                return viewModel;
+            }
+
+            var language = _languageRepository.GetByAbbreviation(languageMeta.Language.Abbreviation);
+            if (language == null)
+            {
+                viewModel.Errors.TryAddModelError("metaIds", $"Language meta with id {languageMeta.Id} is not supported");
+                return viewModel;
+            }
+
+
             // Readonly fields
+            newConceptVersion.LanguageId = language.Id;
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
             newConceptVersion.MediaIds = oldConceptVersion.MediaIds;
@@ -136,6 +156,7 @@ namespace ConceptsMicroservice.Services
             newConceptVersion.AuthorEmail = oldConceptVersion.AuthorEmail;
             newConceptVersion.GroupId = oldConceptVersion.GroupId;
 
+            
             try
             {
                 _conceptRepository.Update(newConceptVersion);
