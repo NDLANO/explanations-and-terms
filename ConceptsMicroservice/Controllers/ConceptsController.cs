@@ -126,10 +126,15 @@ namespace ConceptsMicroservice.Controllers
             if (viewModel == null)
                 return NotFound();
 
-            if (viewModel.Data == null)
-                return InternalServerError(viewModel);
+            if (viewModel.Data != null)
+            {
+                return Ok(viewModel);
+            }
 
-            return Ok(viewModel);
+            if (viewModel.HasErrors())
+                return BadRequest(viewModel);
+
+            return InternalServerError();
 
         }
 

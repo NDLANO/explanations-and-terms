@@ -34,7 +34,7 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("updated")]
         public DateTime Updated { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
-        [Column("language_variation")] public string LanguageVariation { get; set; }
+        [Column("language_variation")] public Guid LanguageVariation { get; set; }
 
         public virtual Language Language { get; set; }
         public virtual MetaCategory Category { get; set; }

@@ -260,7 +260,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         {
             A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._, new UserInfo())).Returns(null);
             var result = _controller.CreateConcept(_createConcept);
-            var status = result.Result.Result as StatusCodeResult;
+            var status = result.Result.Result as ObjectResult;
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
         }

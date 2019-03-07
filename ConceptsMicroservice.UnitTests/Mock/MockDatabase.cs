@@ -144,7 +144,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
             var status = new Status
             {
                 Name = "Name",
-                Description = "Description"
+                Description = "Description",
+                LanguageVariation = Guid.NewGuid()
             };
 
             var meta = new MetaData
@@ -153,7 +154,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Abbreviation = "Abb",
                 Description = "Description",
                 Category = category,
-                Status = status
+                Status = status,
+                LanguageVariation = Guid.NewGuid()
             };
 
             var concept = new Concept

@@ -19,7 +19,6 @@ using ConceptsMicroservice.UnitTests.Helpers;
 using ConceptsMicroservice.UnitTests.Mock;
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestServices
@@ -31,12 +30,17 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IConceptService Service;
         protected readonly IConceptRepository ConceptRepository;
         protected readonly IConceptMediaRepository ConceptMediaRepository;
+        protected readonly ILanguageRepository LanguageRepository;
         protected readonly IStatusRepository StatusRepository;
+        protected readonly IMetadataRepository MetadataRepository;
         protected readonly IMapper Mapper;
         protected BaseListQuery BaseListQuery;
         private readonly IUrlHelper UrlHelper;
         private readonly string allowedUserEmail = "somebody@somedomain";
-        
+
+        private Language _language;
+        private List<MetaData> _listOfMetaWithLanguage;
+
         private Status _status;
         
 
@@ -45,15 +49,25 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             ConceptMediaRepository = A.Fake<IConceptMediaRepository>();
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
+            LanguageRepository = A.Fake<ILanguageRepository>();
+            LanguageRepository = A.Fake<ILanguageRepository>();
+            MetadataRepository = A.Fake<IMetadataRepository>();
             UrlHelper = A.Fake<IUrlHelper>();
 
             Mapper = AutoMapper.Mapper.Instance;
 
-            Service = new ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper, UrlHelper);
+            Service = new ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, MetadataRepository, LanguageRepository, Mapper, UrlHelper);
             Mock = new Mock.Mock();
             _status = new Status();
             BaseListQuery = BaseListQuery.DefaultValues("nb");
+            _language = new Language();
+            _listOfMetaWithLanguage = new List<MetaData>{new MetaData
+                {Language = _language, Category = new MetaCategory{TypeGroup = new TypeGroup{Name = "language"}}}};
+
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
+            A.CallTo(() => MetadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(_listOfMetaWithLanguage);
+            A.CallTo(() => LanguageRepository.GetByAbbreviation(A<string>._)).Returns(_language);
+
         }
         #region GetAll
         [Fact]
@@ -375,7 +389,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._))
                 .MustHaveHappened(1, Times.Exactly);
         }
-        
+
         [Fact]
         public void UpdateConcept_Calls_DeleteConnectionBetweenConceptAndMedia_On_Success_If_There_Is_Media_To_Delete()
         {

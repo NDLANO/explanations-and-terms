@@ -44,7 +44,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
             return new Status
             {
                 Name = name,
-                Description = "Description"
+                Description = "Description",
+                LanguageVariation = Guid.NewGuid()
             };
         }
 
@@ -63,7 +64,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Name = $"Meta_{Guid.NewGuid()}",
                 Description = "Description",
                 Status = status,
-                Category = category
+                Category = category,
+                LanguageVariation = Guid.NewGuid()
             };
         }
 

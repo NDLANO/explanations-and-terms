@@ -146,7 +146,6 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
 
-
             // Readonly fields
             newConceptVersion.LanguageId = language.Id;
             newConceptVersion.Created = oldConceptVersion.Created;
