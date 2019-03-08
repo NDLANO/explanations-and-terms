@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using Auth0.AuthenticationApi.Models;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
@@ -164,17 +165,30 @@ namespace ConceptsMicroservice.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
-            
-           var userInfo = await _tokenHelper.GetUserInfo();
+
+            UserInfo userInfo;
+            try
+            {
+                userInfo = await _tokenHelper.GetUserInfo();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
             var viewModel = _service.CreateConcept(concept, userInfo);
-
             if (viewModel == null)
-                return InternalServerError();
+                return NotFound();
 
-            if (viewModel.Data == null)
-                return InternalServerError(viewModel);
+            if (viewModel.Data != null)
+            {
+                return Ok(viewModel);
+            }
 
-            return Ok(viewModel);
+            if (viewModel.HasErrors())
+                return BadRequest(viewModel);
+
+            return InternalServerError();
         }
         /// <summary>
         /// Update the specified concept.
@@ -190,8 +204,16 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
-            var userInfo = await _tokenHelper.GetUserInfo();
-            
+            UserInfo userInfo;
+            try
+            {
+                userInfo = await _tokenHelper.GetUserInfo();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
             var viewModel = _service.ArchiveConcept(id, userInfo.Email);
             if (viewModel == null)
                 return NotFound();

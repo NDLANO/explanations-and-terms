@@ -118,6 +118,25 @@ namespace ConceptsMicroservice.Services
             }
         }
 
+        private Language GetLanguage(Response viewModel, List<int> metaIds)
+        {
+            // Fetch language id
+            var metas = _metaRepository.GetByRangeOfIds(metaIds);
+            var languageMeta = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+            if (languageMeta == null)
+            {
+                viewModel.Errors.TryAddModelError("metaIds", "Did not contain an id for language");
+            }
+
+            var language = _languageRepository.GetByAbbreviation(languageMeta.Language.Abbreviation);
+            if (language == null)
+            {
+                viewModel.Errors.TryAddModelError("metaIds", $"Language meta with id {languageMeta.Id} is not supported");
+            }
+
+            return language;
+        }
+
         public Response UpdateConcept(UpdateConceptDto dto)
         {
             var newConceptVersion = Mapper.Map<Concept>(dto);
@@ -130,21 +149,9 @@ namespace ConceptsMicroservice.Services
                 return null;
             }
 
-            // Fetch language id
-            var metas = _metaRepository.GetByRangeOfIds(dto.MetaIds);
-            var languageMeta = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
-            if (languageMeta == null)
-            {
-                viewModel.Errors.TryAddModelError("metaIds", "Did not contain an id for language");
-                return viewModel;
-            }
-
-            var language = _languageRepository.GetByAbbreviation(languageMeta.Language.Abbreviation);
+            var language = GetLanguage(viewModel, dto.MetaIds);
             if (language == null)
-            {
-                viewModel.Errors.TryAddModelError("metaIds", $"Language meta with id {languageMeta.Id} is not supported");
                 return viewModel;
-            }
 
             // Readonly fields
             newConceptVersion.LanguageId = language.Id;
@@ -206,16 +213,35 @@ namespace ConceptsMicroservice.Services
             var concept = Mapper.Map<Concept>(newConcept);
             var media = new List<ConceptMedia>();
 
+            if (userInfo == null || string.IsNullOrEmpty(userInfo.Email) || string.IsNullOrEmpty(userInfo.FullName))
+            {
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not get user information");
+                return viewModel;
+            }
+
+            var language = GetLanguage(viewModel, newConcept.MetaIds);
+            if (language == null)
+                return viewModel;
+
             // Readonly fields
-            if (!string.IsNullOrEmpty(userInfo.Email))
-                concept.AuthorEmail = userInfo.Email;
-            if (!string.IsNullOrEmpty(userInfo.FullName))
-                concept.AuthorName = userInfo.FullName;
+            concept.LanguageId = language.Id;
+            concept.AuthorEmail = userInfo.Email;
+            concept.AuthorName = userInfo.FullName;
 
             try
             {
                 concept = _conceptRepository.Insert(concept);
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not create concept");
+            }
+            catch (Exception e)
+            {
+                return viewModel;
+            }
+
+            try
+            {
                 media = _conceptMediaRepository.InsertMediaForConcept(concept.Id, newConcept.Media);
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not insert media for concept");
             }
             catch(Exception e)
             {

@@ -23,7 +23,7 @@ namespace ConceptsMicroservice.Models.Domain
     {
         [Key] [Column("id")] public int Id { get; set; }
 
-        [Column("external_id")] public string ExternalId { get; set; }
+        [Column("externalId")] public string ExternalId { get; set; }
 
         [Column("meta")]
         [Required]
