@@ -256,13 +256,13 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             Assert.Equal(400, badRequest.StatusCode);
         }
         [Fact]
-        public void CreateConcept_Returns_500_When_Service_Returns_Null()
+        public void CreateConcept_Returns_404_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._, new UserInfo())).Returns(null);
+            A.CallTo(() => _service.CreateConcept(A<CreateConceptDto>._, A< UserInfo>._)).Returns(null);
             var result = _controller.CreateConcept(_createConcept);
-            var status = result.Result.Result as ObjectResult;
+            var status = result.Result.Result as NotFoundResult;
 
-            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
+            Assert.Equal((int)HttpStatusCode.NotFound, status.StatusCode);
         }
         
 

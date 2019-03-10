@@ -126,6 +126,7 @@ namespace ConceptsMicroservice.Services
             if (languageMeta == null)
             {
                 viewModel.Errors.TryAddModelError("metaIds", "Did not contain an id for language");
+                return null;
             }
 
             var language = _languageRepository.GetByAbbreviation(languageMeta.Language.Abbreviation);

@@ -37,6 +37,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected BaseListQuery BaseListQuery;
         private readonly IUrlHelper UrlHelper;
         private readonly string allowedUserEmail = "somebody@somedomain";
+        private readonly UserInfo _userInfo;
 
         private Language _language;
         private List<MetaData> _listOfMetaWithLanguage;
@@ -50,7 +51,6 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
             LanguageRepository = A.Fake<ILanguageRepository>();
-            LanguageRepository = A.Fake<ILanguageRepository>();
             MetadataRepository = A.Fake<IMetadataRepository>();
             UrlHelper = A.Fake<IUrlHelper>();
 
@@ -63,6 +63,11 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             _language = new Language();
             _listOfMetaWithLanguage = new List<MetaData>{new MetaData
                 {Language = _language, Category = new MetaCategory{TypeGroup = new TypeGroup{Name = "language"}}}};
+            _userInfo = new UserInfo
+            {
+                FullName = "Fullname",
+                Email = "Email"
+            };
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
             A.CallTo(() => MetadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(_listOfMetaWithLanguage);
@@ -219,7 +224,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             var mockConcept = Mock.MockCreateOrUpdateConcept();
 
-            var viewModel = Service.CreateConcept(mockConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockConcept, _userInfo);
             
             Assert.Null(viewModel.Data);
         }
@@ -233,7 +238,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
-            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockMediaConcept, _userInfo);
 
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._))
                 .MustHaveHappened(1, Times.Exactly);
@@ -289,7 +294,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(conceptMediaList);
-            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockMediaConcept, _userInfo);
 
             var concept = viewModel.Data as ConceptDto;
 
@@ -311,7 +316,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
-            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockMediaConcept, _userInfo);
 
             Assert.NotNull(viewModel.Data);
             Assert.IsType<ConceptDto>(viewModel.Data);
@@ -321,11 +326,11 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         public void CreateConcept_Returns_With_No_Errors_On_Success()
         {
             var mockConcept = Mock.MockConcept(_status);
+            mockConcept.GroupId = Guid.Empty;
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
-
-            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept(), new UserInfo());
+            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept(), _userInfo);
 
             Assert.False(viewModel.HasErrors());
         }

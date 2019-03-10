@@ -45,7 +45,14 @@ namespace ConceptsMicroservice.UnitTests.Mock
             {
                 Name = name,
                 Description = "Description",
-                LanguageVariation = Guid.NewGuid()
+                LanguageVariation = Guid.NewGuid(),
+                TypeGroup = new TypeGroup
+                {
+                    Name = "typeGroup",
+                    Id = 2,
+                    Description = "Description",
+                },
+                TypeGroupId = 2
             };
         }
 
