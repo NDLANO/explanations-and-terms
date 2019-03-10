@@ -23,11 +23,16 @@ namespace ConceptsMicroservice.Repositories
             _context = context;
         }
 
+        private IQueryable<MetaCategory> TableWithAllNestedObjects()
+        {
+            return _context.Categories
+                .Include(x => x.Language)
+                .Include(x => x.TypeGroup);
+        }
+
         public List<MetaCategory> GetAll(BaseListQuery query)
         {
-            var allCategories = _context.Categories
-                .Include(x => x.Language)
-                .Include(x => x.TypeGroup)
+            var allCategories = TableWithAllNestedObjects()
                 .Where(x => x.Language.Abbreviation.Equals(query.Language));
 
             var totalItems = allCategories.Count();
@@ -37,6 +42,7 @@ namespace ConceptsMicroservice.Repositories
                 query.Page = 1;
 
             var categories = allCategories
+                .OrderBy(x => x.Id)
                 .Skip(query.PageSize * (query.Page - 1))
                 .Take(query.PageSize)
                 .ToList();
@@ -52,16 +58,13 @@ namespace ConceptsMicroservice.Repositories
 
         public MetaCategory GetById(int id)
         {
-            return _context.Categories
-                .Include(x => x.Language)
-                .Include(x => x.TypeGroup)
+            return TableWithAllNestedObjects()
                 .FirstOrDefault(x => x.Id == id);
         }
 
         public List<MetaCategory> GetRequiredCategories(string language)
         {
-            return _context.Categories
-                .Include(x => x.Language)
+            return TableWithAllNestedObjects()
                 .Where(x => x.IsRequired && x.Language.Abbreviation.Equals(language)).ToList();
         }
     }

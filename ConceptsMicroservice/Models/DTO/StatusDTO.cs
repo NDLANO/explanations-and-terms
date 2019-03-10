@@ -20,5 +20,6 @@ namespace ConceptsMicroservice.Models.DTO
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public Language Language { get; set; }
+        public virtual TypeGroup TypeGroup { get; set; }
     }
 }

@@ -207,6 +207,52 @@ namespace ConceptsMicroservice.Services
             return viewModel;
         }
 
+        private bool CanCreateLanguageVariation(Response viewModel, Concept newConcept)
+        {
+            var group = _conceptRepository.GetByGroupId(newConcept.GroupId);
+
+            if (group == null || group.Count == 0)
+            {
+                viewModel.Errors.TryAddModelError("groupId", "GroupId did not have a valid value");
+                return false;
+            }
+
+            var metas = _metaRepository.GetByRangeOfIds(newConcept.MetaIds);
+            var metasWithoutLanguage = metas
+                .Where(x => !x.Category.TypeGroup.Name.ToLower().Equals("language"))
+                .Select(x => x.Id)
+                .ToList();
+            var newMetaLanguage = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+
+            // Validate metas
+            foreach (var concept in group)
+            {
+                var groupMeta = _metaRepository.GetByRangeOfIds(concept.MetaIds);
+                var metasForConceptWithoutLanguage = groupMeta
+                    .Where(x => !x.Category.TypeGroup.Name.ToLower().Equals("language"))
+                    .Select(x => x.Id)
+                    .ToList();
+                var groupLanguage = groupMeta.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+
+                if (groupLanguage != null && newMetaLanguage != null &&
+                    groupLanguage.LanguageVariation.Equals(newMetaLanguage.LanguageVariation))
+                {
+                    viewModel.Errors.TryAddModelError("metaIds", "Cannot create a concept with the same language");
+                    return false;
+
+                }
+
+                var commonMetas = metasForConceptWithoutLanguage.Intersect(metasWithoutLanguage).ToList();
+                if (metasForConceptWithoutLanguage.Count != metasWithoutLanguage.Count || commonMetas.Count != metasWithoutLanguage.Count)
+                {
+                    viewModel.Errors.TryAddModelError("metaIds", "Did not contain similar meta as rest of the concept group");
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+
         public Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo)
         {
             var viewModel = new Response();
@@ -228,23 +274,34 @@ namespace ConceptsMicroservice.Services
             concept.AuthorEmail = userInfo.Email;
             concept.AuthorName = userInfo.FullName;
 
+            // Create a language variation
+            if (concept.GroupId != Guid.Empty)
+            {
+                if (!CanCreateLanguageVariation(viewModel, concept))
+                    return viewModel;
+            }
+            else
+            {
+                concept.GroupId = Guid.NewGuid();
+            }
+
             try
             {
                 concept = _conceptRepository.Insert(concept);
-                viewModel.Errors.TryAddModelError("errorMessage", "Could not create concept");
             }
             catch (Exception e)
             {
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not create concept");
                 return viewModel;
             }
 
             try
             {
                 media = _conceptMediaRepository.InsertMediaForConcept(concept.Id, newConcept.Media);
-                viewModel.Errors.TryAddModelError("errorMessage", "Could not insert media for concept");
             }
             catch(Exception e)
             {
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not insert media for concept");
                 return viewModel;
             }
 

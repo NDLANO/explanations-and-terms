@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
 using System.Collections.Generic;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
@@ -16,6 +18,7 @@ namespace ConceptsMicroservice.Repositories
     {
         List<Concept> SearchForConcepts(ConceptSearchQuery query);
         Concept GetById(int id);
+        List<Concept> GetByGroupId(Guid id);
         List<Concept> GetAll(BaseListQuery query);
         Concept Update(Concept updated);
         Concept Insert(Concept inserted);

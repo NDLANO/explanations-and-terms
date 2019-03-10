@@ -122,6 +122,33 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 
+        public List<Concept> GetByGroupId(Guid id)
+        {
+            var concepts = _context.Concepts
+                .Where(x => x.GroupId.Equals(id))
+                .Include(x => x.Status)
+                .Include(x => x.Language)
+                .ToList();
+
+            foreach (var concept in concepts)
+            {
+                concept.Meta = _context.MetaData
+                    .Where(x => concept.MetaIds.Contains(x.Id))
+                    .Include(x => x.Status)
+                    .Include(x => x.Language)
+                    .Include(x => x.Category)
+                    .ThenInclude(x => x.TypeGroup)
+                    .ToList();
+
+                concept.Media = _context.ConceptMedia
+                    .Where(x => concept.MediaIds.Contains(x.MediaId))
+                    .Select(x => x.Media)
+                    .ToList();
+            }
+
+            return concepts;
+        }
+
         public List<Concept> GetAll(BaseListQuery query)
         {
             var sqlParameters = new List<NpgsqlParameter>
@@ -157,7 +184,6 @@ namespace ConceptsMicroservice.Repositories
             var concept = _context.Concepts.Add(inserted);
             concept.Entity.Created = DateTime.Now;
             concept.Entity.Updated = concept.Entity.Created;
-            concept.Entity.GroupId = Guid.NewGuid();
             concept.Entity.LanguageVariation = Guid.NewGuid();
             _context.SaveChanges();
             return GetById(concept.Entity.Id);

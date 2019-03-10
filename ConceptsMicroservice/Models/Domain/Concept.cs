@@ -127,21 +127,11 @@ namespace ConceptsMicroservice.Models.Domain
                 Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
                 Status = status ?? new Status(),
-                Language = language ?? new Language()
+                Language = language ?? new Language(),
+                GroupId = reader.GetGuid(groupIdColumn),
+                LanguageVariation = reader.GetGuid(languageVariationColumn)
             };
-
-            try
-            {
-                concept.GroupId = Guid.Parse(reader.SafeGetString(groupIdColumn));
-            }
-            catch { }
-
-            try
-            {
-                concept.GroupId = Guid.Parse(reader.SafeGetString(languageVariationColumn));
-            }
-            catch { }
-
+            
             try
             {
                 var numberOfPages = reader.GetOrdinal("page_count");

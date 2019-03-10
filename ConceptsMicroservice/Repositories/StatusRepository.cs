@@ -27,6 +27,7 @@ namespace ConceptsMicroservice.Repositories
         {
             var allStatus = _context.Status
                 .Include(x => x.Language)
+                .Include(x => x.TypeGroup)
                 .Where(x => x.Language.Abbreviation.Equals(query.Language));
 
             var totalItems = allStatus.Count();
@@ -35,6 +36,7 @@ namespace ConceptsMicroservice.Repositories
                 query.Page = 1;
 
             var status = allStatus
+                .OrderBy(x => x.Id)
                 .Skip(query.PageSize * (query.Page - 1))
                 .Take(query.PageSize)
                 .ToList();

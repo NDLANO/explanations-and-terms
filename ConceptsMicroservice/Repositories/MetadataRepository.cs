@@ -33,6 +33,7 @@ namespace ConceptsMicroservice.Repositories
             return _context.MetaData
                 .Include(x => x.Language)
                 .Include(x => x.Status)
+                .ThenInclude(x => x.TypeGroup)
                 .Include(x => x.Category)
                 .ThenInclude(x => x.TypeGroup);
         }
@@ -64,6 +65,7 @@ namespace ConceptsMicroservice.Repositories
                 query.Page = 1;
 
             var meta = allMetaData
+                .OrderBy(x => x.Id)
                 .Skip(query.PageSize * (query.Page - 1))
                 .Take(query.PageSize)
                 .ToList();
@@ -71,6 +73,7 @@ namespace ConceptsMicroservice.Repositories
             {
                 x.TotalItems = totalItems;
                 x.NumberOfPages = totalPages;
+                x.Category = _context.Categories.Include(y => y.TypeGroup).FirstOrDefault(y => y.Id == x.CategoryId);
             });
 
             return meta;
@@ -78,20 +81,13 @@ namespace ConceptsMicroservice.Repositories
 
         public MetaData GetById(int id)
         {
-            return _context.MetaData
-                .Include(x => x.Language)
-                .Include(x => x.Category)
-                .ThenInclude(x => x.TypeGroup)
-                .Include(x => x.Status)
+            return TableWithAllNestedObjects()
                 .FirstOrDefault(x => x.Id == id);
         }
 
         public List<MetaData> SearchForMetadata(MetaSearchQuery searchArgument)
         {
-            var query = _context.MetaData
-                .Include(x => x.Status)
-                .Include(x => x.Category)
-                .Include(x => x.Language)
+            var query = TableWithAllNestedObjects()
                 .AsQueryable();
 
             if (searchArgument == null || searchArgument.HasNoQuery())
@@ -119,6 +115,7 @@ namespace ConceptsMicroservice.Repositories
             var offset = searchArgument.PageSize * (searchArgument.Page - 1);
 
             var meta = query
+                .OrderBy(x => x.Id)
                 .Skip(offset)
                 .Take(searchArgument.PageSize)
                 .ToList();

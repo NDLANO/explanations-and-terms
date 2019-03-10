@@ -34,6 +34,7 @@ namespace ConceptsMicroservice.Models.DTO
             public DateTime Updated { get; set; }
             public string DeletedBy { get; set; }
             public int LanguageId{ get; set; }
+            public Guid? GroupId { get; set; }
             [StatusIdExistsInDatabase] public int StatusId { get; set; }
             /// <summary>
             /// List of media objects. I.E Image, audio, video
