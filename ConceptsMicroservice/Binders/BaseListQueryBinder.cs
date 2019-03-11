@@ -30,28 +30,18 @@ namespace ConceptsMicroservice.Binders
                 throw new ArgumentNullException(nameof(bindingContext));
             }
 
+            var queryCollection = bindingContext.HttpContext.Request.Query;
+
             var languageParam = _languageConfig.Default;
             var pageSizeParam = BaseListQuery.DefaultPageSize;
             var pageParam = BaseListQuery.DefaultPage;
 
-            try
-            {
-                var langParam = bindingContext.ValueProvider.GetValue("language").FirstValue;
-                if (_languageConfig.Supported.Contains(langParam))
-                    languageParam = langParam;
-            }
-            catch { }
+            if (queryCollection.ContainsKey("language") && _languageConfig.Supported.Contains(queryCollection["language"]))
+                languageParam = queryCollection["language"];
 
-            try
-            {
-                pageSizeParam = Convert.ToInt32(bindingContext.ValueProvider.GetValue("pageSize").FirstValue);
-            }
-            catch { }
-            try
-            {
-                pageParam = Convert.ToInt32(bindingContext.ValueProvider.GetValue("page"));
-            }
-            catch { }
+            if (queryCollection.ContainsKey("page") && int.TryParse(queryCollection["page"], out pageParam)) { }
+            if (queryCollection.ContainsKey("pageSize") && int.TryParse(queryCollection["pageSize"], out pageSizeParam)) { }
+            
             
 
             bindingContext.Result = ModelBindingResult.Success(new BaseListQuery
