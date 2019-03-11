@@ -21,5 +21,6 @@ namespace ConceptsMicroservice.Services
         Response UpdateConcept(UpdateConceptDto newConceptVersion);
         Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo);
         Response ArchiveConcept(int id, string usersEmail);
+        Response GetConceptByExternalId(string externalId);
     }
 }

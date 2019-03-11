@@ -67,6 +67,21 @@ namespace ConceptsMicroservice.Services
             }
         }
 
+        public Response GetConceptByExternalId(string externalId)
+        {
+            try
+            {
+                return new Response
+                {
+                    Data = _mapper.Map<ConceptDto>(_conceptRepository.GetByExternalId(externalId))
+                };
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         public Response GetAllConcepts()
         {
             try

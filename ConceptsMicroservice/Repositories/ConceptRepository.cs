@@ -140,6 +140,16 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 
+        public Concept GetByExternalId(string externalId)
+        {
+            var sqlParameters = new List<NpgsqlParameter>();
+            sqlParameters.Add(new NpgsqlParameter("external", NpgsqlDbType.Varchar)
+            {
+                Value = externalId
+            });
+            return GetConceptsByStoredProcedure("get_concept_by_external_id", sqlParameters).FirstOrDefault();
+        }
+
         public List<Concept> GetAll()
         {
             return GetConceptsByStoredProcedure("get_concepts");

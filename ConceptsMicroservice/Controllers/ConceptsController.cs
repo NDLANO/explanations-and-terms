@@ -6,6 +6,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -95,6 +96,30 @@ namespace ConceptsMicroservice.Controllers
             
             return Ok(concept);
         }
+        /// <summary>
+        /// Fetch specified concept by id for imported Concepts.
+        /// </summary>
+        /// <remarks>
+        /// Returns a single concept.
+        /// </remarks>
+        /// <param name="externalId">Id of the imported concept.</param>
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound, Type = null)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = null)]
+        [HttpGet()]
+        [Route("[action]")]
+        public ActionResult<Response> GetByExternalId(string externalId)
+        {
+            var concept = _service.GetConceptByExternalId(externalId);
+
+            if (concept == null)
+                return InternalServerError();
+            if (concept.Data == null)
+                return NotFound();
+
+            return Ok(concept);
+        }
+
 
         /// <summary>
         /// Update the specified concept.
