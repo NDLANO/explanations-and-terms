@@ -18,12 +18,16 @@ using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models.Domain
 {
-    [Table("concepts", Schema = "public")]
-    public class Concept
+    [Table("concepts", Schema = "public")]  
+    public class Concept : Paging
     {
         [Key] [Column("id")] public int Id { get; set; }
 
+<<<<<<< HEAD
         [Column("external_id")] public string ExternalId { get; set; }
+=======
+        [Column("externalId")] public string ExternalId { get; set; }
+>>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
 
         [Column("meta")]
         [Required]
@@ -57,13 +61,13 @@ namespace ConceptsMicroservice.Models.Domain
         [StatusIdExistsInDatabase]
         public int StatusId { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
-
+        [Column("group_id")] public Guid GroupId { get; set; }
 
         public virtual Status Status {get;set; }
         public virtual Language Language { get; set; }
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
-
+        [Column("language_variation")] public Guid LanguageVariation { get; set; }
         public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
             try
@@ -94,13 +98,18 @@ namespace ConceptsMicroservice.Models.Domain
             var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
             var languageIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageId, attr => attr.Name));
             var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
+            var groupIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.GroupId, attr => attr.Name));
+            var languageVariationColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.LanguageVariation, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
 
-            var meta = GetJson<List<MetaData>>(reader, metaObjectsColumn);
-            var media = GetJson<List<Media>>(reader, mediaObjectsColumn);
+            var meta = JsonHelper.GetJson<List<MetaData>>(reader, metaObjectsColumn);
+            var media = JsonHelper.GetJson<List<Media>>(reader, mediaObjectsColumn);
+            var status = JsonHelper.GetJson<Status>(reader, statusObjectColumn);
+            var language = JsonHelper.GetJson<Language>(reader, languageObjectColumn);
+
 
             var concept = new Concept
             {
@@ -121,12 +130,26 @@ namespace ConceptsMicroservice.Models.Domain
                 Meta = meta ?? new List<MetaData>(),
                 Media = media ?? new List<Media>(),
                 LanguageId = reader.GetInt16(languageIdColumn),
-                Status = GetJson<Status>(reader, statusObjectColumn),
-                Language= GetJson<Language>(reader, languageObjectColumn)
+                Status = status ?? new Status(),
+                Language = language ?? new Language(),
+                GroupId = reader.GetGuid(groupIdColumn),
+                LanguageVariation = reader.GetGuid(languageVariationColumn)
             };
+            
+            try
+            {
+                var numberOfPages = reader.GetOrdinal("page_count");
+                concept.NumberOfPages = reader.GetInt16(numberOfPages);
+            }
+            catch { }
+            try
+            {
+                var totalCount = reader.GetOrdinal("result_count");
+                concept.TotalItems = reader.GetInt16(totalCount);
+            }
+            catch { }
 
             return concept;
         }
     }
 }
-

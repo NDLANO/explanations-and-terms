@@ -6,7 +6,11 @@
  *
  */
 using System.Collections.Generic;
+using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
+using ConceptsMicroservice.Repositories;
+using FakeItEasy;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
@@ -16,7 +20,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
     public class SearchTest : BaseTest
     {
         [Fact]
-        public void Search_Returns_All_Concepts_If_Query_Is_Null()
+        public void Search_Returns_Default_Sets_of_Concepts_If_Query_Is_Null()
         {
             Mock.Database.CreateAndInsertAConcept();
             var concepts = ConceptRepository.SearchForConcepts(null);
@@ -27,13 +31,13 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         [Fact]
         public void Search_Returns_Empty_List_If_No_Concepts_Exists()
         {
-            var concepts = ConceptRepository.SearchForConcepts(null);
+            var concepts = ConceptRepository.SearchForConcepts(new ConceptSearchQuery());
 
             Assert.Empty(concepts);
         }
 
         [Fact]
-        public void Search_Returns_All_Concepts_If_No_Query_Is_Specified()
+        public void Search_Returns_Empty_Concepts_If_No_Query_Is_Specified()
         {
             Mock.Database.CreateAndInsertAConcept();
             var concepts = ConceptRepository.SearchForConcepts(new ConceptSearchQuery());
@@ -63,7 +67,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             c2.Title = $"Should match {query.Title}";
             Mock.Database.InsertConcept(c2);
 
-            Assert.Equal(2, ConceptRepository.GetAll().Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -94,7 +98,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                 MetaIds = new List<int> {meta1.Id }
             };
 
-            Assert.Equal(2, ConceptRepository.GetAll().Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -102,7 +106,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         }
 
         [Fact]
-        public void Search_Returns_Everything_When_MetaId_And_Title_Is_Null()
+        public void Search_Returns_Default_List_Of_Concepts_When_MetaId_And_Title_Is_Null()
         {
             var status = Mock.MockStatus();
             var meta1 = Mock.Database.InsertMeta(Mock.MockMeta(status, Mock.MockCategory()));
@@ -114,7 +118,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             var query = new ConceptSearchQuery();
 
 
-            Assert.Single(ConceptRepository.GetAll());
+            Assert.Single(ConceptRepository.GetAll(BaseListQuery));
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -137,7 +141,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
             };
 
 
-            Assert.Single(ConceptRepository.GetAll());
+            Assert.Single(ConceptRepository.GetAll(BaseListQuery));
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -172,7 +176,9 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                 MetaIds = new List<int> { meta1.Id}
             };
 
-            Assert.Equal(2, ConceptRepository.GetAll().Count);
+            var count = ConceptRepository.GetAll(BaseListQuery).Count;
+
+            Assert.Equal(2, count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 
@@ -214,7 +220,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
                }
             };
 
-            Assert.Equal(2, ConceptRepository.GetAll().Count);
+            Assert.Equal(2, ConceptRepository.GetAll(BaseListQuery).Count);
 
             var searchResult = ConceptRepository.SearchForConcepts(query);
 

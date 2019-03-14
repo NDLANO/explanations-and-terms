@@ -9,9 +9,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ConceptsMicroservice.Attributes;
-using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Services.Validation;
 using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
@@ -26,18 +28,33 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         }
 
         [Fact]
-        public void Service_is_Null_Should_Throw_ValidationException()
+        public void ValidatingService_is_Null_Should_Throw_ValidationException()
         {
             A.CallTo(() => ServiceProvider.GetService(typeof(IConceptValidationService))).Returns(null);
-
+            
             Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int>{1}, ValidationContext));
+        }
+
+        [Fact]
+        public void LanguageService_is_Null_Should_Throw_ValidationException()
+        {
+            A.CallTo(() => ServiceProvider.GetService(typeof(IOptions<LanguageConfig>))).Returns(null);
+
+            Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
+        }
+
+        [Fact]
+        public void HttpContext_is_Null_Should_Throw_ValidationException()
+        {
+            A.CallTo(() => ServiceProvider.GetService(typeof(IHttpContextFactory))).Returns(null);
+
+            Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
         }
 
         [Fact]
         public void Returns_ValidationSuccess_When_There_Is_No_Missing_Categories()
         {
-            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._)).Returns(new List<string>());
-
+            SucceedConditions();
             var exception = Record.Exception(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
             Assert.Null(exception);
         }
@@ -45,9 +62,20 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         [Fact]
         public void Throws_ValidationException_When_There_Is_Missing_Categories()
         {
-            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._)).Returns(new List<string>{"Missing!"});
+            SucceedConditions();
+            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._, A<string>._)).Returns(new List<string>{"Missing!"});
 
             Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
+        }
+
+        private void SucceedConditions()
+        {
+
+            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._, A<string>._)).Returns(new List<string>());
+            A.CallTo(() => ServiceProvider.GetService(typeof(IOptions<LanguageConfig>))).Returns(new OptionsWrapper<LanguageConfig>(new LanguageConfig()));
+            var httpContextFake = A.Fake<IHttpContextAccessor>();
+            A.CallTo(() => ServiceProvider.GetService(typeof(IHttpContextAccessor))).Returns(httpContextFake);
+            A.CallTo(() => httpContextFake.HttpContext).Returns(new DefaultHttpContext());
         }
     }
 }

@@ -5,27 +5,52 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
-    public class StatusService : IStatusService
+    public class StatusService : BaseService, IStatusService
     {
         private readonly IStatusRepository _statusRepository;
 
-        public StatusService(IStatusRepository status)
+        public StatusService(IStatusRepository status, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _statusRepository = status;
         }
 
-        public Response GetAllStatus()
+        public Response GetAllStatus(BaseListQuery query)
         {
             try
             {
+                var status = _statusRepository.GetAll(query);
+
+                var totalItems = 0;
+                var numberOfPages = 0;
+
+                try
+                {
+                    totalItems = status.FirstOrDefault().TotalItems;
+                    numberOfPages = status.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
                 return new Response
                 {
-                    Data = _statusRepository.GetAll()
+                    Data = new PagingDTO<StatusDTO>(
+                        Mapper.Map<List<StatusDTO>>(status), 
+                        query, 
+                        UrlHelper.Action("GetAllStatus", "Status", query),
+                        numberOfPages,
+                        totalItems)
                 };
             }
             catch

@@ -8,11 +8,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("meta_categories", Schema = "public")]
-    public class MetaCategory
+    public class MetaCategory : Paging
     {
         [Key]
         [Column("id")]
@@ -28,13 +29,15 @@ namespace ConceptsMicroservice.Models.Domain
         /// <summary>
         /// Is id possible to have more then one meta of this category.
         /// </summary>
-        [Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
+        [JsonProperty("can_have_multiple")][Column("can_have_multiple")] public bool CanHaveMultiple { get; set; }
         /// <summary>
         /// Is it required to have at least one meta of this category.
         /// </summary>
         [Column("is_required")] public bool IsRequired { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
+        [Column("type_group_id")] public int TypeGroupId { get; set; }
 
         public virtual Language Language { get; set; }
+        public virtual TypeGroup TypeGroup{ get; set; }
     }
 }

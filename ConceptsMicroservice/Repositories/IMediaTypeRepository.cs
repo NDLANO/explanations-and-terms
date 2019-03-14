@@ -7,12 +7,13 @@
  */
  
 using System.Collections.Generic;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 
 namespace ConceptsMicroservice.Repositories
 {
     public interface IMediaTypeRepository
     {
-        List<MediaType> GetAll();
+        List<MediaType> GetAll(BaseListQuery query);
     }
 }

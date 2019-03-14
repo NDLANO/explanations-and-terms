@@ -87,9 +87,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_500_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.GetAllCategories()).Returns(null);
+            A.CallTo(() => _service.GetAllCategories(A<BaseListQuery>._)).Returns(null);
 
-            var result = _controller.GetAllCategories();
+            var result = _controller.GetAllCategories(BaseListQuery.DefaultValues("nb"));
             var status = result.Result as StatusCodeResult;
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
@@ -98,9 +98,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_200_Categories_Is_Found()
         {
-            A.CallTo(() => _service.GetAllCategories()).Returns(_listResponse);
+            A.CallTo(() => _service.GetAllCategories(A<BaseListQuery>._)).Returns(_listResponse);
 
-            var result = _controller.GetAllCategories();
+            var result = _controller.GetAllCategories(BaseListQuery.DefaultValues("nb"));
             var okResult = result.Result as OkObjectResult;
 
             Assert.Equal(200, okResult.StatusCode);
@@ -109,9 +109,9 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_A_List_Of_Categories_If_There_Exists_Categories()
         {
-            A.CallTo(() => _service.GetAllCategories()).Returns(_listResponse);
+            A.CallTo(() => _service.GetAllCategories(A<BaseListQuery>._)).Returns(_listResponse);
 
-            var result = _controller.GetAllCategories();
+            var result = _controller.GetAllCategories(BaseListQuery.DefaultValues("nb"));
             var okResult = result.Result as OkObjectResult;
 
             Assert.IsType<List<MetaCategory>>((okResult.Value as Response).Data);

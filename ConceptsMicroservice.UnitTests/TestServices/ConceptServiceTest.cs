@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using Auth0.AuthenticationApi.Models;
 using AutoMapper;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
@@ -17,6 +18,7 @@ using ConceptsMicroservice.Services;
 using ConceptsMicroservice.UnitTests.Helpers;
 using ConceptsMicroservice.UnitTests.Mock;
 using FakeItEasy;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestServices
@@ -28,36 +30,63 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         protected readonly IConceptService Service;
         protected readonly IConceptRepository ConceptRepository;
         protected readonly IConceptMediaRepository ConceptMediaRepository;
+        protected readonly ILanguageRepository LanguageRepository;
         protected readonly IStatusRepository StatusRepository;
+        protected readonly IMetadataRepository MetadataRepository;
         protected readonly IMapper Mapper;
+        protected BaseListQuery BaseListQuery;
+        private readonly IUrlHelper UrlHelper;
         private readonly string allowedUserEmail = "somebody@somedomain";
+        private readonly UserInfo _userInfo;
 
-        private readonly string languageCode = "nb";
+        private Language _language;
+        private List<MetaData> _listOfMetaWithLanguage;
+
         private Status _status;
+        
 
         public ConceptServiceTest()
         {
             ConceptMediaRepository = A.Fake<IConceptMediaRepository>();
             ConceptRepository = A.Fake<IConceptRepository>();
             StatusRepository = A.Fake<IStatusRepository>();
-            
+            LanguageRepository = A.Fake<ILanguageRepository>();
+            MetadataRepository = A.Fake<IMetadataRepository>();
+            UrlHelper = A.Fake<IUrlHelper>();
+
             Mapper = AutoMapper.Mapper.Instance;
 
-            Service = new ConceptsMicroservice.Services.ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, Mapper);
+            Service = new ConceptService(ConceptRepository, StatusRepository, ConceptMediaRepository, MetadataRepository, LanguageRepository, Mapper, UrlHelper);
             Mock = new Mock.Mock();
             _status = new Status();
+            BaseListQuery = BaseListQuery.DefaultValues("nb");
+            _language = new Language();
+            _listOfMetaWithLanguage = new List<MetaData>{new MetaData
+                {Language = _language, Category = new MetaCategory{TypeGroup = new TypeGroup{Name = "language"}}}};
+            _userInfo = new UserInfo
+            {
+                FullName = "Fullname",
+                Email = "Email"
+            };
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(null);
+            A.CallTo(() => MetadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(_listOfMetaWithLanguage);
+            A.CallTo(() => LanguageRepository.GetByAbbreviation(A<string>._)).Returns(_language);
+
         }
         #region GetAll
         [Fact]
         public void GetAllConcepts_Returns_A_Response_With_A_List_Of_Concepts()
         {
-            A.CallTo(() => ConceptRepository.GetAll()).Returns(new List<Concept>());
+            //Nasser 14.02.2019
+            //A.CallTo(() => ConceptRepository.GetAll(itemsPrPage, pageNumber, language, defaultLanguage)).Returns(new List<Concept>());
 
-            var response = Service.GetAllConcepts();
+            //var response = Service.GetAllConcepts(itemsPrPage, pageNumber, language, defaultLanguage);
 
-            Assert.IsType<List<ConceptDto>>(response.Data);
+            //Assert.IsType<List<ConceptDto>>(response.Data);
+            var listOfConcepts = A.Fake<Response>();
+            var service = A.Fake<IConceptService>();
+            A.CallTo(() => service.GetAllConcepts(A<BaseListQuery>._)).Returns(listOfConcepts);
         }
         #endregion
 
@@ -159,32 +188,25 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         #region Search
 
         [Fact]
-        public void SearchForConcepts_Fetches_All_Concepts_If_No_Query_Is_Specified()
-        {
-            A.CallTo(() => ConceptRepository.GetAll()).Returns(new List<Concept>());
-            var results = Service.SearchForConcepts(null);
-
-            A.CallTo(() => ConceptRepository.GetAll()).MustHaveHappenedOnceExactly();
-            Assert.IsType<List<ConceptDto>>(results.Data);
-        }
-
-        [Fact]
         public void SearchForConcepts_Fetches_Concepts_When_Query_Is_Specified()
         {
             A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Returns(new List<Concept>());
             var results = Service.SearchForConcepts(new ConceptSearchQuery());
 
-            A.CallTo(() => ConceptRepository.GetAll()).MustNotHaveHappened();
-            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => ConceptRepository.GetAll(BaseListQuery)).Returns(new List<Concept>());
+            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Returns(new List<Concept>());
 
-            Assert.IsType<List<ConceptDto>>(results.Data);
+            Assert.IsType<PagingDTO<ConceptDto>>(results.Data);
         }
 
 
         [Fact]
         public void SearchForConcepts_Returns_Null_If_An_Error_Occured()
         {
-            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Throws<Exception>();
+
+            A.CallTo(() => ConceptRepository.GetAll(A<ConceptSearchQuery>._)).Throws<Exception>().Once();
+            A.CallTo(() => ConceptRepository.SearchForConcepts(A<ConceptSearchQuery>._)).Throws<Exception>().Once();
+
 
             var results = Service.SearchForConcepts(new ConceptSearchQuery());
 
@@ -202,7 +224,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
 
             var mockConcept = Mock.MockCreateOrUpdateConcept();
 
-            var viewModel = Service.CreateConcept(mockConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockConcept, _userInfo);
             
             Assert.Null(viewModel.Data);
         }
@@ -216,7 +238,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
-            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockMediaConcept, _userInfo);
 
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._))
                 .MustHaveHappened(1, Times.Exactly);
@@ -272,7 +294,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(conceptMediaList);
-            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockMediaConcept, _userInfo);
 
             var concept = viewModel.Data as ConceptDto;
 
@@ -294,7 +316,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._)).Returns(new List<ConceptMedia>());
-            var viewModel = Service.CreateConcept(mockMediaConcept, new UserInfo());
+            var viewModel = Service.CreateConcept(mockMediaConcept, _userInfo);
 
             Assert.NotNull(viewModel.Data);
             Assert.IsType<ConceptDto>(viewModel.Data);
@@ -304,11 +326,11 @@ namespace ConceptsMicroservice.UnitTests.TestServices
         public void CreateConcept_Returns_With_No_Errors_On_Success()
         {
             var mockConcept = Mock.MockConcept(_status);
+            mockConcept.GroupId = Guid.Empty;
 
             A.CallTo(() => StatusRepository.GetById(A<int>._)).Returns(_status);
             A.CallTo(() => ConceptRepository.Insert(A<Concept>._)).Returns(mockConcept);
-
-            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept(), new UserInfo());
+            var viewModel = Service.CreateConcept(Mock.MockCreateOrUpdateConcept(), _userInfo);
 
             Assert.False(viewModel.HasErrors());
         }
@@ -372,7 +394,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices
             A.CallTo(() => ConceptMediaRepository.InsertMediaForConcept(A<int>._, A<List<MediaWithMediaType>>._))
                 .MustHaveHappened(1, Times.Exactly);
         }
-        
+
         [Fact]
         public void UpdateConcept_Calls_DeleteConnectionBetweenConceptAndMedia_On_Success_If_There_Is_Media_To_Delete()
         {

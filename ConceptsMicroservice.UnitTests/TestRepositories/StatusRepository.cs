@@ -6,6 +6,7 @@
  *
  */
 using System;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.UnitTests.Mock;
@@ -18,11 +19,13 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
     {
         protected readonly IStatusRepository StatusRepository;
         protected IMock Mock;
+        protected BaseListQuery QueryWithDefaultValues;
         
         private readonly Status _status;
 
         public StatusRepositoryTest()
         {
+            QueryWithDefaultValues = BaseListQuery.DefaultValues("nb");
             Mock = new Mock.Mock();
             StatusRepository = new Repositories.StatusRepository(Mock.Database.Context);
             _status = Mock.MockStatus();
@@ -40,7 +43,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         [Fact]
         public void GetByName_Returns_A_Status()
         {
-            Assert.Empty(StatusRepository.GetAll());
+            Assert.Empty(StatusRepository.GetAll(QueryWithDefaultValues));
 
             Mock.Database.InsertStatus(_status);
             
@@ -49,7 +52,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         [Fact]
         public void GetByName_Returns_Null_If_Not_Found()
         {
-            Assert.Empty(StatusRepository.GetAll());
+            Assert.Empty(StatusRepository.GetAll(QueryWithDefaultValues));
             Assert.Null(StatusRepository.GetByName("not found"));
         }
         #endregion
@@ -58,16 +61,16 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         [Fact]
         public void GetAll_Fetches_A_List_Of_Status()
         {
-            Assert.Empty(StatusRepository.GetAll());
+            Assert.Empty(StatusRepository.GetAll(QueryWithDefaultValues));
 
             Mock.Database.InsertStatus(_status);
 
-            Assert.NotEmpty(StatusRepository.GetAll());
+            Assert.NotEmpty(StatusRepository.GetAll(QueryWithDefaultValues));
         }
         [Fact]
-        public void GetAll_Returns_EmptyList_If_Statuss_Does_Not_Exist()
+        public void GetAll_Returns_EmptyList_If_No_Status_Exists()
         {
-            Assert.Empty(StatusRepository.GetAll());
+            Assert.Empty(StatusRepository.GetAll(QueryWithDefaultValues));
         }
         #endregion
 

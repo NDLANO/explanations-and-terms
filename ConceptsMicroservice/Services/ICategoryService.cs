@@ -11,7 +11,7 @@ namespace ConceptsMicroservice.Services
 {
     public interface ICategoryService
     {
-        Response GetAllCategories();
+        Response GetAllCategories(BaseListQuery query);
         Response GetCategoryById(int id);
     }
 }

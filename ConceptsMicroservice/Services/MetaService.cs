@@ -5,16 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services
 {
-    public class MetadataService : IMetadataService
+    public class MetadataService : BaseService, IMetadataService
     {
         private readonly IMetadataRepository _metadataRepository;
-        public MetadataService(IMetadataRepository metadataRepository)
+        public MetadataService(IMetadataRepository metadataRepository, IMapper mapper, IUrlHelper urlHelper) : base (mapper, urlHelper)
         {
             _metadataRepository = metadataRepository;
         }
@@ -23,15 +32,28 @@ namespace ConceptsMicroservice.Services
         {
             try
             {
-                var response = new Response();
-                if (query == null || query.HasNoQuery())
-                    response.Data = _metadataRepository.GetAll();
-                else
-                    response.Data = _metadataRepository.SearchForMetadata(query);
+                var results = _metadataRepository.SearchForMetadata(query);
 
-                return response;
+                var totalItems = 0;
+                var numberOfPages = 0;
+
+                try
+                {
+                    totalItems = results.FirstOrDefault().TotalItems;
+                    numberOfPages = results.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
+                var n = UrlHelper.Action("Search", "Metadata", query);
+                var l = Mapper.Map<List<MetaDataDTO>>(results);
+                var dto = new PagingDTO<MetaDataDTO>(l, query, n, numberOfPages, totalItems);
+
+                return new Response
+                {
+                    Data = dto
+                };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }
@@ -53,16 +75,28 @@ namespace ConceptsMicroservice.Services
             
         }
 
-        public Response GetAll()
+        public Response GetAll(BaseListQuery query)
         {
             try
             {
+                var results = _metadataRepository.GetAll(query);
+                var totalItems = 0;
+                var numberOfPages = 0;
+                try
+                {
+                    totalItems = results.FirstOrDefault().TotalItems;
+                    numberOfPages = results.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
+                var resultAsDto = Mapper.Map<List<MetaDataDTO>>(results);
+
                 return new Response
                 {
-                    Data = _metadataRepository.GetAll()
-                };
+                    Data = new PagingDTO<MetaDataDTO>(resultAsDto, query, UrlHelper.Action("GetAll", "Metadata", query), numberOfPages, totalItems)
+            };
             }
-            catch
+            catch(Exception e)
             {
                 return null;
             }

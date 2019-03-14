@@ -5,13 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+<<<<<<< HEAD
 
 using System;
 using System.Collections.Generic;
+=======
+ 
+>>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using Auth0.AuthenticationApi.Models;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
@@ -41,7 +46,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a list of concepts.
         /// </remarks>
         /// <param name="query"></param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagingDTO<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
         [Route("[action]")]
@@ -62,12 +67,12 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of concepts.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagingDTO<ConceptDto>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAll()
+        public ActionResult<Response> GetAll(BaseListQuery query)
         {
-            var concepts = _service.GetAllConcepts();
+            var concepts = _service.GetAllConcepts(query);
             if (concepts != null)
                 return Ok(concepts);
 
@@ -81,7 +86,7 @@ namespace ConceptsMicroservice.Controllers
         /// Returns a single concept.
         /// </remarks>
         /// <param name="id">Id of the concept that is to be fetched.</param>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ConceptDto>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ConceptDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = null)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = null)]
         [HttpGet("{id}")]
@@ -152,10 +157,15 @@ namespace ConceptsMicroservice.Controllers
             if (viewModel == null)
                 return NotFound();
 
-            if (viewModel.Data == null)
-                return InternalServerError();
+            if (viewModel.Data != null)
+            {
+                return Ok(viewModel);
+            }
 
-            return Ok(viewModel);
+            if (viewModel.HasErrors())
+                return BadRequest(viewModel);
+
+            return InternalServerError();
 
         }
 
@@ -185,13 +195,30 @@ namespace ConceptsMicroservice.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(new ModelStateErrorResponse(ModelState));
-            
-           var userInfo = await _tokenHelper.GetUserInfo();
-            var viewModel = _service.CreateConcept(concept, userInfo);
-            if (viewModel?.Data == null)
-                return InternalServerError();
 
-            return Ok(viewModel);
+            UserInfo userInfo;
+            try
+            {
+                userInfo = await _tokenHelper.GetUserInfo();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            var viewModel = _service.CreateConcept(concept, userInfo);
+            if (viewModel == null)
+                return NotFound();
+
+            if (viewModel.Data != null)
+            {
+                return Ok(viewModel);
+            }
+
+            if (viewModel.HasErrors())
+                return BadRequest(viewModel);
+
+            return InternalServerError();
         }
         /// <summary>
         /// Update the specified concept.
@@ -207,8 +234,16 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
         {
-            var userInfo = await _tokenHelper.GetUserInfo();
-            
+            UserInfo userInfo;
+            try
+            {
+                userInfo = await _tokenHelper.GetUserInfo();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
             var viewModel = _service.ArchiveConcept(id, userInfo.Email);
             if (viewModel == null)
                 return NotFound();

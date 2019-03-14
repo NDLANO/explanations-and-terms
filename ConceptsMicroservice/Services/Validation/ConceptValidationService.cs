@@ -9,8 +9,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Services.Validation
 {
@@ -20,13 +22,15 @@ namespace ConceptsMicroservice.Services.Validation
         private readonly IStatusRepository _statusRepository;
         private readonly IMetadataRepository _metadataRepository;
         private readonly ICategoryRepository _categoryRepository;
+        public LanguageConfig LanguageConfig { get; private set; }
 
-        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category, IMediaTypeRepository mediaType)
+        public ConceptValidationService(IStatusRepository status, IMetadataRepository meta, ICategoryRepository category, IMediaTypeRepository mediaType, IOptions<LanguageConfig> language)
         {
             _statusRepository = status;
             _metadataRepository = meta;
             _categoryRepository = category;
             _mediaTypeRepository = mediaType;
+            LanguageConfig = language.Value;
         }
         public bool StatusIdIsValidId(int id)
         {
@@ -38,43 +42,58 @@ namespace ConceptsMicroservice.Services.Validation
             var noExistingIds = new List<int>();
             if (ids == null)
                 return noExistingIds;
-            
+
             foreach (var id in ids)
             {
-                if(_metadataRepository.GetById(id) == null)
+                if (_metadataRepository.GetById(id) == null)
                     noExistingIds.Add(id);
             }
 
             return noExistingIds;
         }
 
-        public List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> mediaTypes)
+        public List<int> MediaTypesNotExistInDatabase(List<MediaWithMediaType> mediaTypes, string language)
         {
             var noExistingIds = new List<int>();
             if (mediaTypes == null)
                 return noExistingIds;
 
-            var allMediaTypes = _mediaTypeRepository
-                .GetAll()
-                .Select(x => x.Id)
-                .ToList();
-            foreach (var mediaType in mediaTypes)
+            var allMediaTypes = _mediaTypeRepository.GetAll(BaseListQuery.DefaultValues(language));
+            var pages = 1;
+
+            try
             {
-                if (!allMediaTypes.Contains(mediaType.MediaTypeId))
-                    noExistingIds.Add(mediaType.MediaTypeId);
+                pages = allMediaTypes.FirstOrDefault().NumberOfPages;
             }
+            catch { }
+
+            for (var page = 0; page < pages; page++)
+            {
+                var query = BaseListQuery.DefaultValues(language);
+                query.Page = page + 1;
+                var medias = _mediaTypeRepository
+                    .GetAll(query)
+                    .Select(x => x.Id)
+                    .ToList();
+                foreach (var mediaType in mediaTypes)
+                {
+                    if (!medias.Contains(mediaType.MediaTypeId))
+                        noExistingIds.Add(mediaType.MediaTypeId);
+                }
+            }
+
 
             return noExistingIds;
         }
 
-        public List<string> GetMissingRequiredCategories(List<int> metaIds)
+        public List<string> GetMissingRequiredCategories(List<int> metaIds, string language)
         {
             var missingCategories = new List<string>();
 
             if (metaIds == null)
                 metaIds = new List<int>();
 
-            var requiredCategories = _categoryRepository.GetRequiredCategories();
+            var requiredCategories = _categoryRepository.GetRequiredCategories(language);
 
             var metas = _metadataRepository.GetByRangeOfIds(metaIds);
 

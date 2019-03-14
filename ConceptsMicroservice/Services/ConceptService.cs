@@ -15,38 +15,56 @@ using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Models.Search;
 using ConceptsMicroservice.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ConceptsMicroservice.Services
 {
-    public class ConceptService : IConceptService
+    public class ConceptService : BaseService, IConceptService
     {
         private readonly IConceptRepository _conceptRepository;
         private readonly IConceptMediaRepository _conceptMediaRepository;
         private readonly IStatusRepository _statusRepository;
+        private readonly IMetadataRepository _metaRepository;
+        private readonly ILanguageRepository _languageRepository;
 
-        private readonly IMapper _mapper;
-
-        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMapper mapper)
+        public ConceptService(IConceptRepository concept,  IStatusRepository status, IConceptMediaRepository media, IMetadataRepository meta, ILanguageRepository language, IMapper mapper, IUrlHelper urlHelper) : base(mapper, urlHelper)
         {
             _conceptRepository = concept;
             _statusRepository = status;
             _conceptMediaRepository = media;
-            _mapper = mapper;
+            _metaRepository = meta;
+            _languageRepository = language;
         }
-
+        
         public Response SearchForConcepts(ConceptSearchQuery query)
         {
             try
             {
-                var searchResult = query == null
-                    ? _conceptRepository.GetAll()
-                    : _conceptRepository.SearchForConcepts(query);
+                var concepts = _conceptRepository.SearchForConcepts(query); 
+                var totalItems = 0;
+                var numberOfPages = 0;
+
+                try
+                {
+                    totalItems = concepts.FirstOrDefault().TotalItems;
+                    numberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
+                var res = new PagingDTO<ConceptDto>(
+                    Mapper.Map<List<ConceptDto>>(concepts),
+                    query,
+                    UrlHelper.Action("Search", "Concept", query), 
+                    numberOfPages,
+                    totalItems);
+                
+
                 return new Response
                 {
-                    Data = _mapper.Map<List<ConceptDto>>(searchResult)
+                    Data = res
                 };
             }
-            catch
+            catch (Exception e)
             {
                 return null;
             }
@@ -58,7 +76,7 @@ namespace ConceptsMicroservice.Services
             {
                 return new Response
                 {
-                    Data = _mapper.Map<ConceptDto>(_conceptRepository.GetById(id))
+                    Data = Mapper.Map<ConceptDto>(_conceptRepository.GetById(id))
                 };
             }
             catch(Exception e)
@@ -67,6 +85,7 @@ namespace ConceptsMicroservice.Services
             }
         }
 
+<<<<<<< HEAD
         public Response GetConceptByExternalId(string externalId)
         {
             try
@@ -83,23 +102,64 @@ namespace ConceptsMicroservice.Services
         }
 
         public Response GetAllConcepts()
+=======
+        public Response GetAllConcepts(BaseListQuery query)
+>>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
         {
             try
             {
+                var concepts = _conceptRepository.GetAll(query);
+                var totalItems = 0;
+                var numberOfPages = 0;
+
+                try
+                {
+                    totalItems = concepts.FirstOrDefault().TotalItems;
+                    numberOfPages = concepts.FirstOrDefault().NumberOfPages;
+                }
+                catch { }
+
+                var res = new PagingDTO<ConceptDto>(
+                    Mapper.Map<List<ConceptDto>>(concepts),
+                    query,
+                    UrlHelper.Action("GetAll", "Concept", query),
+                    numberOfPages,
+                    totalItems);
+
                 return new Response
                 {
-                    Data = _mapper.Map<List<ConceptDto>>(_conceptRepository.GetAll())
+                    Data = res
                 };
             }
-            catch
+            catch (Exception e)
             {
                 return null;
             }
         }
 
+        private Language GetLanguage(Response viewModel, List<int> metaIds)
+        {
+            // Fetch language id
+            var metas = _metaRepository.GetByRangeOfIds(metaIds);
+            var languageMeta = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+            if (languageMeta == null)
+            {
+                viewModel.Errors.TryAddModelError("metaIds", "Did not contain an id for language");
+                return null;
+            }
+
+            var language = _languageRepository.GetByAbbreviation(languageMeta.Language.Abbreviation);
+            if (language == null)
+            {
+                viewModel.Errors.TryAddModelError("metaIds", $"Language meta with id {languageMeta.Id} is not supported");
+            }
+
+            return language;
+        }
+
         public Response UpdateConcept(UpdateConceptDto dto)
         {
-            var newConceptVersion = _mapper.Map<Concept>(dto);
+            var newConceptVersion = Mapper.Map<Concept>(dto);
             var viewModel = new Response();
             var oldConceptVersion = _conceptRepository.GetById(newConceptVersion.Id);
 
@@ -109,13 +169,20 @@ namespace ConceptsMicroservice.Services
                 return null;
             }
 
+            var language = GetLanguage(viewModel, dto.MetaIds);
+            if (language == null)
+                return viewModel;
+
             // Readonly fields
+            newConceptVersion.LanguageId = language.Id;
             newConceptVersion.Created = oldConceptVersion.Created;
             newConceptVersion.ExternalId = oldConceptVersion.ExternalId;
             newConceptVersion.MediaIds = oldConceptVersion.MediaIds;
             newConceptVersion.AuthorName = oldConceptVersion.AuthorName;
             newConceptVersion.AuthorEmail = oldConceptVersion.AuthorEmail;
+            newConceptVersion.GroupId = oldConceptVersion.GroupId;
 
+            
             try
             {
                 _conceptRepository.Update(newConceptVersion);
@@ -156,34 +223,110 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
 
-            viewModel.Data = _mapper.Map<ConceptDto>(_conceptRepository.GetById(dto.Id));
+            viewModel.Data = Mapper.Map<ConceptDto>(_conceptRepository.GetById(dto.Id));
             return viewModel;
         }
+
+        private bool CanCreateLanguageVariation(Response viewModel, Concept newConcept)
+        {
+            var group = _conceptRepository.GetByGroupId(newConcept.GroupId);
+
+            if (group == null || group.Count == 0)
+            {
+                viewModel.Errors.TryAddModelError("groupId", "GroupId did not have a valid value");
+                return false;
+            }
+
+            var metas = _metaRepository.GetByRangeOfIds(newConcept.MetaIds);
+            var metasWithoutLanguage = metas
+                .Where(x => !x.Category.TypeGroup.Name.ToLower().Equals("language"))
+                .Select(x => x.Id)
+                .ToList();
+            var newMetaLanguage = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+
+            // Validate metas
+            foreach (var concept in group)
+            {
+                var groupMeta = _metaRepository.GetByRangeOfIds(concept.MetaIds);
+                var metasForConceptWithoutLanguage = groupMeta
+                    .Where(x => !x.Category.TypeGroup.Name.ToLower().Equals("language"))
+                    .Select(x => x.Id)
+                    .ToList();
+                var groupLanguage = groupMeta.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
+
+                if (groupLanguage != null && newMetaLanguage != null &&
+                    groupLanguage.LanguageVariation.Equals(newMetaLanguage.LanguageVariation))
+                {
+                    viewModel.Errors.TryAddModelError("metaIds", "Cannot create a concept with the same language");
+                    return false;
+
+                }
+
+                var commonMetas = metasForConceptWithoutLanguage.Intersect(metasWithoutLanguage).ToList();
+                if (metasForConceptWithoutLanguage.Count != metasWithoutLanguage.Count || commonMetas.Count != metasWithoutLanguage.Count)
+                {
+                    viewModel.Errors.TryAddModelError("metaIds", "Did not contain similar meta as rest of the concept group");
+                    return false;
+                }
+            }
+            return true;
+        }
+        
 
         public Response CreateConcept(CreateConceptDto newConcept, UserInfo userInfo)
         {
             var viewModel = new Response();
-            var concept = _mapper.Map<Concept>(newConcept);
+            var concept = Mapper.Map<Concept>(newConcept);
             var media = new List<ConceptMedia>();
 
+            if (userInfo == null || string.IsNullOrEmpty(userInfo.Email) || string.IsNullOrEmpty(userInfo.FullName))
+            {
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not get user information");
+                return viewModel;
+            }
+
+            var language = GetLanguage(viewModel, newConcept.MetaIds);
+            if (language == null)
+                return viewModel;
+
             // Readonly fields
-            if (!string.IsNullOrEmpty(userInfo.Email))
-                concept.AuthorEmail = userInfo.Email;
-            if (!string.IsNullOrEmpty(userInfo.FullName))
-                concept.AuthorName = userInfo.FullName;
+            concept.LanguageId = language.Id;
+            concept.AuthorEmail = userInfo.Email;
+            concept.AuthorName = userInfo.FullName;
+
+            // Create a language variation
+            if (concept.GroupId != Guid.Empty)
+            {
+                if (!CanCreateLanguageVariation(viewModel, concept))
+                    return viewModel;
+            }
+            else
+            {
+                concept.GroupId = Guid.NewGuid();
+            }
 
             try
             {
                 concept = _conceptRepository.Insert(concept);
+            }
+            catch (Exception e)
+            {
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not create concept");
+                return viewModel;
+            }
+
+            try
+            {
                 media = _conceptMediaRepository.InsertMediaForConcept(concept.Id, newConcept.Media);
             }
             catch(Exception e)
             {
+                viewModel.Errors.TryAddModelError("errorMessage", "Could not insert media for concept");
                 return viewModel;
             }
 
             concept.Media = media.Select(x => x.Media).ToList();
-            viewModel.Data = _mapper.Map<ConceptDto>(concept);
+            viewModel.Data = Mapper.Map<ConceptDto>(concept);
 
             return viewModel;
         }
@@ -209,7 +352,7 @@ namespace ConceptsMicroservice.Services
 
             try
             {
-                viewModel.Data = _mapper.Map<ConceptDto>(_conceptRepository.Update(updatedConcept));
+                viewModel.Data = Mapper.Map<ConceptDto>(_conceptRepository.Update(updatedConcept));
             }
             catch (Exception)
             {

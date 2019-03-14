@@ -15,7 +15,7 @@ namespace ConceptsMicroservice.Models.DTO
     {
         public int Id { get; set; }
 
-        public int ExternalId { get; set; }
+        public string ExternalId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         /// <summary>
@@ -37,9 +37,11 @@ namespace ConceptsMicroservice.Models.DTO
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public string DeletedBy { get; set; }
-        public Status Status { get; set; }
-        public List<MetaData> Meta { get; set; }
-        public List<Media> Media { get; set; }
+        public StatusDTO Status { get; set; }
+        public List<MetaDataDTO> Meta { get; set; }
+        public List<MediaDTO> Media { get; set; }
         public Language Language { get; set; }
+        public string LanguageVariation { get; set; }
+        public Guid GroupId { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("status", Schema = "public")]
-    public class Status
+    public class Status : Paging
     {
         public static readonly string STATUS_ARCHVIED = "Archived";
 
@@ -26,10 +26,15 @@ namespace ConceptsMicroservice.Models.Domain
         [Required]
         [Column("description")]
         public string Description { get; set; }
+        [Column("language_variation")]
+        public Guid LanguageVariation { get; set; }
         [Column("created")]
         public DateTime Created { get; set; }
         [Column("updated")]
         public DateTime Updated { get; set; }
+        [Column("type_group_id")] public int TypeGroupId { get; set; }
+
         public virtual Language Language { get; set; }
+        public virtual TypeGroup TypeGroup { get; set; }
     }
 }

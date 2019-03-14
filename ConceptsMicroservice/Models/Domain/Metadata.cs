@@ -12,12 +12,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ConceptsMicroservice.Models.Domain
 {
     [Table("meta", Schema = "public")]
-    public class MetaData
+    public class MetaData : Paging
     {
         [Key]
         [Column("id")]
         public int Id { get; set; }
-        [Column("category_id")]
+        [Column("categoryId")]
         public int CategoryId { get; set; }
         [Required]
         [Column("name")]
@@ -34,11 +34,11 @@ namespace ConceptsMicroservice.Models.Domain
         [Column("updated")]
         public DateTime Updated { get; set; }
         [Column("language_id")] public int LanguageId { get; set; }
-
-
+        [Column("language_variation")] public Guid LanguageVariation { get; set; }
 
         public virtual Language Language { get; set; }
         public virtual MetaCategory Category { get; set; }
         public virtual Status Status { get; set; }
+        
     }
 }

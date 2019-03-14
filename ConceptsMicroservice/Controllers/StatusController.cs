@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-
-using System.Collections.Generic;
+ 
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Services;
 
 namespace ConceptsMicroservice.Controllers
@@ -30,12 +29,12 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the status.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Status>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagingDTO<StatusDTO>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAllStatus()
+        public ActionResult<Response> GetAllStatus([FromQuery] BaseListQuery query)
         {
-            var status = _service.GetAllStatus();
+            var status = _service.GetAllStatus(query);
             if (status != null)
                 return Ok(status);
 

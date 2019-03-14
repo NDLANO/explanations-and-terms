@@ -1,10 +1,21 @@
-﻿using System.Collections.Generic;
+﻿/**
+ * Copyright (c) 2018-present, NDLA.
+ *
+ * This source code is licensed under the GPLv3 license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+using System.Collections.Generic;
 using System.Linq;
+using ConceptsMicroservice.Models;
+using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.DTO;
 using ConceptsMicroservice.Repositories;
 using ConceptsMicroservice.Services.Validation;
+using ConceptsMicroservice.UnitTests.Helpers;
 using FakeItEasy;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestServices.Validation
@@ -17,14 +28,17 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMediaTypeRepository _mediaTypeRepository;
 
+        private readonly string _defaultLanguage;
+
         public ConceptValidationServiceTest()
         {
             _statusRepository = A.Fake<IStatusRepository>();
             _metadataRepository = A.Fake<IMetadataRepository>();
             _categoryRepository = A.Fake<ICategoryRepository>();
             _mediaTypeRepository = A.Fake<IMediaTypeRepository>();
-
-            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository, _mediaTypeRepository);
+            _defaultLanguage = "nb";
+            var languageConfig = new OptionsWrapper<LanguageConfig>(ConfigHelper.GetLanguageConfiguration());
+            _validationService = new ConceptValidationService(_statusRepository, _metadataRepository, _categoryRepository, _mediaTypeRepository, languageConfig);
         }
         #region StatusIdIsValid
         [Fact]
@@ -81,12 +95,12 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
         [Fact]
         public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Empty()
         {
-            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(new List<MediaWithMediaType>()));
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(new List<MediaWithMediaType>(), "nb"));
         }
         [Fact]
         public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_Input_Is_Null()
         {
-            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(null));
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(null, "nb"));
         }
         [Fact]
         public void MediaTypesDoesNotExistInDatabase_Returns_Empty_List_When_All_Ids_Exist_DB()
@@ -107,9 +121,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
                 }
             };
             var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType {Id = x.MediaTypeId}).ToList();
-            A.CallTo(() => _mediaTypeRepository.GetAll()).Returns(mediaTypesFromDB);
+            A.CallTo(() => _mediaTypeRepository.GetAll(A<BaseListQuery>._)).Returns(mediaTypesFromDB);
 
-            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes));
+            Assert.Empty(_validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes, "nb"));
         }
 
         [Fact]
@@ -136,9 +150,10 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             };
             var mediaTypesFromDB = mediaWithMediaTypes.Select(x => new MediaType { Id = x.MediaTypeId }).ToList();
             mediaTypesFromDB.RemoveAt(mediaTypesFromDB.Count - 1);
-            A.CallTo(() => _mediaTypeRepository.GetAll()).Returns(mediaTypesFromDB);
+            mediaTypesFromDB.ForEach(x => x.NumberOfPages = 1);
+            A.CallTo(() => _mediaTypeRepository.GetAll(A< BaseListQuery>._)).Returns(mediaTypesFromDB);
 
-            var notExistingIds = _validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes);
+            var notExistingIds = _validationService.MediaTypesNotExistInDatabase(mediaWithMediaTypes, "nb");
             Assert.Single(notExistingIds);
         }
 
@@ -151,8 +166,8 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
             var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
             var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
-            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null));
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null, _defaultLanguage));
         }
 
         [Fact]
@@ -161,9 +176,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
             var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
             var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>()));
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>(), _defaultLanguage));
         }
 
         [Fact]
@@ -175,9 +190,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentMeta = new MetaData {Category = presentCategory, Id = 1};
 
             A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData>{ presentMeta });
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}));
+            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}, _defaultLanguage));
         }
 
         [Fact]
@@ -188,9 +203,9 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var presentMeta = new MetaData { Category = presentCategory, Id = 1 };
 
             A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData> { presentMeta });
-            A.CallTo(() => _categoryRepository.GetRequiredCategories()).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }));
+            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }, _defaultLanguage));
         }
         #endregion
         

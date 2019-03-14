@@ -34,6 +34,7 @@ namespace ConceptsMicroservice.Extensions.Service
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IMediaTypeRepository, MediaTypeRepository>();
             services.AddScoped<IConceptMediaRepository, ConceptMediaRepository>();
+            services.AddScoped<ILanguageRepository, LanguageRepository>();
             return services;
         }
 

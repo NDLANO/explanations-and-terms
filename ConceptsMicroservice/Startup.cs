@@ -7,6 +7,7 @@
  */
 
 using AutoMapper;
+using ConceptsMicroservice.Binders.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ConceptsMicroservice.Extensions.Service;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -41,17 +44,25 @@ namespace ConceptsMicroservice
             services.AddCorsForConcepts();
             services.AddConceptsAuthentication(_config);
 
-            services.AddMvc()
+            services.AddMvc(options => options.ModelBinderProviders.Insert(0, new BaseListQueryBinderProvider()))
                 .AddJsonOptions(options => {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
             services.AddConceptApiVersioning();
 
 
             // To allow a uniform response in form of a Response if the action returns data, and ModelStateErrorResponse if the action returns an error.
             services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
-            
+
+            // For IUrlHelper
+            services
+                .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
+                .AddScoped(x => x
+                    .GetRequiredService<IUrlHelperFactory>()
+                    .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
+
             services.AddConceptsSwaggerDocumentation();
         }
         

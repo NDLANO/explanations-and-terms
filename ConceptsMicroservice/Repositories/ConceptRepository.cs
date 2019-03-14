@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using ConceptsMicroservice.Context;
+using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Search;
@@ -22,17 +22,17 @@ namespace ConceptsMicroservice.Repositories
 {
     public class ConceptRepository : IConceptRepository
     {
-        private readonly ConceptsContext _context;
+        private readonly Context.ConceptsContext _context;
         private readonly DatabaseConfig _databaseConfig;
+        private readonly LanguageConfig _languageConfig;
 
         private readonly Func<NpgsqlDataReader, List<Concept>> _sqlResultToListOfConceptsFunc;
-        private readonly Func<NpgsqlDataReader, List<string>> _sqlResultToListOfConceptTitlesFunc;
 
-        public ConceptRepository(ConceptsContext context, IOptions<DatabaseConfig> config)
+        public ConceptRepository(Context.ConceptsContext context, IOptions<DatabaseConfig> config, IOptions<LanguageConfig> language)
         {
             _context = context;
             _databaseConfig = config.Value;
-
+            _languageConfig = language.Value;
             _sqlResultToListOfConceptsFunc = reader =>
             {
                 var concepts = new List<Concept>();
@@ -44,19 +44,6 @@ namespace ConceptsMicroservice.Repositories
                 }
 
                 return concepts;
-            };
-
-            _sqlResultToListOfConceptTitlesFunc = reader =>
-            {
-                var titles = new List<string>();
-                if (reader == null)
-                    return titles;
-                while (reader.Read())
-                {
-                    titles.Add(reader.GetString(0));
-                }
-
-                return titles;
             };
         }
         #region Search helpers
@@ -79,7 +66,6 @@ namespace ConceptsMicroservice.Repositories
                     }
 
                     command.Prepare();
-
                     return mapColumns(command.ExecuteReader());
                 }
             }
@@ -93,53 +79,50 @@ namespace ConceptsMicroservice.Repositories
 
         public List<Concept> SearchForConcepts(ConceptSearchQuery searchParam)
         {
-            List<Concept> result = null;
-            if (searchParam == null || !searchParam.HasQuery())
-            {
-                result = GetAll();
-                return result;
-            }
 
+            if (searchParam == null)
+            {
+                return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
+            }
             var queryHasTitle = !string.IsNullOrWhiteSpace(searchParam.Title);
             var queryHasMetaIds = searchParam.MetaIds != null &&
                                   searchParam.MetaIds.Count > 0;
-            
+            var sqlParameters = searchParam.GetSqlParameters();
             if (queryHasTitle && !queryHasMetaIds)
             {
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", searchParam.GetSqlParameters());
-                return result;
+                return GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
             }
 
             if (!queryHasTitle && queryHasMetaIds)
             {
-                return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", searchParam.GetSqlParameters());
+                return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", sqlParameters);
             }
-            result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", searchParam.GetSqlParameters());
+            if (!queryHasMetaIds && !queryHasTitle)
+                return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
+
+            // Has metaIds and title
+            var result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", sqlParameters);
+
+            // Did not find any results with metaIds. Tries with title only
             if (result == null || result.Count == 0)
             {
-                var sqlParameters = new List<NpgsqlParameter>();
-                sqlParameters.Add(new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar)
-                {
-                    Value = searchParam.Title
-                });
-                result = GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
-
+                sqlParameters.ForEach(x => x.Collection = null);
+                sqlParameters.RemoveAll(x => x.ParameterName == "list_of_meta_id");
+                return GetConceptsByStoredProcedure("get_concepts_by_title", sqlParameters);
             }
-
             return result;
-            
         }
 
         public Concept GetById(int id)
         {
-            var sqlParameters = new List<NpgsqlParameter>();
-            sqlParameters.Add(new NpgsqlParameter("concept_id", NpgsqlDbType.Integer)
+            var sqlParameters = new List<NpgsqlParameter>
             {
-                Value = id
-            });
+                new NpgsqlParameter("concept_id", NpgsqlDbType.Integer) {Value = id}
+            };
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 
+<<<<<<< HEAD
         public Concept GetByExternalId(string externalId)
         {
             var sqlParameters = new List<NpgsqlParameter>();
@@ -151,8 +134,48 @@ namespace ConceptsMicroservice.Repositories
         }
 
         public List<Concept> GetAll()
+=======
+        public List<Concept> GetByGroupId(Guid id)
         {
-            return GetConceptsByStoredProcedure("get_concepts");
+            var concepts = _context.Concepts
+                .Where(x => x.GroupId.Equals(id))
+                .Include(x => x.Status)
+                .Include(x => x.Language)
+                .ToList();
+
+            foreach (var concept in concepts)
+            {
+                concept.Meta = _context.MetaData
+                    .Where(x => concept.MetaIds.Contains(x.Id))
+                    .Include(x => x.Status)
+                    .Include(x => x.Language)
+                    .Include(x => x.Category)
+                    .ThenInclude(x => x.TypeGroup)
+                    .ToList();
+
+                concept.Media = _context.ConceptMedia
+                    .Where(x => concept.MediaIds.Contains(x.MediaId))
+                    .Select(x => x.Media)
+                    .ToList();
+            }
+
+            return concepts;
+        }
+
+        public List<Concept> GetAll(BaseListQuery query)
+>>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
+        {
+            var sqlParameters = new List<NpgsqlParameter>
+            {
+                new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer) {Value = query.PageSize},
+                new NpgsqlParameter("page_number", NpgsqlDbType.Integer) {Value = query.Page},
+                new NpgsqlParameter("language_param", NpgsqlDbType.Varchar) {Value = query.Language},
+                new NpgsqlParameter("default_language_param", NpgsqlDbType.Varchar)
+                {
+                    Value = _languageConfig.Default
+                }
+            };
+            return GetConceptsByStoredProcedure("get_concepts", sqlParameters);
         }
 
         public Concept Update(Concept updatedConcept)
@@ -175,6 +198,7 @@ namespace ConceptsMicroservice.Repositories
             var concept = _context.Concepts.Add(inserted);
             concept.Entity.Created = DateTime.Now;
             concept.Entity.Updated = concept.Entity.Created;
+            concept.Entity.LanguageVariation = Guid.NewGuid();
             _context.SaveChanges();
             return GetById(concept.Entity.Id);
         }

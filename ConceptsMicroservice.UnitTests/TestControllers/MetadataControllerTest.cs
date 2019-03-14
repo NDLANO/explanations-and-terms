@@ -25,6 +25,7 @@ namespace MetasMicroservice.UnitTests.TestControllers
         private readonly MetadataController _controller;
         private readonly Response _listResponse;
         private readonly Response _singleResponse;
+        private readonly BaseListQuery _queryWithDefaultValues;
 
         public MetadataControllerTest()
         {
@@ -32,6 +33,7 @@ namespace MetasMicroservice.UnitTests.TestControllers
             _controller = new MetadataController(_service);
             _listResponse = new Response { Data = new List<MetaData>() };
             _singleResponse = new Response { Data = new MetaData() };
+            _queryWithDefaultValues = BaseListQuery.DefaultValues("nb");
         }
 
         [Fact]
@@ -72,9 +74,9 @@ namespace MetasMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_500_When_Service_Returns_Null()
         {
-            A.CallTo(() => _service.GetAll()).Returns(null);
+            A.CallTo(() => _service.GetAll(_queryWithDefaultValues)).Returns(null);
 
-            var result = _controller.GetAll();
+            var result = _controller.GetAll(_queryWithDefaultValues);
             var status = result.Result as StatusCodeResult;
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
@@ -83,9 +85,9 @@ namespace MetasMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_Status_200_Metas_Is_Found()
         {
-            A.CallTo(() => _service.GetAll()).Returns(_listResponse);
+            A.CallTo(() => _service.GetAll(_queryWithDefaultValues)).Returns(_listResponse);
 
-            var result = _controller.GetAll();
+            var result = _controller.GetAll(_queryWithDefaultValues);
             var okResult = result.Result as OkObjectResult;
 
             Assert.Equal(200, okResult.StatusCode);
@@ -94,9 +96,9 @@ namespace MetasMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetAll_Returns_A_List_Of_Metas_If_There_Exists_Metas()
         {
-            A.CallTo(() => _service.GetAll()).Returns(_listResponse);
+            A.CallTo(() => _service.GetAll(_queryWithDefaultValues)).Returns(_listResponse);
 
-            var result = _controller.GetAll();
+            var result = _controller.GetAll(_queryWithDefaultValues);
             var okResult = result.Result as OkObjectResult;
 
             Assert.IsType<List<MetaData>>((okResult.Value as Response).Data);

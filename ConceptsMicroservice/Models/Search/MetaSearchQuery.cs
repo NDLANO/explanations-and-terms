@@ -9,16 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ConceptsMicroservice.Models.Search
 {
-    public class MetaSearchQuery
+    public class MetaSearchQuery : BaseListQuery
     {
         /// <summary>
         /// The name of the metadata itself.
         /// </summary>
-        [FromQuery] public string Name { get; set; }
+        [FromQuery]
+        public string Name { get; set; } = "";
         /// <summary>
         /// The name of the metadata category.
         /// </summary>
-        [FromQuery] public string Category { get; set; }
+        [FromQuery] public string Category { get; set; } = "";
 
         /// <summary>
         /// Checks whether the name or category has a value.
@@ -27,6 +28,16 @@ namespace ConceptsMicroservice.Models.Search
         public bool HasNoQuery()
         {
             return string.IsNullOrWhiteSpace(Name) && string.IsNullOrWhiteSpace(Category);
+        }
+
+        public static MetaSearchQuery DefaultValues(string language)
+        {
+            return new MetaSearchQuery
+            {
+                Page = DefaultPage,
+                PageSize = DefaultPageSize,
+                Language = language
+            };
         }
     }
 }

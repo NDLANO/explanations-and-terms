@@ -52,7 +52,7 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         [Fact]
         public void MetaIds_Contains_Only_Ids_In_Database_Should_Return_ValidationSuccess()
         {
-            A.CallTo(() => ValidationService.MediaTypesNotExistInDatabase(A<List<MediaWithMediaType>>._)).Returns(new List<int>());
+            A.CallTo(() => ValidationService.MediaTypesNotExistInDatabase(A<List<MediaWithMediaType>>._, A<string>._)).Returns(new List<int>());
 
             var validationException = Record.Exception(() => _attribute.Validate(_listOfIdsFromDb, ValidationContext));
             Assert.Null(validationException);
@@ -61,7 +61,7 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         [Fact]
         public void MetaIds_Contains_Some_Ids_Not_In_Database_Should_Throw_ValidationException()
         {
-            A.CallTo(() => ValidationService.MediaTypesNotExistInDatabase(A<List<MediaWithMediaType>>._)).Returns(new List<int> { 1 });
+            A.CallTo(() => ValidationService.MediaTypesNotExistInDatabase(A<List<MediaWithMediaType>>._, A<string>._)).Returns(new List<int> { 1 });
 
             var validationException = Record.Exception(() => _attribute.Validate(_listOfIdsFromDb, ValidationContext));
             Assert.IsType<ValidationException>(validationException);

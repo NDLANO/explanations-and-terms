@@ -14,7 +14,7 @@ namespace ConceptsMicroservice.Services
     {
         Response SearchForMetadata(MetaSearchQuery query);
         Response GetById(int id);
-        Response GetAll();
+        Response GetAll(BaseListQuery query);
 
     }
 }

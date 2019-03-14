@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using ConceptsMicroservice.Context;
 using ConceptsMicroservice.Extensions;
 using ConceptsMicroservice.Models.Configuration;
@@ -26,7 +27,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public MockDatabase()
         {
-            DatabaseConfig = ConfigHelper.GetApplicationConfiguration();
+            DatabaseConfig = ConfigHelper.GetDatabaseConfiguration();
             var options = new DbContextOptionsBuilder<ConceptsContext>()
                 .UseNpgsql(DatabaseConfig.ConnectionString)
                 .Options;
@@ -36,12 +37,16 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public MetaCategory InsertCategory(MetaCategory mc)
         {
-            if (mc.LanguageId == 0)
-                mc.LanguageId = InsertLanguage().Id;
+            mc.LanguageId = InsertLanguage(mc.Language).Id;
             
+            mc.TypeGroupId = InsertTypeGroup(mc.TypeGroup).Id;
 
-            var cat = Context.Categories.Add(mc).Entity;
-            Context.SaveChanges();
+            var cat = Context.Categories.FirstOrDefault(x => x.Name == mc.Name);
+            if (cat == null)
+            {
+                cat = Context.Categories.Add(mc).Entity;
+                Context.SaveChanges();
+            }
             return cat;
         }
 
@@ -49,6 +54,10 @@ namespace ConceptsMicroservice.UnitTests.Mock
         {
             if (ms.LanguageId == 0)
                 ms.LanguageId = InsertLanguage().Id;
+
+
+            ms.TypeGroupId = InsertTypeGroup(ms.TypeGroup).Id;
+
             var status = Context.Status.Add(ms).Entity;
             Context.SaveChanges();
             return status;
@@ -59,9 +68,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
         {
             if (m.LanguageId == 0)
                 m.LanguageId = InsertLanguage().Id;
-
-            if (m.Category != null && m.Category.LanguageId == 0)
-                m.Category.LanguageId = InsertLanguage().Id;
+            
+            m.Category = InsertCategory(m.Category);
+            m.CategoryId = m.Category.Id;
 
 
             if (m.Status != null && m.Status.LanguageId == 0)
@@ -73,7 +82,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
         }
         public Concept InsertConcept(Concept c)
         {
-            if (c.LanguageId == 0)
+            //Nasser 26.02.2019, it seems that the languageId is equal to 1
+            //if (c.LanguageId == 0)
                 c.LanguageId = InsertLanguage().Id;
 
 
@@ -88,25 +98,47 @@ namespace ConceptsMicroservice.UnitTests.Mock
             if (l == null)
                 l = new Language
                 {
-                    Name = $"Bokmål {Guid.NewGuid()}",
+                    Name = "Bokmål",
                     Description = "Description",
                     Abbreviation = "nb"
                 };
+            var existLanguage = Context.Languages.FirstOrDefault(lan => lan.Name == "Bokmål");
+            if (existLanguage == null)
+            {
+                var lang = Context.Languages.Add(l).Entity;
+                Context.SaveChanges();
+                return lang;
+            }
+            else
+            {
+                return existLanguage;
+            }
+        }
 
-            var lang = Context.Languages.Add(l).Entity;
-            Context.SaveChanges();
-            return lang;
+        public TypeGroup InsertTypeGroup(TypeGroup tg = null)
+        {
+            if (tg == null)
+                tg = new TypeGroup
+                {
+                    Name = "TypeGroup",
+                    Description = "Description",
+                };
+
+            var typeGroup = Context.TypeGroups.FirstOrDefault(x => x.Name == "TypeGroup");
+            if (typeGroup == null)
+            {
+                typeGroup = Context.TypeGroups.Add(tg).Entity;
+                Context.SaveChanges();
+            }
+
+            return typeGroup;
         }
 
         public Concept CreateAndInsertAConcept()
         {
-            var language = new Language
-            {
-                Name = $"Bokmål {Guid.NewGuid()}",
-                Description = "Description",
-                Abbreviation = "nb"
-            };
-
+            Language language = null;
+            var guid = Guid.Parse("C56A4180-65AA-42EC-A945-5FD21DEC0538");
+            
             var category = new MetaCategory
             {
                 Name = "Name",
@@ -116,7 +148,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
             var status = new Status
             {
                 Name = "Name",
-                Description = "Description"
+                Description = "Description",
+                LanguageVariation = Guid.NewGuid()
             };
 
             var meta = new MetaData
@@ -125,7 +158,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Abbreviation = "Abb",
                 Description = "Description",
                 Category = category,
-                Status = status
+                Status = status,
+                LanguageVariation = Guid.NewGuid()
             };
 
             var concept = new Concept
@@ -136,6 +170,9 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Content = "Content",
                 Source = "Source",
                 Title = "Title",
+                ExternalId = "ExternalID",
+                GroupId = guid,
+                LanguageVariation = guid,
                 MediaIds = new List<int>()
             };
 
@@ -164,30 +201,27 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
         public void DeleteAllRowsInAllTables()
         {
-            var conceptTableName = typeof(Concept).GetClassAttributeValue((TableAttribute table) => table.Name);
-            var metaTableName = typeof(MetaData).GetClassAttributeValue((TableAttribute table) => table.Name);
-            var categoryTableName = typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name);
-            var statusTableName = typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name);
+            var tables = new List<string>
+            {
+                typeof(Concept).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(MetaData).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(MediaType).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(Language).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(TypeGroup).GetClassAttributeValue((TableAttribute table) => table.Name)
+            };
 
             using (var conn = new NpgsqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
-                using (var cmd = new NpgsqlCommand($"DELETE FROM {conceptTableName}", conn))
+                tables.ForEach(table =>
                 {
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new NpgsqlCommand($"DELETE FROM {metaTableName}", conn))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new NpgsqlCommand($"DELETE FROM {categoryTableName}", conn))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                using (var cmd = new NpgsqlCommand($"DELETE FROM {statusTableName}", conn))
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                    using (var cmd = new NpgsqlCommand($"DELETE FROM {table}", conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                });
                 conn.Close();
             }
         }

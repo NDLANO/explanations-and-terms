@@ -20,7 +20,20 @@ namespace ConceptsMicroservice.UnitTests.Helpers
                 .Build();
         }
 
-        public static DatabaseConfig GetApplicationConfiguration()
+        public static LanguageConfig GetLanguageConfiguration()
+        {
+            var configuration = new LanguageConfig();
+
+            var iConfig = GetIConfigurationRoot();
+
+            iConfig
+                .GetSection("Language")
+                .Bind(configuration);
+
+            return configuration;
+        }
+
+        public static DatabaseConfig GetDatabaseConfiguration()
         {
             var configuration = new DatabaseConfig();
 

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Net;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Domain;
+using ConceptsMicroservice.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using ConceptsMicroservice.Services;
 
@@ -30,12 +31,12 @@ namespace ConceptsMicroservice.Controllers
         /// <remarks>
         /// Returns a list of all the categories.
         /// </remarks>
-        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<MetaCategory>))]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PagingDTO<MetaCategoryDTO>))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpGet]
-        public ActionResult<Response> GetAllCategories()
+        public ActionResult<Response> GetAllCategories([FromQuery] BaseListQuery query)
         {
-            var categories = _service.GetAllCategories();
+            var categories = _service.GetAllCategories(query);
             if (categories != null)
                 return Ok(categories);
 

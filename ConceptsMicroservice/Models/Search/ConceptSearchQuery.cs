@@ -12,7 +12,7 @@ using NpgsqlTypes;
 
 namespace ConceptsMicroservice.Models.Search
 {
-    public class ConceptSearchQuery
+    public class ConceptSearchQuery : BaseListQuery
     {
         /// <summary>
         /// The concept title (will match start of titles).
@@ -34,7 +34,12 @@ namespace ConceptsMicroservice.Models.Search
 
         public List<Npgsql.NpgsqlParameter> GetSqlParameters()
         {
-            var sqlParameters = new List<NpgsqlParameter>();
+            var sqlParameters = new List<NpgsqlParameter>
+            {
+                new NpgsqlParameter("number_of_record_to_show", NpgsqlDbType.Integer) {Value = PageSize > 0 ? PageSize : BaseListQuery.DefaultPageSize},
+                new NpgsqlParameter("page_number", NpgsqlDbType.Integer) {Value = Page > 0 ? Page : BaseListQuery.DefaultPage}
+            };
+
             if (!string.IsNullOrWhiteSpace(Title))
             {
                 sqlParameters.Add(new NpgsqlParameter("concept_title", NpgsqlDbType.Varchar)
