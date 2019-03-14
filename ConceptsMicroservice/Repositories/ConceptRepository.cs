@@ -122,19 +122,18 @@ namespace ConceptsMicroservice.Repositories
             return GetConceptsByStoredProcedure("get_concepts_by_id", sqlParameters).FirstOrDefault();
         }
 
-<<<<<<< HEAD
+
         public Concept GetByExternalId(string externalId)
         {
             var sqlParameters = new List<NpgsqlParameter>();
-            sqlParameters.Add(new NpgsqlParameter("external", NpgsqlDbType.Varchar)
+            sqlParameters.Add(new NpgsqlParameter("external_id", NpgsqlDbType.Varchar)
             {
                 Value = externalId
             });
             return GetConceptsByStoredProcedure("get_concept_by_external_id", sqlParameters).FirstOrDefault();
         }
 
-        public List<Concept> GetAll()
-=======
+
         public List<Concept> GetByGroupId(Guid id)
         {
             var concepts = _context.Concepts
@@ -163,7 +162,6 @@ namespace ConceptsMicroservice.Repositories
         }
 
         public List<Concept> GetAll(BaseListQuery query)
->>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
         {
             var sqlParameters = new List<NpgsqlParameter>
             {
