@@ -64,7 +64,7 @@ namespace ConceptsMicroservice.Services
                     Data = res
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 return null;
             }
