@@ -5,13 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-<<<<<<< HEAD
 
-using System;
 using System.Collections.Generic;
-=======
- 
->>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
+
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;

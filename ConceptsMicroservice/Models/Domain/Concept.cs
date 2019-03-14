@@ -23,12 +23,8 @@ namespace ConceptsMicroservice.Models.Domain
     {
         [Key] [Column("id")] public int Id { get; set; }
 
-<<<<<<< HEAD
-        [Column("external_id")] public string ExternalId { get; set; }
-=======
-        [Column("externalId")] public string ExternalId { get; set; }
->>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
 
+        [Column("externalId")] public string ExternalId { get; set; }
         [Column("meta")]
         [Required]
         [NoDuplicateIntValues]

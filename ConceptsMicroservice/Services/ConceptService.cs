@@ -85,14 +85,13 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-<<<<<<< HEAD
         public Response GetConceptByExternalId(string externalId)
         {
             try
             {
                 return new Response
                 {
-                    Data = _mapper.Map<ConceptDto>(_conceptRepository.GetByExternalId(externalId))
+                    Data = Mapper.Map<ConceptDto>(_conceptRepository.GetByExternalId(externalId))
                 };
             }
             catch (Exception e)
@@ -101,10 +100,8 @@ namespace ConceptsMicroservice.Services
             }
         }
 
-        public Response GetAllConcepts()
-=======
+  
         public Response GetAllConcepts(BaseListQuery query)
->>>>>>> d8b57f1553e03ce4c4d6fba090aac11ef18ca1f9
         {
             try
             {
