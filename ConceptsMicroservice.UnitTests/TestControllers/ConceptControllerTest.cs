@@ -136,6 +136,55 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
 
         #endregion
 
+        #region GetByExternalID
+        [Fact]
+        public void GetByExternalId_Returns_Concept_When_Id_Is_Valid()
+        {
+            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(_singleResponse);
+
+            var result = _controller.GetByExternalId("0");
+            var okresult = result.Result as OkObjectResult;
+
+            var response = ((Response)okresult.Value);
+            Assert.NotNull(response.Data);
+            Assert.IsType<Concept>(response.Data);
+        }
+
+        [Fact]
+        public void GetByExternalId_Returns_Status_200_When_A_Concept_Is_Found()
+        {
+            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(_singleResponse);
+
+            var result = _controller.GetByExternalId("0");
+            var okresult = result.Result as OkObjectResult;
+
+            Assert.Equal(200, okresult.StatusCode);
+        }
+
+        [Fact]
+        public void GetByExternalId_Returns_404_When_Id_Is_Not_Valid()
+        {
+            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(new Response { Data = null });
+
+            var result = _controller.GetById(0);
+            var notFoundResult = result.Result as NotFoundResult;
+
+            Assert.Equal((int)HttpStatusCode.NotFound, notFoundResult.StatusCode);
+        }
+
+        [Fact]
+        public void GetByExternalId_Returns_500_When_Service_Returns_Null()
+        {
+            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(null);
+
+            var result = _controller.GetByExternalId("0");
+            var status = result.Result as StatusCodeResult;
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, status.StatusCode);
+        }
+
+        #endregion
+
         #region GetAll
 
         [Fact]
