@@ -203,13 +203,17 @@ namespace ConceptsMicroservice.UnitTests.Mock
         {
             var tables = new List<string>
             {
+                typeof(ConceptMedia).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(Concept).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(MetaData).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(Status).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(Media).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(MediaType).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(Language).GetClassAttributeValue((TableAttribute table) => table.Name),
+                typeof(MetaCategory).GetClassAttributeValue((TableAttribute table) => table.Name),
                 typeof(TypeGroup).GetClassAttributeValue((TableAttribute table) => table.Name)
+
             };
 
             using (var conn = new NpgsqlConnection(DatabaseConfig.ConnectionString))
