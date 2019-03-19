@@ -144,6 +144,11 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Name = "Name",
                 Description = "Description"
             };
+            var typeGroup = new TypeGroup
+            {
+                Name = "Name",
+                Description = "Description"
+            };
 
             var status = new Status
             {
@@ -160,6 +165,17 @@ namespace ConceptsMicroservice.UnitTests.Mock
                 Category = category,
                 Status = status,
                 LanguageVariation = Guid.NewGuid()
+            };
+            //MediaTypes
+            var mediaType = new MediaType
+            {
+                Title = "Title"
+            };
+            //Media
+            var media = new Media
+            {
+                Source = "MediaSource",
+                MediaTypeId = mediaType.Id
             };
 
             var concept = new Concept
@@ -178,6 +194,7 @@ namespace ConceptsMicroservice.UnitTests.Mock
 
             language = InsertLanguage(language);
             category.LanguageId = language.Id;
+            category.TypeGroup = typeGroup;
             status.LanguageId = language.Id;
             meta.LanguageId = language.Id;
             concept.LanguageId = language.Id;
@@ -194,6 +211,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
             concept.Meta = new List<MetaData> { meta };
             concept.MetaIds = new List<int> { meta.Id };
             concept.Status = status;
+            concept.Media = new List<Media> { media };
+
             concept = InsertConcept(concept);
 
             return concept;

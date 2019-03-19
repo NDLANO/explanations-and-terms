@@ -23,10 +23,6 @@ namespace ConceptsMicroservice.Models.DTO
         /// </summary>
         public string SourceAuthor { get; set; }
         /// <summary>
-        /// The email of who created this concept.
-        /// </summary>
-        public string AuthorEmail { get; set; }
-        /// <summary>
         /// The name of who created this concept.
         /// </summary>
         public string AuthorName { get; set; }
