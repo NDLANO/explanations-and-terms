@@ -52,14 +52,15 @@ namespace ConceptsMicroservice.Repositories
             var metadataWithQueriedLanguage = TableWithAllNestedObjects()
                 .Where(a => a.Language.Abbreviation.Equals(query.Language))
                 .ToList();
-            var allMetaData = TableWithAllNestedObjects()
-                .Where(x => !_context.MetaData
-                    .Include(a => a.Language)
-                    .Where(a => a.Language.Abbreviation.Equals(query.Language)).Any(y => y.LanguageVariation == x.LanguageVariation))
-                .Where(x => x.Language.Abbreviation.Equals(_languageConfig.Default))
-                .Union(metadataWithQueriedLanguage);
+            var allMetaData = metadataWithQueriedLanguage;
+                //TableWithAllNestedObjects()
+                //.Where(x => !_context.MetaData
+                //    .Include(a => a.Language)
+                //    .Where(a => a.Language.Abbreviation.Equals(query.Language)).Any(y => y.LanguageVariation == x.LanguageVariation));
+                //.Where(x => x.Language.Abbreviation.Equals(_languageConfig.Default));
+                //.Union(metadataWithQueriedLanguage);
 
-            var totalItems = allMetaData.Count();
+                var totalItems = allMetaData.Count();
             var totalPages = Convert.ToInt32(Math.Ceiling(totalItems * 1.0 / query.PageSize));
             if (query.Page > totalPages)
                 query.Page = 1;
