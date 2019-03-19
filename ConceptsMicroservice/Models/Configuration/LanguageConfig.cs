@@ -6,13 +6,17 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConceptsMicroservice.Models.Configuration
 {
     public class LanguageConfig
     {
         public string Default { get; set; }
-        public List<string> Supported { get; set; }
+        public string SupportedListAsString { get; set; }
+
+        public List<string> Supported => SupportedListAsString.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).ToList();
     }
 }
