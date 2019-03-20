@@ -167,7 +167,7 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var missingCategory = new MetaCategory { Name = "Missing", Id = 2 };
             var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
             A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
-            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null, _defaultLanguage));
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(null));
         }
 
         [Fact]
@@ -178,34 +178,47 @@ namespace ConceptsMicroservice.UnitTests.TestServices.Validation
             var requiredCategories = new List<MetaCategory> { missingCategory, presentCategory };
             A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>(), _defaultLanguage));
+            Assert.NotEmpty(_validationService.GetMissingRequiredCategories(new List<int>()));
         }
 
         [Fact]
         public void GetMissingRequiredCategories_Returns_Missing_Required_Categories_When_They_Are_Missing()
         {
-            var presentCategory = new MetaCategory {Name = "Present", Id = 1};
+            var presentCategory = new MetaCategory {Name = "Present", Id = 1, TypeGroup = new TypeGroup{Name = "Language"}};
             var missingCategory = new MetaCategory {Name = "Missing", Id = 2};
             var requiredCategories = new List<MetaCategory>{missingCategory, presentCategory};
             var presentMeta = new MetaData {Category = presentCategory, Id = 1};
 
             A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData>{ presentMeta });
-            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(A<string>._)).Returns(requiredCategories);
 
-            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}, _defaultLanguage));
+            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int>{presentMeta.Id}));
         }
 
         [Fact]
-        public void GetMissingRequiredCategories_Returns_Empty_List_When_All_Required_Categories_Is_Present()
+        public void GetMissingRequiredCategories_Returns_Language_When_No_Language_Meta_Is__Present()
         {
-            var presentCategory = new MetaCategory { Name = "Present", Id = 1 };
+            var presentCategory = new MetaCategory { Name = "NotLanguage", TypeGroup = new TypeGroup{Name = "NotLanguage"}};
             var requiredCategories = new List<MetaCategory> { presentCategory };
             var presentMeta = new MetaData { Category = presentCategory, Id = 1 };
 
             A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData> { presentMeta });
             A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
 
-            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }, _defaultLanguage));
+            Assert.Single(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }));
+        }
+
+        [Fact]
+        public void GetMissingRequiredCategories_Returns_Empty_List_When_All_Required_Categories_Is_Present()
+        {
+            var presentCategory = new MetaCategory { Name = "Language", Id = 1, TypeGroup = new TypeGroup { Name = "Language" }};
+            var requiredCategories = new List<MetaCategory> { presentCategory };
+            var presentMeta = new MetaData { Category = presentCategory, Id = 1 };
+
+            A.CallTo(() => _metadataRepository.GetByRangeOfIds(A<List<int>>._)).Returns(new List<MetaData> { presentMeta });
+            A.CallTo(() => _categoryRepository.GetRequiredCategories(_defaultLanguage)).Returns(requiredCategories);
+
+            Assert.Empty(_validationService.GetMissingRequiredCategories(new List<int> { presentMeta.Id }));
         }
         #endregion
         

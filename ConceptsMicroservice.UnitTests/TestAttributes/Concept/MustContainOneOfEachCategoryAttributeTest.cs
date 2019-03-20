@@ -36,22 +36,6 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         }
 
         [Fact]
-        public void LanguageService_is_Null_Should_Throw_ValidationException()
-        {
-            A.CallTo(() => ServiceProvider.GetService(typeof(IOptions<LanguageConfig>))).Returns(null);
-
-            Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
-        }
-
-        [Fact]
-        public void HttpContext_is_Null_Should_Throw_ValidationException()
-        {
-            A.CallTo(() => ServiceProvider.GetService(typeof(IHttpContextFactory))).Returns(null);
-
-            Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
-        }
-
-        [Fact]
         public void Returns_ValidationSuccess_When_There_Is_No_Missing_Categories()
         {
             SucceedConditions();
@@ -63,7 +47,7 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         public void Throws_ValidationException_When_There_Is_Missing_Categories()
         {
             SucceedConditions();
-            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._, A<string>._)).Returns(new List<string>{"Missing!"});
+            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._)).Returns(new List<string>{"Missing!"});
 
             Assert.Throws<ValidationException>(() => _attribute.Validate(new List<int> { 1 }, ValidationContext));
         }
@@ -71,7 +55,7 @@ namespace ConceptsMicroservice.UnitTests.TestAttributes.Concept
         private void SucceedConditions()
         {
 
-            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._, A<string>._)).Returns(new List<string>());
+            A.CallTo(() => ValidationService.GetMissingRequiredCategories(A<List<int>>._)).Returns(new List<string>());
             A.CallTo(() => ServiceProvider.GetService(typeof(IOptions<LanguageConfig>))).Returns(new OptionsWrapper<LanguageConfig>(new LanguageConfig()));
             var httpContextFake = A.Fake<IHttpContextAccessor>();
             A.CallTo(() => ServiceProvider.GetService(typeof(IHttpContextAccessor))).Returns(httpContextFake);

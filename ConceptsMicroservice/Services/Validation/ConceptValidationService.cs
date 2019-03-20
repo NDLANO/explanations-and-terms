@@ -86,16 +86,25 @@ namespace ConceptsMicroservice.Services.Validation
             return noExistingIds;
         }
 
-        public List<string> GetMissingRequiredCategories(List<int> metaIds, string language)
+        public List<string> GetMissingRequiredCategories(List<int> metaIds)
         {
             var missingCategories = new List<string>();
 
             if (metaIds == null)
                 metaIds = new List<int>();
 
-            var requiredCategories = _categoryRepository.GetRequiredCategories(language);
-
             var metas = _metadataRepository.GetByRangeOfIds(metaIds);
+
+            // Retrieves the language of the metadata.
+            var metasWithLanguage = metas.Where(x => x.Category.TypeGroup.Name.ToLower().Equals("language")).ToList();
+            var languageMeta = metasWithLanguage.FirstOrDefault();
+            if (languageMeta == null)
+            {
+                missingCategories.Add("Language");
+                return missingCategories;
+            }
+
+            var requiredCategories = _categoryRepository.GetRequiredCategories(languageMeta.Abbreviation);
 
             foreach (var requiredCategory in requiredCategories)
             {
