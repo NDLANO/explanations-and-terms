@@ -55,7 +55,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository
         }
 
         [Fact]
-        public void GetById_Returns_Concept_If_It_Exists()
+        public void GetById_Returns_Concept_If_It_Exists()  
         {
             var c = Mock.Database.CreateAndInsertAConcept();
             var concept = ConceptRepository.GetById(c.Id);
