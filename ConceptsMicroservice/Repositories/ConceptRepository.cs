@@ -97,8 +97,16 @@ namespace ConceptsMicroservice.Repositories
             {
                 return GetConceptsByStoredProcedure("get_concepts_by_list_of_meta_id", sqlParameters);
             }
+
             if (!queryHasMetaIds && !queryHasTitle)
-                return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
+            {
+                string language = _languageConfig.Default;
+                if (!String.IsNullOrEmpty(searchParam.Language))
+                {
+                    language = searchParam.Language;
+                }
+                return GetAll(BaseListQuery.DefaultValues(language));
+            }
 
             // Has metaIds and title
             var result = GetConceptsByStoredProcedure("get_concepts_by_title_and_meta_id", sqlParameters);
