@@ -42,5 +42,7 @@ namespace ConceptsMicroservice.Models.DTO
             [MediaTypesMustExistInDatabase]
             [Required]
             public List<MediaWithMediaType> Media { get; set; }
+
+            public string url_to_concept { get; set; }
         }
 }

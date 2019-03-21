@@ -39,5 +39,6 @@ namespace ConceptsMicroservice.Models.DTO
         public Language Language { get; set; }
         public string LanguageVariation { get; set; }
         public Guid GroupId { get; set; }
+        public string UrlToContent { get; set; }
     }
 }

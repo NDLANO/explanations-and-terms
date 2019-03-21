@@ -64,6 +64,7 @@ namespace ConceptsMicroservice.Models.Domain
         [NotMapped] public List<MetaData> Meta { get; set; }
         [NotMapped] public List<Media> Media { get; set; }
         [Column("language_variation")] public Guid LanguageVariation { get; set; }
+        [Column("url_to_content")] public string UrlToContent { get; set; }
         public static T GetJson<T>(Npgsql.NpgsqlDataReader reader, int column)
         {
             try
@@ -79,27 +80,46 @@ namespace ConceptsMicroservice.Models.Domain
         public static Concept DataReaderToConcept(Npgsql.NpgsqlDataReader reader)
         {
             //Get column names
-            var idColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.Id, attr => attr.Name));
-            var metaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MetaIds, attr => attr.Name));
-            var externalIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.ExternalId, attr => attr.Name));
-            var titleColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Title, attr => attr.Name));
-            var contentColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Content, attr => attr.Name));
-            var authorNameColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorName, attr => attr.Name));
-            var authorEmailColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorEmail, attr => attr.Name));
-            var sourceAuthorColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.SourceAuthor, attr => attr.Name));
-            var sourceColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Source, attr => attr.Name));
-            var createdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Created, attr => attr.Name));
-            var updatedColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
-            var statusIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
-            var deletedByColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
-            var languageIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageId, attr => attr.Name));
-            var mediaIdsColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
-            var groupIdColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.GroupId, attr => attr.Name));
-            var languageVariationColumn = reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.LanguageVariation, attr => attr.Name));
+            var idColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.Id, attr => attr.Name));
+            var metaIdsColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MetaIds, attr => attr.Name));
+            var externalIdColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.ExternalId, attr => attr.Name));
+            var titleColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Title, attr => attr.Name));
+            var contentColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Content, attr => attr.Name));
+            var authorNameColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorName, attr => attr.Name));
+            var authorEmailColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.AuthorEmail, attr => attr.Name));
+            var sourceAuthorColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.SourceAuthor, attr => attr.Name));
+            var sourceColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.Source, attr => attr.Name));
+            var createdColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Created, attr => attr.Name));
+            var updatedColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, DateTime, ColumnAttribute, string>(prop => prop.Updated, attr => attr.Name));
+            var statusIdColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.StatusId, attr => attr.Name));
+            var deletedByColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.DeletedBy, attr => attr.Name));
+            var languageIdColumn = reader.GetOrdinal
+                (AttributeHelper.GetPropertyAttributeValue<Concept, int, ColumnAttribute, string>(prop => prop.LanguageId, attr => attr.Name));
+            var mediaIdsColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, List<int>, ColumnAttribute, string>(prop => prop.MediaIds, attr => attr.Name));
+            var groupIdColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.GroupId, attr => attr.Name));
+            var languageVariationColumn = reader.GetOrdinal(
+                AttributeHelper.GetPropertyAttributeValue<Concept, Guid, ColumnAttribute, string>(prop => prop.LanguageVariation, attr => attr.Name));
             var metaObjectsColumn = reader.GetOrdinal("meta_object");
             var mediaObjectsColumn = reader.GetOrdinal("media_object");
             var statusObjectColumn = reader.GetOrdinal("status_object");
             var languageObjectColumn = reader.GetOrdinal("language_object");
+            var urlToContent =
+                reader.GetOrdinal(AttributeHelper.GetPropertyAttributeValue<Concept, string, ColumnAttribute, string>(prop => prop.UrlToContent, attr => attr.Name));
 
             var meta = JsonHelper.GetJson<List<MetaData>>(reader, metaObjectsColumn);
             var media = JsonHelper.GetJson<List<Media>>(reader, mediaObjectsColumn);
@@ -129,7 +149,8 @@ namespace ConceptsMicroservice.Models.Domain
                 Status = status ?? new Status(),
                 Language = language ?? new Language(),
                 GroupId = reader.GetGuid(groupIdColumn),
-                LanguageVariation = reader.GetGuid(languageVariationColumn)
+                LanguageVariation = reader.GetGuid(languageVariationColumn),
+                UrlToContent = reader.SafeGetString(urlToContent)
             };
             
             try
