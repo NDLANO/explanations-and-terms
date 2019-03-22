@@ -237,7 +237,7 @@ namespace ConceptsMicroservice.Services
             var metas = _metaRepository.GetByRangeOfIds(newConcept.MetaIds);
             var metasWithoutLanguage = metas
                 .Where(x => !x.Category.TypeGroup.Name.ToLower().Equals("language"))
-                .Select(x => x.Id)
+                .Select(x => x.LanguageVariation)
                 .ToList();
             var newMetaLanguage = metas.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
 
@@ -247,7 +247,7 @@ namespace ConceptsMicroservice.Services
                 var groupMeta = _metaRepository.GetByRangeOfIds(concept.MetaIds);
                 var metasForConceptWithoutLanguage = groupMeta
                     .Where(x => !x.Category.TypeGroup.Name.ToLower().Equals("language"))
-                    .Select(x => x.Id)
+                    .Select(x => x.LanguageVariation)
                     .ToList();
                 var groupLanguage = groupMeta.FirstOrDefault(x => x.Category.TypeGroup.Name.ToLower().Equals("language"));
 
