@@ -178,8 +178,9 @@ namespace ConceptsMicroservice.Services
             newConceptVersion.AuthorName = oldConceptVersion.AuthorName;
             newConceptVersion.AuthorEmail = oldConceptVersion.AuthorEmail;
             newConceptVersion.GroupId = oldConceptVersion.GroupId;
+            newConceptVersion.UrlToContent = oldConceptVersion.UrlToContent;
 
-            
+
             try
             {
                 _conceptRepository.Update(newConceptVersion);
@@ -290,6 +291,7 @@ namespace ConceptsMicroservice.Services
             concept.LanguageId = language.Id;
             concept.AuthorEmail = userInfo.Email;
             concept.AuthorName = userInfo.FullName;
+            concept.UrlToContent = string.Empty;
 
             // Create a language variation
             if (concept.GroupId != Guid.Empty)
