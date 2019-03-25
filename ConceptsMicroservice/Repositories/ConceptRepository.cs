@@ -84,6 +84,7 @@ namespace ConceptsMicroservice.Repositories
             {
                 return GetAll(BaseListQuery.DefaultValues(_languageConfig.Default));
             }
+
             var queryHasTitle = !string.IsNullOrWhiteSpace(searchParam.Title);
             var queryHasMetaIds = searchParam.MetaIds != null &&
                                   searchParam.MetaIds.Count > 0;
@@ -100,12 +101,11 @@ namespace ConceptsMicroservice.Repositories
 
             if (!queryHasMetaIds && !queryHasTitle)
             {
-                string language = _languageConfig.Default;
-                if (!String.IsNullOrEmpty(searchParam.Language))
+                if (string.IsNullOrEmpty(searchParam.Language))
                 {
-                    language = searchParam.Language;
+                    searchParam.Language = _languageConfig.Default;
                 }
-                return GetAll(BaseListQuery.DefaultValues(language));
+                return GetAll(searchParam);
             }
 
             // Has metaIds and title
