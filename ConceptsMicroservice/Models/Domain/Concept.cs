@@ -158,13 +158,15 @@ namespace ConceptsMicroservice.Models.Domain
                 var numberOfPages = reader.GetOrdinal("page_count");
                 concept.NumberOfPages = reader.GetInt16(numberOfPages);
             }
-            catch { }
+            catch (Exception ePageNumber)
+            { }
             try
             {
                 var totalCount = reader.GetOrdinal("result_count");
                 concept.TotalItems = reader.GetInt16(totalCount);
             }
-            catch { }
+            catch (Exception eTotalCount)
+            { }
 
             return concept;
         }

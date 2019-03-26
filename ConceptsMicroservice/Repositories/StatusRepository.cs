@@ -58,9 +58,8 @@ namespace ConceptsMicroservice.Repositories
 
         public Status GetByName(string name)
         {
-            return _context.Status
-                .Include(x => x.Language)
-                .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
+            var statusByTypeGroupName = _context.Status.FirstOrDefault(x => x.TypeGroup.Name.ToLower().Equals(name.ToLower()));
+            return statusByTypeGroupName;
         }
     }
 }

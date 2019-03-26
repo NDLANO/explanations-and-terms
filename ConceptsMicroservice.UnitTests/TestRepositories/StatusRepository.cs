@@ -47,7 +47,7 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
 
             Mock.Database.InsertStatus(_status);
             
-            Assert.NotNull(StatusRepository.GetByName(_status.Name));
+            Assert.NotNull(StatusRepository.GetByName(_status.TypeGroup.Name));
         }
         [Fact]
         public void GetByName_Returns_Null_If_Not_Found()

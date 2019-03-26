@@ -190,6 +190,11 @@ namespace ConceptsMicroservice.Services
                 return viewModel;
             }
 
+            //updating meta list for concept
+            var oldMetaList = oldConceptVersion.Meta;
+            var newMetaIdList = _metaRepository.GetlanguageVariationForThisList(oldMetaList, language.Id);
+
+
             // Updating media for concept
             var toBeDeleted = oldConceptVersion.Media
                 .Where(x => !dto.Media.Exists(y => y.ExternalId == x.ExternalId && y.MediaTypeId == x.MediaTypeId))
@@ -334,7 +339,6 @@ namespace ConceptsMicroservice.Services
             if (updatedConcept == null)
                 return null;
 
-            
             var viewModel = new Response();
             var inactiveStatus = _statusRepository.GetByName(Status.STATUS_ARCHVIED);
             if (inactiveStatus == null)
