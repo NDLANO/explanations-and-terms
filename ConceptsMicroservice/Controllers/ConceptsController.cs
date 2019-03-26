@@ -134,7 +134,6 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(ModelStateErrorResponse))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [HttpPut]
-        [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
         public ActionResult<Response> UpdateConcept([Required][FromBody]UpdateConceptDto concept)
         {
@@ -176,7 +175,6 @@ namespace ConceptsMicroservice.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(void))]
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost]
-        [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
 
         public async Task<ActionResult<Response>> CreateConcept([Required][FromBody]CreateConceptDto concept)
@@ -224,7 +222,6 @@ namespace ConceptsMicroservice.Controllers
         /// <param name="id">The id of the concepts to be deleted.</param>
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpDelete("{id}")]
-        [Authorize(Policy = "concept:admin")]
         [Authorize(Policy = "concept:write")]
         [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
         public async Task<ActionResult<Response>> DeleteConcept(int id)
