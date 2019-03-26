@@ -123,13 +123,13 @@ namespace ConceptsMicroservice.Repositories
             return meta;
         }
 
-        public List<MetaData> GetlanguageVariationForThisList(List<MetaData> ids, int languageId)
+        public List<MetaData> GetlanguageVariationForThisList(List<MetaData> metas, int languageId)
         {
             List<MetaData> listOfMetaWithProperLanguage = new List<MetaData>();
-            ids.ForEach(x =>
+            metas.ForEach(x =>
                 {
                         listOfMetaWithProperLanguage.Add(item: _context.MetaData.FirstOrDefault(m =>
-                            (m.LanguageId == languageId) && (m.LanguageVariation == GetById(x.id).LanguageVariation)));
+                            (m.LanguageId == languageId) && (m.LanguageVariation == GetById(x.Id).LanguageVariation)));
                 }
             );
             return listOfMetaWithProperLanguage;
