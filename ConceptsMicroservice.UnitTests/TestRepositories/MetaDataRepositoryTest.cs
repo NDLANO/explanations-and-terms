@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
@@ -244,10 +245,20 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         {
             //Arrange
 
+            List<MetaData> listOfMeta = new List<MetaData>();
+            var meta = Mock.MockMeta(_status, _category);
+            Mock.Database.InsertMeta(meta);
+            meta.Id = 1;
+            listOfMeta.Add(meta);
+            var newMeta = Mock.MockMeta(_status, _category);
+            Mock.Database.InsertMeta(meta);
+            newMeta.Id = 2;
+            listOfMeta.Add(newMeta);
+            newMeta.LanguageVariation = meta.LanguageVariation;
             //Act
-
+            List<MetaData> newMetaList = MetaRepository.GetLanguageVariationForThisList(listOfMeta, newMeta.LanguageId);
             //Assert
-            Assert.True(true);
+            Assert.Equal(newMeta.Id, newMetaList.FirstOrDefault().Id);
         }
         #endregion
     }

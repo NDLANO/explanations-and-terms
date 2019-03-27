@@ -192,7 +192,7 @@ namespace ConceptsMicroservice.Services
 
             //updating meta list for concept
             var oldMetaList = oldConceptVersion.Meta;
-            List<MetaData> newMetaIdList = _metaRepository.GetlanguageVariationForThisList(oldMetaList, language.Id);
+            List<MetaData> newMetaIdList = _metaRepository.GetLanguageVariationForThisList(oldMetaList, language.Id);
             List<int> metaIds = new List<int>();
             foreach (var metaData in newMetaIdList)
             {
