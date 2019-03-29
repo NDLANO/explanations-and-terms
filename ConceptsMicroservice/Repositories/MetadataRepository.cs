@@ -14,6 +14,7 @@ using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
 using ConceptsMicroservice.Models.Search;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Options;
 
 namespace ConceptsMicroservice.Repositories
@@ -120,6 +121,18 @@ namespace ConceptsMicroservice.Repositories
             });
 
             return meta;
+        }
+
+        public List<MetaData> GetLanguageVariationForThisList(List<MetaData> metas, int languageId)
+        {
+            List<MetaData> listOfMetaWithProperLanguage = new List<MetaData>();
+            metas.ForEach(x =>
+                {
+                        listOfMetaWithProperLanguage.Add(item: _context.MetaData.FirstOrDefault(m =>
+                            (m.LanguageId == languageId) && (m.LanguageVariation == GetById(x.Id).LanguageVariation)));
+                }
+            );
+            return listOfMetaWithProperLanguage;
         }
     }
 }

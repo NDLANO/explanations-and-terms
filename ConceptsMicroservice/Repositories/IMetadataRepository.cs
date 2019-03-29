@@ -18,5 +18,6 @@ namespace ConceptsMicroservice.Repositories
         List<MetaData> GetAll(BaseListQuery query);
         List<MetaData> GetByRangeOfIds(List<int> ids);
         List<MetaData> SearchForMetadata(MetaSearchQuery query);
+        List<MetaData> GetLanguageVariationForThisList(List<MetaData> metas, int newLanguageId);
     }
 }

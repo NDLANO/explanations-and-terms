@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConceptsMicroservice.Models;
 using ConceptsMicroservice.Models.Configuration;
 using ConceptsMicroservice.Models.Domain;
@@ -235,6 +236,48 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
 
             Assert.Equal(all.Count, searchResult.Count);
         }
-            #endregion
+        #endregion
+
+        #region GetlanguageVariationForThisList
+
+        [Fact]
+        public void GetLanguageVariationForThisList_returns_List_In_NewLanguage()
+        {
+            //Arrange
+            var firstlanguage = new Language
+            {
+                Name = "Bokmål",
+                Description = "Description",
+                Abbreviation = "nb"
+            };
+            var secondtlanguage = new Language
+            {
+                Name = "English",
+                Description = "Description",
+                Abbreviation = "en"
+            };
+            //var insertedLanguage1 = Mock.Database.InsertLanguage(firstlanguage);
+            var insertedLanguage2 = Mock.Database.InsertLanguage(secondtlanguage);
+           
+
+            var meta1 = Mock.MockMeta(_status, _category);
+            meta1.Language = firstlanguage;
+            var meta2 = Mock.MockMeta(_status, _category);
+            meta2.LanguageVariation = meta1.LanguageVariation;
+            meta2.Language = insertedLanguage2;
+            meta2.LanguageId = insertedLanguage2.Id;
+
+            List<MetaData> listOfMeta = new List<MetaData>();
+            var metaSavedToDB = Mock.Database.InsertMeta(meta1);
+            listOfMeta.Add(metaSavedToDB);
+            var newMetaSavedToDB = Mock.Database.InsertMeta(meta2);
+            //newMetaSavedToDB.LanguageId = 2;//newMetaSavedToDB.LanguageId;
+            listOfMeta.Add(newMetaSavedToDB);
+            //Act
+            List<MetaData> newMetaList = MetaRepository.GetLanguageVariationForThisList(listOfMeta, newMetaSavedToDB.LanguageId);
+            //Assert
+            Assert.Equal(newMetaSavedToDB.Id, newMetaList.FirstOrDefault().Id);
         }
+        #endregion
+    }
 }
