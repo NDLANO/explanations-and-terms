@@ -244,21 +244,39 @@ namespace ConceptsMicroservice.UnitTests.TestRepositories
         public void GetLanguageVariationForThisList_returns_List_In_NewLanguage()
         {
             //Arrange
+            var firstlanguage = new Language
+            {
+                Name = "Bokmål",
+                Description = "Description",
+                Abbreviation = "nb"
+            };
+            var secondtlanguage = new Language
+            {
+                Name = "English",
+                Description = "Description",
+                Abbreviation = "en"
+            };
+            //var insertedLanguage1 = Mock.Database.InsertLanguage(firstlanguage);
+            var insertedLanguage2 = Mock.Database.InsertLanguage(secondtlanguage);
+           
+
+            var meta1 = Mock.MockMeta(_status, _category);
+            meta1.Language = firstlanguage;
+            var meta2 = Mock.MockMeta(_status, _category);
+            meta2.LanguageVariation = meta1.LanguageVariation;
+            meta2.Language = insertedLanguage2;
+            meta2.LanguageId = insertedLanguage2.Id;
 
             List<MetaData> listOfMeta = new List<MetaData>();
-            var meta = Mock.MockMeta(_status, _category);
-            Mock.Database.InsertMeta(meta);
-            meta.Id = 1;
-            listOfMeta.Add(meta);
-            var newMeta = Mock.MockMeta(_status, _category);
-            Mock.Database.InsertMeta(meta);
-            newMeta.Id = 2;
-            listOfMeta.Add(newMeta);
-            newMeta.LanguageVariation = meta.LanguageVariation;
+            var metaSavedToDB = Mock.Database.InsertMeta(meta1);
+            listOfMeta.Add(metaSavedToDB);
+            var newMetaSavedToDB = Mock.Database.InsertMeta(meta2);
+            //newMetaSavedToDB.LanguageId = 2;//newMetaSavedToDB.LanguageId;
+            listOfMeta.Add(newMetaSavedToDB);
             //Act
-            List<MetaData> newMetaList = MetaRepository.GetLanguageVariationForThisList(listOfMeta, newMeta.LanguageId);
+            List<MetaData> newMetaList = MetaRepository.GetLanguageVariationForThisList(listOfMeta, newMetaSavedToDB.LanguageId);
             //Assert
-            Assert.Equal(newMeta.Id, newMetaList.FirstOrDefault().Id);
+            Assert.Equal(newMetaSavedToDB.Id, newMetaList.FirstOrDefault().Id);
         }
         #endregion
     }

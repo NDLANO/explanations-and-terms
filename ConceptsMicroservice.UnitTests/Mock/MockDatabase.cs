@@ -102,7 +102,8 @@ namespace ConceptsMicroservice.UnitTests.Mock
                     Description = "Description",
                     Abbreviation = "nb"
                 };
-            var existLanguage = Context.Languages.FirstOrDefault(lan => lan.Name == "Bokmål");
+            var existLanguage = Context.Languages.FirstOrDefault(lan => lan.Name == l.Name);
+            //var existLanguage = Context.Languages.FirstOrDefault(lan => lan.Name == "Bokmål");
             if (existLanguage == null)
             {
                 var lang = Context.Languages.Add(l).Entity;
