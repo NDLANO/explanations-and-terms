@@ -147,7 +147,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
 
             var response = ((Response)okresult.Value);
             Assert.NotNull(response.Data);
-            Assert.IsType<Concept>(response.Data);
+            Assert.IsType<List<ConceptDto>>(response.Data);
         }
 
         [Fact]

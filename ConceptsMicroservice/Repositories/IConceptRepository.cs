@@ -22,6 +22,6 @@ namespace ConceptsMicroservice.Repositories
         List<Concept> GetAll(BaseListQuery query);
         Concept Update(Concept updated);
         Concept Insert(Concept inserted);
-        Concept GetByExternalId(string externalId);
+        List<Concept> GetByExternalId(string externalId);
     }
 }

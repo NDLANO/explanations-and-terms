@@ -6,8 +6,6 @@
  *
  */
 using System.Collections.Generic;
-using ConceptsMicroservice.Models;
-using ConceptsMicroservice.Models.Domain;
 using Xunit;
 
 namespace ConceptsMicroservice.UnitTests.TestRepositories.ConceptRepository

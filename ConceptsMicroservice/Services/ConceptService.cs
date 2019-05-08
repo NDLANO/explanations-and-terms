@@ -91,7 +91,7 @@ namespace ConceptsMicroservice.Services
             {
                 return new Response
                 {
-                    Data = Mapper.Map<ConceptDto>(_conceptRepository.GetByExternalId(externalId))
+                    Data = Mapper.Map<List<ConceptDto>>(_conceptRepository.GetByExternalId(externalId))
                 };
             }
             catch (Exception e)
