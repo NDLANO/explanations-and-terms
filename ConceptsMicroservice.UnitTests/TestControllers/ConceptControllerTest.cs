@@ -75,8 +75,8 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             };
             _errorResponse.Errors.TryAddModelError("err", "err");
 
-            _listResponse = new Response {Data = new List<Concept>()};
-            _singleResponse = new Response { Data = new Concept() };
+            _listResponse = new Response {Data = new List<ConceptDto>()};
+            _singleResponse = new Response { Data = new ConceptDto() };
             _userInfo = new UserInfo
             {
                 Email = _allowedUserEmail,
@@ -98,7 +98,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
 
             var response = ((Response)okresult.Value);
             Assert.NotNull(response.Data);
-            Assert.IsType<Concept>(response.Data);
+            Assert.IsType<ConceptDto>(response.Data);
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetByExternalId_Returns_Concept_When_Id_Is_Valid()
         {
-            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(_listResponse);
 
             var result = _controller.GetByExternalId("0");
             var okresult = result.Result as OkObjectResult;
@@ -153,7 +153,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
         [Fact]
         public void GetByExternalId_Returns_Status_200_When_A_Concept_Is_Found()
         {
-            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(_singleResponse);
+            A.CallTo(() => _service.GetConceptByExternalId(A<string>._)).Returns(_listResponse);
 
             var result = _controller.GetByExternalId("0");
             var okresult = result.Result as OkObjectResult;
@@ -217,7 +217,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var result = _controller.GetAll(_listQuery);
             var okResult = result.Result as OkObjectResult;
 
-            Assert.IsType<List<Concept>>((okResult.Value as Response).Data);
+            Assert.IsType<List<ConceptDto>>((okResult.Value as Response).Data);
         }
 
         #endregion
@@ -275,7 +275,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var result = _controller.UpdateConcept(_updateConcept);
             var ok = result.Result as OkObjectResult;
 
-            Assert.IsType<Concept>(((Response)ok.Value).Data);
+            Assert.IsType<ConceptDto>(((Response)ok.Value).Data);
         }
         #endregion
 
@@ -335,7 +335,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var result = _controller.CreateConcept(_createConcept);
             var ok = result.Result.Result as OkObjectResult;
 
-            Assert.IsType<Concept>(((Response)ok.Value).Data);
+            Assert.IsType<ConceptDto>(((Response)ok.Value).Data);
         }
         #endregion
 
@@ -428,7 +428,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var result = _controller.Search(_searchQuery);
             var ok = result.Result as OkObjectResult;
 
-            Assert.IsType<List<Concept>>(((Response)ok.Value).Data);
+            Assert.IsType<List<ConceptDto>>(((Response)ok.Value).Data);
         }
 
 
@@ -451,7 +451,7 @@ namespace ConceptsMicroservice.UnitTests.TestControllers
             var result = _controller.Search();
             var ok = result.Result as OkObjectResult;
 
-            Assert.IsType<List<Concept>>(((Response)ok.Value).Data);
+            Assert.IsType<List<ConceptDto>>(((Response)ok.Value).Data);
         }
 
         #endregion
